@@ -1,0 +1,3301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Briqx.ai — The AI Football Analyst</title>
+
+  <!-- Fonts: Bebas Neue (display) + Inter (body) + Space Mono (data) + Playfair Display (quotes) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,400;1,500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { lime: '#BEDD00', surface: '#111111', silver: '#C4C6C8' },
+        fontFamily: {
+          display: ['"Bebas Neue"', 'sans-serif'],
+          body:    ['Inter', 'sans-serif'],
+          mono:    ['"Space Mono"', 'monospace'],
+        }
+      }}
+    }
+  </script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; color-scheme: dark; }
+    .font-serif { font-family: 'Playfair Display', Georgia, serif; }
+
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Static glow orbs ── */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(130px);
+    }
+
+    /* ══════════════════════════════════════════
+       ROTATING HEADLINE
+    ══════════════════════════════════════════ */
+    .rotate-container {
+      position: relative;
+      display: block;
+      overflow: hidden;
+    }
+    .rword {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      color: #fff;
+      opacity: 0;
+      transform: translateY(100%);
+      text-align: center;
+      pointer-events: none;
+      white-space: nowrap;
+      transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .rword.active  { opacity: 1; transform: translateY(0); }
+    .rword.exiting {
+      opacity: 0; transform: translateY(-100%);
+      transition-duration: 0.28s;
+      transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    /* ══════════════════════════════════════════
+       PRIMARY BUTTON — Solid lime pill
+    ══════════════════════════════════════════ */
+    .btn-primary {
+      background: #BEDD00;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      border: none;
+      padding: 0 24px;
+      cursor: pointer;
+      outline: none;
+      overflow: hidden;
+      min-width: 200px;
+      height: 56px;
+      text-decoration: none;
+      transition: background 0.2s ease;
+      gap: 10px;
+    }
+    .btn-primary:hover { background: #cceb00; }
+    .btn-primary:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+    .btn-primary-full { width: 100%; }
+
+    /* No expanding circle — hide legacy elements */
+    .btn-motion-circle { display: none; }
+    .btn-primary::before { display: none; }
+
+    /* Arrow icon */
+    .btn-motion-icon {
+      color: #000;
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      pointer-events: none;
+    }
+
+    /* Button text */
+    .btn-motion-text {
+      color: #000;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.05rem;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .btn-primary:hover .btn-motion-text,
+    .btn-primary:active .btn-motion-text { color: #000; }
+
+    /* Nav variant — compact size */
+    #nav-cta { height: 40px; min-width: 140px; padding: 0 18px; gap: 8px; }
+    #nav-cta .btn-motion-icon { width: 14px; height: 14px; }
+    #nav-cta .btn-motion-text { font-size: 0.78rem; }
+
+    /* ══════════════════════════════════════════
+       HERO ROTATING WORD
+    ══════════════════════════════════════════ */
+    .hero-rword {
+      transition: transform 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.45s ease;
+    }
+    .hero-rword.rw-enter  { transform: translateY(100%); opacity: 0; }
+    .hero-rword.rw-active { transform: translateY(0);    opacity: 1; }
+    .hero-rword.rw-exit   { transform: translateY(-100%); opacity: 0; }
+
+    /* ══════════════════════════════════════════
+       INTERACTIVE HOVER BUTTON (carousel CTA)
+    ══════════════════════════════════════════ */
+    .ihb-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 9999px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: transparent;
+      padding: 0 24px;
+      height: 48px;
+      width: 66.667%;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      color: #fff;
+      cursor: pointer;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .ihb-dot {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%) scale(1);
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #BEDD00;
+      transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+      pointer-events: none;
+    }
+    .ihb-btn:hover .ihb-dot { transform: translateY(-50%) scale(55); }
+    .ihb-text-idle {
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.45s ease;
+      pointer-events: none;
+    }
+    .ihb-btn:hover .ihb-text-idle { transform: translateX(72px); opacity: 0; }
+    .ihb-text-hover {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #000;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      z-index: 2;
+      transform: translateX(-56px);
+      opacity: 0;
+      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.45s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .ihb-btn:hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
+    .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
+
+    /* ══════════════════════════════════════════
+       AI CHAT INPUT
+    ══════════════════════════════════════════ */
+    .aic-wrapper {
+      width: 100%;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      cursor: text;
+      transition: border-color 0.2s ease;
+    }
+    .aic-wrapper:focus-within {
+      border-color: rgba(255,255,255,0.22);
+    }
+    .aic-text-area {
+      position: relative;
+      flex: 1;
+    }
+    .aic-real-input {
+      width: 100%;
+      min-height: 100px;
+      max-height: 180px;
+      padding: 16px;
+      resize: none;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      color: #fff;
+      line-height: 1.6;
+      position: relative;
+      z-index: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #2a2a2a transparent;
+    }
+    .aic-real-input::-webkit-scrollbar { width: 3px; }
+    .aic-real-input::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+    .aic-placeholder {
+      position: absolute;
+      left: 16px; top: 16px;
+      right: 16px;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+      line-height: 1.6;
+    }
+    .aic-placeholder-inner {
+      display: inline;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.3);
+    }
+    /* Letter animation — horizontal gradual spacing */
+    .aic-letter {
+      display: inline-block;
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+    .aic-letter.in {
+      opacity: 1;
+      transform: translateX(0);
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    .aic-letter.out {
+      opacity: 0;
+      transform: translateX(8px);
+      transition: opacity 0.2s ease, transform 0.25s ease;
+    }
+    /* Bottom toolbar */
+    .aic-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px 12px;
+    }
+    .aic-icon-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: rgba(255,255,255,0.4);
+      flex-shrink: 0;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .aic-icon-btn:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .aic-send-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: rgba(255,255,255,0.25);
+      flex-shrink: 0;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .aic-send-btn.can-send { background: #BEDD00; color: #000; }
+    .aic-send-btn.can-send:hover { background: #d4f000; }
+
+    /* ══════════════════════════════════════════
+       HERO COACH AVATAR
+    ══════════════════════════════════════════ */
+    .hero-text-group {
+      position: relative;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .hero-coach-avatar { display: none !important; }
+
+    /* ══════════════════════════════════════════
+       PLAYER IDENTITY ALONGSIDE INPUT
+    ══════════════════════════════════════════ */
+    .aic-player-row {
+      position: relative;
+      width: 100%;
+    }
+    /* Inside-card header row */
+    .aic-info-left {
+      position: static;
+      transform: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      pointer-events: none;
+    }
+    .aic-player-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      flex-shrink: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .aic-player-meta.fading { opacity: 0; transform: translateX(-6px); }
+    .aic-player-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem; font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      white-space: nowrap; display: block;
+    }
+    .aic-player-detail {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.52rem; letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.4);
+      margin-top: 3px; white-space: nowrap; display: block;
+    }
+    .aic-photo-wrap {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      flex-shrink: 0; overflow: hidden; position: relative;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      background: rgba(255,255,255,0.04);
+    }
+    .aic-photo-wrap.fading { opacity: 0; transform: scale(0.88); }
+    .aic-photo-img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center top; display: block;
+    }
+    .aic-photo-initials { display: none; }
+
+    /* ══════════════════════════════════════════
+       SCARCITY — PROGRESS BAR
+    ══════════════════════════════════════════ */
+    .scarcity-new { width: 100%; margin-top: 16px; }
+    .scarcity-track {
+      display: flex; height: 3px; border-radius: 99px;
+      background: rgba(255,255,255,0.06); overflow: hidden;
+    }
+    .scarcity-fill {
+      width: 76%; background: #BEDD00;
+      border-radius: 99px 0 0 99px;
+    }
+    .scarcity-remaining {
+      width: 24%; background: rgba(190,221,0,0.15);
+      border-radius: 0 99px 99px 0;
+      animation: scarcityPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes scarcityPulse {
+      0%,100% { opacity: 0.4; }
+      50%      { opacity: 1; background: rgba(190,221,0,0.4); }
+    }
+    .scarcity-labels {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 9px; gap: 8px; flex-wrap: wrap;
+    }
+    .scarcity-taken {
+      font-family: 'Space Mono', monospace; font-size: 0.65rem;
+      letter-spacing: 0.1em; color: rgba(255,255,255,0.28);
+      text-transform: uppercase;
+    }
+    .scarcity-left {
+      font-family: 'Space Mono', monospace; font-size: 0.65rem;
+      letter-spacing: 0.1em; color: rgba(190,221,0,0.75);
+      text-transform: uppercase; white-space: nowrap;
+    }
+
+    /* ══════════════════════════════════════════
+       GAME IQ LAYER CARDS
+    ══════════════════════════════════════════ */
+    .layer-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px; padding: 32px 28px;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .layer-card:hover { background: rgba(255,255,255,0.04); }
+    .layer-card.dim      { opacity: 0.4; }
+    .layer-card.active   { border-color: rgba(255,255,255,0.20); transform: translateY(-10px); }
+    .layer-card.featured { border-color: rgba(255,255,255,0.35); transform: translateY(-20px); }
+
+    /* Testimonial quote in Playfair Display */
+    #ts-quote { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 400; }
+
+    /* ══════════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════════ */
+    #modal-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    #modal-overlay.open { opacity: 1; visibility: visible; }
+    #modal-card {
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 20px;
+      width: 100%; max-width: 840px;
+      height: 600px; max-height: 90vh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      transform: translateY(14px);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    #modal-overlay.open #modal-card { transform: translateY(0); }
+
+    /* Modal left visual panel */
+    #modal-left {
+      width: 45%; flex-shrink: 0;
+      position: relative; overflow: hidden;
+      background: #000;
+      border-radius: 20px 0 0 20px;
+      display: none;
+      align-items: center; justify-content: center;
+    }
+    @media (min-width: 680px) { #modal-left { display: flex; } }
+    #modal-left video {
+      width: 100%; height: 100%;
+      display: block; object-fit: cover;
+    }
+
+    /* Modal right form panel */
+    #modal-right {
+      flex: 1;
+      padding: 24px 24px 20px;
+      overflow-y: auto;
+      position: relative;
+      scrollbar-width: thin; scrollbar-color: #2a2a2a transparent;
+    }
+    #modal-typeform {
+      display: none;
+      position: absolute; inset: 0;
+      background: #111;
+      border-radius: 0 20px 20px 0;
+    }
+    #modal-typeform iframe {
+      width: 100%; height: 100%; border: none; display: block;
+    }
+    #modal-right::-webkit-scrollbar { width: 3px; }
+    #modal-right::-webkit-scrollbar-track { background: transparent; }
+    #modal-right::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+    #modal-close {
+      position: absolute; top: 16px; right: 16px; z-index: 10;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,0.06); border: none;
+      color: rgba(255,255,255,0.4);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    #modal-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    #modal-close:focus-visible { outline: 2px solid rgba(190,221,0,0.5); outline-offset: 2px; }
+
+    .modal-label {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem; font-weight: 500;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .modal-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 9px;
+      padding: 12px 14px;
+      color: #fff;
+      font-family: 'Inter', sans-serif; font-weight: 300; font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .modal-input::placeholder { color: rgba(255,255,255,0.2); }
+    .modal-input:focus { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.02); }
+    .field-error {
+      font-family: 'Space Mono', monospace; font-size: 0.6rem;
+      color: #f87171; margin-top: 5px;
+      letter-spacing: 0.04em; display: none;
+    }
+    #modal-success {
+      display: none; opacity: 0; transform: translateY(8px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      text-align: center; padding: 24px 0;
+    }
+    #modal-success.visible { display: block; opacity: 1; transform: translateY(0); }
+
+    /* ══════════════════════════════════════════
+       ENTRANCE ANIMATIONS
+    ══════════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim-d0 { animation: fadeUp 0.65s ease both; }
+    .anim-d1 { animation: fadeUp 0.65s 0.10s ease both; }
+    .anim-d2 { animation: fadeUp 0.65s 0.20s ease both; }
+    .anim-d3 { animation: fadeUp 0.65s 0.32s ease both; }
+    .anim-d4 { animation: fadeUp 0.65s 0.44s ease both; }
+    .anim-d5 { animation: fadeUp 0.65s 0.56s ease both; }
+
+
+
+    /* ══════════════════════════════════════════
+       TESTIMONIAL CARDS
+    ══════════════════════════════════════════ */
+    .ts-scroll-wrap {
+      position: relative;
+    }
+    .ts-scroll-wrap::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 24px;
+      width: 100px;
+      background: linear-gradient(to left, #050505, transparent);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .ts-scroll-track {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 8px 24px 24px;
+      scrollbar-width: none;
+    }
+    .ts-scroll-track::-webkit-scrollbar { display: none; }
+    .ts-card {
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      width: 280px;
+      flex-shrink: 0;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+    }
+    .ts-card-img-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px 16px 0 0;
+    }
+    .ts-card-img-wrap img {
+      height: 270px;
+      width: 100%;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .ts-card:hover .ts-card-img-wrap img { transform: scale(1.05); }
+    .ts-card-gradient {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 180px;
+      background: linear-gradient(to top, #000, transparent);
+      pointer-events: none;
+    }
+    .ts-card-body {
+      padding: 16px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .ts-card-quote {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.65;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 16px;
+      margin-bottom: 14px;
+      flex: 1;
+    }
+    .ts-card-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 300;
+      font-style: italic;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .ts-card-role {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 300;
+      font-style: italic;
+      color: #BEDD00;
+    }
+
+
+    /* ══════════════════════════════════════════
+       FLOATING ROB WIDGET
+    ══════════════════════════════════════════ */
+    /* Trigger bubble */
+    #rob-bubble {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      z-index: 200;
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      background: #0a0a0a;
+      box-shadow: 0 0 0 2px #BEDD00, 0 8px 32px rgba(0,0,0,0.6);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      overflow: hidden;
+    }
+    #rob-bubble:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 0 2px #BEDD00, 0 12px 40px rgba(0,0,0,0.7);
+    }
+    #rob-bubble img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      pointer-events: none;
+    }
+    /* Live pulse dot */
+    #rob-live-dot {
+      position: fixed;
+      bottom: 30px; right: 26px;
+      z-index: 201;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #BEDD00;
+      border: 2px solid #0a0a0a;
+      pointer-events: none;
+    }
+    #rob-live-dot::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: rgba(190,221,0,0.35);
+      animation: robPulse 2s ease-in-out infinite;
+    }
+    @keyframes robPulse {
+      0%,100% { opacity: 0.8; transform: scale(1); }
+      50%      { opacity: 0;   transform: scale(1.8); }
+    }
+
+    /* Chat panel */
+    #rob-panel {
+      position: fixed;
+      bottom: 102px; right: 28px;
+      z-index: 199;
+      width: 320px;
+      border-radius: 16px;
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(16px) scale(0.96);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1),
+                  opacity 0.2s ease;
+    }
+    #rob-panel.open {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Panel header */
+    .rob-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .rob-avatar-sm {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1.5px solid #BEDD00;
+      background: #0a0a0a;
+    }
+    .rob-avatar-sm img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center center;
+    }
+    .rob-header-text { flex: 1; }
+    .rob-header-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      color: #fff;
+      line-height: 1;
+    }
+    .rob-header-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.5rem;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.35);
+      text-transform: uppercase;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .rob-header-sub::before {
+      content: '';
+      display: inline-block;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #BEDD00;
+      flex-shrink: 0;
+    }
+    #rob-close {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.35);
+      transition: color 0.15s ease, background 0.15s ease;
+      flex-shrink: 0;
+    }
+    #rob-close:hover { background: rgba(255,255,255,0.06); color: #fff; }
+
+    /* Panel messages area */
+    .rob-messages {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 130px;
+    }
+    .rob-msg {
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px 12px 12px 12px;
+      padding: 10px 13px;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.6;
+      border: 1px solid rgba(255,255,255,0.06);
+      animation: robMsgIn 0.3s ease both;
+    }
+    @keyframes robMsgIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    /* Typing dots */
+    .rob-typing {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 13px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 4px 12px 12px 12px;
+      width: fit-content;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .rob-typing span {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      animation: robTypeDot 1.2s ease-in-out infinite;
+    }
+    .rob-typing span:nth-child(2) { animation-delay: 0.15s; }
+    .rob-typing span:nth-child(3) { animation-delay: 0.30s; }
+    @keyframes robTypeDot {
+      0%,60%,100% { opacity: 0.3; transform: translateY(0); }
+      30%          { opacity: 1;   transform: translateY(-3px); }
+    }
+
+    /* Panel input */
+    .rob-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px 14px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    #rob-input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      color: #fff;
+      outline: none;
+      resize: none;
+      transition: border-color 0.2s ease;
+    }
+    #rob-input::placeholder { color: rgba(255,255,255,0.25); }
+    #rob-input:focus { border-color: rgba(255,255,255,0.22); }
+    #rob-send {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: #BEDD00;
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+    #rob-send:hover { background: #cceb00; }
+    #rob-send svg { width: 14px; height: 14px; color: #000; }
+
+    /* ══════════════════════════════════════════
+       REDUCED MOTION
+    ══════════════════════════════════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .rword { transition: none !important; }
+      .btn-primary::before { transition: none !important; }
+      .btn-motion-icon { transition: none !important; }
+      .btn-motion-text { transition: none !important; }
+      .aic-wrapper { transition: none !important; }
+      .aic-letter { transition: none !important; }
+    }
+
+    @keyframes drawStroke {
+      0%   { stroke-dashoffset: var(--path-length); }
+      50%  { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: calc(var(--path-length) * -1); }
+    }
+    @keyframes textShimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .aic-loader-path {
+      animation: drawStroke 2.5s ease-in-out infinite;
+    }
+    .aic-shimmer {
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.3) 0%,
+        rgba(255,255,255,0.3) 40%,
+        #BEDD00 50%,
+        rgba(255,255,255,0.3) 60%,
+        rgba(255,255,255,0.3) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: textShimmer 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ═══ MODAL ════════════════════════════════════════════════════════════ -->
+<!-- Floating CTA -->
+<div style="position:fixed;top:28px;right:28px;z-index:90;">
+  <button class="ihb-btn" onclick="openModal()" type="button" style="width:auto;min-width:160px;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+    <div class="ihb-dot" aria-hidden="true"></div>
+    <span class="ihb-text-idle">JOIN WAITLIST</span>
+    <div class="ihb-text-hover" aria-hidden="true">
+      <span>JOIN WAITLIST</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </div>
+  </button>
+</div>
+
+<div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div id="modal-card">
+
+    <button id="modal-close" type="button" aria-label="Close modal" onclick="document.getElementById('modal-overlay').classList.remove('open');document.body.style.overflow=''">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- Left visual panel -->
+    <div id="modal-left">
+      <video id="modal-left-video" src="../../assets/Videos/intro-full.mp4"
+             playsinline controls muted preload="auto">
+      </video>
+    </div>
+
+    <!-- Right form panel -->
+    <div id="modal-right">
+    <div id="modal-form-wrap">
+      <!-- Modal header -->
+      <div class="mb-4">
+        <p class="font-mono text-white/40 uppercase mb-3"
+           style="font-size:0.56rem;letter-spacing:0.18em;">
+          Pilot Phase &mdash; 24 Spots Remaining
+        </p>
+        <h2 id="modal-title" class="font-display text-white"
+            style="font-size:clamp(1.6rem,3.5vw,2.1rem);letter-spacing:0.02em;line-height:1.0;">
+          JOIN THE PILOT
+        </h2>
+        <p class="mt-1 font-body text-white/40"
+           style="font-size:0.8rem;font-weight:300;line-height:1.5;">
+          The first 100 get lifetime access — completely free.
+        </p>
+      </div>
+
+      <!-- Form -->
+      <form id="modal-form" novalidate>
+        <div class="flex flex-col gap-3">
+
+          <div>
+            <label for="m-name" class="modal-label">Full Name</label>
+            <input type="text" id="m-name" name="name"
+                   placeholder="Your full name"
+                   class="modal-input" autocomplete="name"
+                   aria-describedby="err-m-name">
+            <p id="err-m-name" role="alert" class="field-error"></p>
+          </div>
+
+          <div>
+            <label for="m-email" class="modal-label">Email</label>
+            <input type="email" id="m-email" name="email"
+                   placeholder="your@email.com"
+                   class="modal-input" autocomplete="email"
+                   aria-describedby="err-m-email">
+            <p id="err-m-email" role="alert" class="field-error"></p>
+          </div>
+
+          <div>
+            <label for="m-club" class="modal-label">Team / Club</label>
+            <input type="text" id="m-club" name="club"
+                   placeholder="Your current club or team"
+                   class="modal-input">
+          </div>
+
+          <div>
+            <label for="m-instagram" class="modal-label">Instagram Handle</label>
+            <input type="text" id="m-instagram" name="instagram"
+                   placeholder="@yourhandle"
+                   class="modal-input">
+          </div>
+
+          <button type="submit" id="modal-submit-btn"
+                  class="btn-primary btn-primary-full mt-2">
+            <span class="btn-motion-circle" aria-hidden="true"></span>
+            <svg class="btn-motion-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+            <span class="btn-motion-text">CLAIM MY SPOT — IT'S FREE</span>
+          </button>
+
+          <p class="font-mono text-white/20 text-center"
+             style="font-size:0.56rem;letter-spacing:0.06em;">
+            No credit card. No commitment. Lifetime access — yours free.
+          </p>
+
+        </div>
+      </form>
+    </div>
+
+    <!-- Success state -->
+    <div id="modal-success" role="status" aria-live="polite">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none"
+           class="mx-auto mb-5" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" stroke="#BEDD00" stroke-width="1.5"/>
+        <path d="M14 24l7 7 13-13" stroke="#BEDD00" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h3 class="font-display text-white" style="font-size:2.4rem;letter-spacing:0.02em;">
+        YOU'RE IN.
+      </h3>
+      <p class="font-body text-white/45 mt-2" style="font-size:0.9rem;font-weight:300;">
+        Rob will be in touch.
+      </p>
+    </div>
+
+    <!-- Typeform step (shown after form submit) -->
+    <div id="modal-typeform">
+      <iframe src="https://form.typeform.com/to/oBxtb6bM"
+              allow="camera; microphone; autoplay; encrypted-media; fullscreen"
+              allowfullscreen>
+      </iframe>
+    </div>
+
+    </div><!-- /modal-right -->
+  </div>
+</div>
+
+
+<!-- ═══ FLOATING LOGO ════════════════════════════════════════════════════ -->
+<div style="position:fixed;top:16px;left:20px;z-index:50;">
+  <img src="../../../Logo/Logo/BRIQX LOGO .png" alt="Briqx.ai"
+       class="object-contain" style="height:96px;"
+       onerror="this.style.display='none'">
+</div>
+
+
+<!-- ═══ HERO ══════════════════════════════════════════════════════════════ -->
+<section class="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-20 pb-16" style="overflow:hidden;">
+
+  <!-- Static glow orbs -->
+  <div class="glow-orb" style="width:800px;height:800px;background:rgba(255,255,255,0.012);top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+  <div class="glow-orb" style="width:300px;height:300px;background:rgba(255,255,255,0.008);top:4%;right:2%;"></div>
+
+  <div class="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
+
+    <!-- Headline -->
+    <h1 class="font-display text-white anim-d1" style="font-size:clamp(2.6rem,6vw,5.8rem);letter-spacing:0.02em;line-height:1.0;margin-bottom:20px;">
+      Your Personal Football<br><span style="color:#BEDD00;">Analyst</span>
+    </h1>
+
+    <!-- Subheadline -->
+    <p class="anim-d2" style="font-family:'Inter',sans-serif;font-weight:300;font-size:clamp(0.9rem,1.6vw,1.1rem);color:rgba(255,255,255,0.38);margin-bottom:40px;line-height:1.6;letter-spacing:0.02em;">
+      Get Your Personalised Match Analysis &amp; Track Your Progress — Every Week
+    </p>
+
+    <!-- Carousel -->
+    <div class="anim-d3" style="width:100%;margin-bottom:36px;">
+      <div style="border-radius:24px;background:rgba(255,255,255,0.04);padding:6px;width:100%;">
+        <div id="fc-card" style="position:relative;border-radius:20px;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:1px solid rgba(255,255,255,0.07);overflow:hidden;height:530px;cursor:pointer;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
+
+          <!-- Rob badge — top-left corner -->
+          <div style="position:absolute;top:16px;left:20px;z-index:20;pointer-events:none;">
+            <img src="../../assets/Avatars/Rob-headshot.png"
+                 style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #BEDD00;display:block;"
+                 onerror="this.style.display='none'">
+          </div>
+
+          <!-- Step nav -->
+          <div style="display:flex;justify-content:center;gap:6px;padding:24px 24px 0;position:relative;z-index:10;">
+            <button class="fc-step" id="fc-s0" onclick="fcGo(0,event)" style="display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:9999px;border:none;background:rgba(190,221,0,0.12);cursor:pointer;transition:all 0.25s ease;">
+              <span class="fc-dot" style="width:16px;height:16px;border-radius:50%;background:#BEDD00;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.5rem;color:#000;font-weight:700;flex-shrink:0;">1</span>
+              <span style="font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#BEDD00;">Step 1</span>
+            </button>
+            <button class="fc-step" id="fc-s1" onclick="fcGo(1,event)" style="display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:9999px;border:none;background:rgba(255,255,255,0.05);cursor:pointer;transition:all 0.25s ease;">
+              <span class="fc-dot" style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.5);font-weight:700;flex-shrink:0;">2</span>
+              <span style="font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Step 2</span>
+            </button>
+            <button class="fc-step" id="fc-s2" onclick="fcGo(2,event)" style="display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:9999px;border:none;background:rgba(255,255,255,0.05);cursor:pointer;transition:all 0.25s ease;">
+              <span class="fc-dot" style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.5);font-weight:700;flex-shrink:0;">3</span>
+              <span style="font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Step 3</span>
+            </button>
+            <button class="fc-step" id="fc-s3" onclick="fcGo(3,event)" style="display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:9999px;border:none;background:rgba(255,255,255,0.05);cursor:pointer;transition:all 0.25s ease;">
+              <span class="fc-dot" style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.5);font-weight:700;flex-shrink:0;">4</span>
+              <span style="font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Step 4</span>
+            </button>
+          </div>
+
+          <!-- Panels -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:32px 36px 36px;align-items:stretch;flex:1;min-height:0;height:100%;overflow:hidden;" class="fc-grid">
+
+            <!-- Text side -->
+            <div style="position:relative;z-index:5;height:100%;text-align:left;">
+              <!-- Text centred in the safe zone above the CTA -->
+              <div style="position:absolute;top:0;left:0;right:0;bottom:100px;display:flex;align-items:center;">
+                <div id="fc-text" style="transition:opacity 0.25s ease,transform 0.25s ease;">
+                  <span id="fc-label" class="font-mono uppercase" style="font-size:0.55rem;letter-spacing:0.16em;color:#BEDD00;display:block;margin-bottom:12px;">Match Analysis</span>
+                  <h3 id="fc-title" class="font-display text-white" style="font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:0.02em;line-height:1.05;margin-bottom:16px;">
+                    VIDEO BREAKDOWN AFTER EVERY GAME
+                  </h3>
+                  <p id="fc-desc" class="font-body" style="font-size:0.88rem;font-weight:300;color:rgba(255,255,255,0.45);line-height:1.75;max-width:300px;">
+                    Let Rob analyse your every game while you perform. Evaluate together, learn from your performance, and improve. It takes just 5 minutes.
+                  </p>
+                </div>
+              </div>
+
+              <!-- CTA — absolutely pinned to bottom, never shifts between steps -->
+              <div style="position:absolute;bottom:18px;left:0;width:100%;">
+                <button id="hero-cta" class="ihb-btn" type="button" onclick="openModal()">
+                  <div class="ihb-dot" aria-hidden="true"></div>
+                  <span class="ihb-text-idle">JOIN WAITLIST</span>
+                  <div class="ihb-text-hover" aria-hidden="true">
+                    <span>JOIN WAITLIST</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </div>
+                </button>
+                <div class="scarcity-new" style="width:66.667%;">
+                  <div class="scarcity-track">
+                    <div class="scarcity-fill"></div>
+                    <div class="scarcity-remaining"></div>
+                  </div>
+                  <div class="scarcity-labels">
+                    <span class="scarcity-taken">76 spots claimed</span>
+                    <span class="scarcity-left">24 left</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Image side -->
+            <div style="position:relative;display:flex;align-items:stretch;justify-content:flex-end;height:100%;text-align:left;overflow:hidden;">
+              <div id="fc-img-wrap" style="border-radius:14px;overflow:hidden;width:100%;height:100%;background:#111;transition:opacity 0.25s ease,transform 0.25s ease;">
+                <img id="fc-img" src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80&fit=crop"
+                     alt="Match Analysis"
+                     style="width:100%;height:100%;object-fit:cover;display:block;">
+              </div>
+
+              <!-- Chat widget — shown only on Step 4 -->
+              <div id="fc-chat-widget" class="aic-wrapper" style="display:none;width:100%;pointer-events:none;position:relative;" aria-hidden="true">
+                <div class="aic-info-left">
+                  <div class="aic-photo-wrap" id="fc-aic-photo-wrap">
+                    <img class="aic-photo-img" id="fc-aic-photo-img"
+                         src="../../assets/Bio Pics/SMall frames bios/MW.jpeg" alt="Magnus Westergaard"
+                         onerror="this.style.display='none'">
+                    <div class="aic-photo-initials" id="fc-aic-photo-initials">MW</div>
+                  </div>
+                  <div class="aic-player-meta" id="fc-aic-player-meta">
+                    <span class="aic-player-name" id="fc-aic-player-name">Magnus Westergaard</span>
+                    <span class="aic-player-detail" id="fc-aic-player-detail">CM · Vålerenga I.F</span>
+                  </div>
+                </div>
+                <div class="aic-text-area">
+                  <textarea id="fc-aic-real-input" class="aic-real-input"
+                            autocomplete="off" spellcheck="false" rows="3" readonly
+                            style="pointer-events:none;"></textarea>
+                  <div class="aic-placeholder" id="fc-aic-placeholder" aria-hidden="true">
+                    <span class="aic-placeholder-inner" id="fc-aic-placeholder-inner"></span>
+                  </div>
+                  <div id="fc-aic-thinking" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);align-items:center;gap:9px;white-space:nowrap;z-index:2;">
+                    <img src="../../assets/Avatars/Rob-headshot.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #BEDD00;flex-shrink:0;" onerror="this.style.display='none'">
+                    <svg viewBox="0 0 19 19" width="15" height="15" fill="none" style="flex-shrink:0;">
+                      <path class="aic-loader-path"
+                        d="M4.43431 2.42415C-0.789139 6.90104 1.21472 15.2022 8.434 15.9242C15.5762 16.6384 18.8649 9.23035 15.9332 4.5183C14.1316 1.62255 8.43695 0.0528911 7.51841 3.33733C6.48107 7.04659 15.2699 15.0195 17.4343 16.9241"
+                        stroke="#BEDD00" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                    <span class="aic-shimmer" style="font-family:'Space Mono',monospace;font-size:0.72rem;letter-spacing:0.08em;">Analysing...</span>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" style="flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+                <div class="aic-toolbar">
+                  <button class="aic-icon-btn" type="button" tabindex="-1" style="pointer-events:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                  </button>
+                  <button id="fc-aic-send-btn" class="aic-send-btn" type="button" tabindex="-1" style="pointer-events:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2.5"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="12" y1="19" x2="12" y2="5"/>
+                      <polyline points="5 12 12 5 19 12"/>
+                    </svg>
+                  </button>
+                </div>
+                <div id="fc-results-panel" style="display:none;position:absolute;inset:0;z-index:6;flex-direction:column;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border-radius:16px;overflow:hidden;opacity:0;transition:opacity 0.5s ease;">
+                  <div style="position:relative;flex:1;min-height:0;overflow:hidden;">
+                    <img src="../../assets/Bio Pics/Testimonials/MJA CELE.jpg"
+                         style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;"
+                         onerror="this.style.background='#1a1a1a'">
+                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.28);">
+                      <div style="width:44px;height:44px;border-radius:50%;background:rgba(190,221,0,0.9);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(190,221,0,0.18);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      </div>
+                    </div>
+                    <div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:6px;padding:4px 9px;">
+                      <span style="font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);">10 Cross Defence Clips &nbsp;·&nbsp; Mads Andersen</span>
+                    </div>
+                  </div>
+                  <div id="fc-moments-strip" style="flex-shrink:0;padding:10px 12px;overflow-x:auto;display:flex;gap:8px;scrollbar-width:none;-ms-overflow-style:none;"></div>
+                </div>
+              </div>
+
+              <!-- Slide 1: video + Rob's notes -->
+              <div id="fc-slide1-wrap" style="display:none;flex-direction:column;width:100%;height:100%;gap:8px;padding-bottom:28px;">
+                <div style="flex-shrink:0;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);padding:9px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                  <div style="display:flex;align-items:center;gap:9px;min-width:0;">
+                    <img src="../../assets/Bio Pics/SMall frames bios/MJA.jpeg"
+                         style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.15);flex-shrink:0;"
+                         onerror="this.style.display='none'">
+                    <div style="display:flex;flex-direction:column;gap:1px;min-width:0;">
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.82rem;letter-spacing:0.06em;color:#fff;white-space:nowrap;">Mads Andersen</span>
+                      <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.06em;color:rgba(255,255,255,0.4);white-space:nowrap;">CB · Luton Town &nbsp;·&nbsp; vs. Cardiff</span>
+                    </div>
+                  </div>
+                  <div id="fc-coach-toggle" onclick="fcToggleCoach();event.stopPropagation();" style="display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;flex-shrink:0;">
+                    <span id="fc-coach-label" style="font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:#BEDD00;transition:color 0.25s ease;">Coach</span>
+                    <div id="fc-coach-pill" style="position:relative;width:34px;height:18px;border-radius:9px;background:#BEDD00;transition:background 0.25s ease;flex-shrink:0;">
+                      <div id="fc-coach-knob" style="position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#000;box-shadow:0 1px 3px rgba(0,0,0,0.4);transform:translateX(16px);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),background 0.25s ease;"></div>
+                    </div>
+                  </div>
+                </div>
+                <div id="fc-video-wrap" style="position:relative;flex:1;min-height:0;">
+                  <video id="fc-slide1-video"
+                         src="../../Video for landingpage/MJA EXAMPLE.mov"
+                         autoplay muted loop playsinline
+                         style="width:100%;height:100%;border-radius:12px;object-fit:cover;display:block;">
+                  </video>
+                </div>
+                <div id="fc-rob-notes" style="flex-shrink:0;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);padding:9px 12px;display:flex;flex-direction:column;gap:6px;text-align:left;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <img src="../../assets/Avatars/Rob-headshot.png"
+                           style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:1.5px solid #BEDD00;flex-shrink:0;"
+                           onerror="this.style.display='none'">
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.8rem;letter-spacing:0.06em;color:#fff;">ROB</span>
+                      <span style="display:flex;align-items:center;gap:4px;font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);text-transform:uppercase;">
+                        <span style="width:4px;height:4px;border-radius:50%;background:#BEDD00;flex-shrink:0;"></span>
+                        AI Analyst
+                      </span>
+                    </div>
+                    <div id="fc-rob-dots" style="display:flex;gap:5px;align-items:center;flex-shrink:0;"></div>
+                  </div>
+                  <p id="fc-rob-note-text" style="font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:400;color:rgba(255,255,255,0.88);line-height:1.55;margin:0;transition:opacity 0.3s ease,transform 0.3s ease;font-style:italic;height:calc(0.78rem * 1.55 * 2);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">—</p>
+                </div>
+              </div>
+
+              <!-- Framework wrap — Step 2 -->
+              <div id="fc-framework-wrap" style="display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;">
+                <div style="display:grid;grid-template-areas:'stack';place-items:center;flex-shrink:0;transform:translate(-74px,-46px);">
+                  <div id="fc-fw-card1" style="grid-area:stack;position:relative;width:314px;border-radius:14px;background:#212121;border:1px solid rgba(255,255,255,0.08);padding:28px 22px;transform:skewY(-8deg);transition:transform 0.65s ease,opacity 0.65s ease;cursor:default;overflow:hidden;">
+                    <div id="fc-fw-ov1" style="position:absolute;inset:0;background:rgba(0,0,0,0.52);border-radius:14px;pointer-events:none;transition:opacity 0.65s ease;"></div>
+                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                      <span style="font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.42);">What happened</span>
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:rgba(190,221,0,0.38);">3</span>
+                    </div>
+                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:0.05em;color:rgba(255,255,255,0.55);margin-bottom:7px;">Action</div>
+                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:300;color:rgba(255,255,255,0.3);line-height:1.55;margin:0;">This is your execution. The outcome. This is highly correlated to your awareness & decision-making.</p>
+                  </div>
+                  <div id="fc-fw-card2" style="grid-area:stack;position:relative;width:314px;border-radius:14px;background:#1c1c1c;border:1px solid rgba(255,255,255,0.1);padding:28px 22px;transform:translateX(62px) translateY(48px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;overflow:hidden;">
+                    <div id="fc-fw-ov2" style="position:absolute;inset:0;background:rgba(0,0,0,0.3);border-radius:14px;pointer-events:none;transition:opacity 0.65s ease;"></div>
+                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                      <span style="font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.62);">How it happened</span>
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:rgba(190,221,0,0.58);">2</span>
+                    </div>
+                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:0.05em;color:rgba(255,255,255,0.78);margin-bottom:7px;">Decision-Making</div>
+                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.55;margin:0;">Your ability to assess risk & reward in different situations, and choose the most feasible option.</p>
+                  </div>
+                  <div id="fc-fw-card3" style="grid-area:stack;width:314px;border-radius:14px;background:#141414;border:1px solid rgba(190,221,0,0.28);padding:28px 22px;transform:translateX(124px) translateY(96px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;box-shadow:0 8px 36px rgba(0,0,0,0.7);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                      <span style="font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.15em;text-transform:uppercase;color:#BEDD00;">Why it happened</span>
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:#BEDD00;">1</span>
+                    </div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:0.05em;color:#fff;margin-bottom:7px;">Awareness</div>
+                    <p style="font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.55;margin:0;">This is the foundation of your performance. Your ability to anticipate, scan, position your body, react. Everything that goes prior to the actions.</p>
+                    <div style="margin-top:14px;height:2px;width:36px;background:#BEDD00;border-radius:2px;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Slide 3: KPI tracking — Step 3 -->
+              <div id="fc-slide3-wrap" style="display:none;width:100%;height:100%;flex-direction:column;justify-content:flex-start;padding:6px 8px 8px;position:relative;">
+                <!-- Header: bio left, match selector right — same row -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-shrink:0;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <img src="../../assets/Bio Pics/SMall frames bios/MJA.jpeg"
+                         style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(190,221,0,0.4);flex-shrink:0;"
+                         onerror="this.style.display='none'">
+                    <div>
+                      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.06em;color:#fff;line-height:1;">Mads Andersen</div>
+                      <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                        <span style="font-family:'Space Mono',monospace;font-size:0.4rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);text-transform:uppercase;">CB</span>
+                        <span style="width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;"></span>
+                        <span style="font-family:'Space Mono',monospace;font-size:0.4rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Luton Town</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="fc-kpi-select-wrap"></div>
+                </div>
+                <div id="fc-kpi-chart" style="flex-shrink:0;"></div>
+                <div id="fc-kpi-detail" style="flex-shrink:0;padding-top:6px;border-top:1px solid rgba(255,255,255,0.07);"></div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Progress bar -->
+          <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,0.06);">
+            <div id="fc-progress" style="height:100%;background:#BEDD00;border-radius:0 2px 2px 0;width:0%;transition:width 0.05s linear;"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</section>
+
+
+<!-- ═══ TESTIMONIALS ═════════════════════════════════════════════════════ -->
+<section id="testimonials" class="py-24 px-4 sm:px-6 lg:px-8"
+         style="background:#050505;border-top:1px solid rgba(255,255,255,0.04);">
+  <div class="max-w-6xl mx-auto">
+
+    <p class="font-mono text-white/35 uppercase text-center mb-12"
+       style="font-size:0.78rem;letter-spacing:0.15em;">
+      WHAT PROFESSIONALS ARE SAYING
+    </p>
+
+    <div class="ts-scroll-wrap">
+    <div class="ts-scroll-track">
+
+      <!-- Card 1 — James Dixon -->
+      <div class="ts-card">
+        <div class="ts-card-img-wrap">
+          <img src="../../assets/Bio Pics/Testimonials/JD1.jpeg" alt="James Dixon" loading="lazy">
+          <div class="ts-card-gradient"></div>
+        </div>
+        <div class="ts-card-body">
+          <p class="ts-card-quote">"I've worked with elite analysis teams for years. What Briqx delivers to a player in one minute, we'd spend days putting together. It's a game changer."</p>
+          <p class="ts-card-name">— James Dixon</p>
+          <p class="ts-card-role">Analyst · Manchester City</p>
+        </div>
+      </div>
+
+      <!-- Card 2 — Bo Henriksen -->
+      <div class="ts-card">
+        <div class="ts-card-img-wrap">
+          <img src="../../assets/Bio Pics/Testimonials/BH1.jpeg" alt="Bo Henriksen" loading="lazy">
+          <div class="ts-card-gradient"></div>
+        </div>
+        <div class="ts-card-body">
+          <p class="ts-card-quote">"Players come to training already knowing what they did wrong. That conversation used to happen in my office. Now Rob starts it first."</p>
+          <p class="ts-card-name">— Bo Henriksen</p>
+          <p class="ts-card-role">Head Coach · Mainz 05</p>
+        </div>
+      </div>
+
+      <!-- Card 3 — Mads Andersen -->
+      <div class="ts-card">
+        <div class="ts-card-img-wrap">
+          <img src="../../assets/Bio Pics/Testimonials/MJA1.jpeg" alt="Mads Andersen" loading="lazy">
+          <div class="ts-card-gradient"></div>
+        </div>
+        <div class="ts-card-body">
+          <p class="ts-card-quote">"I asked Rob about my defensive positioning after a tough game. It broke down things my coaches never even mentioned. Honest, detailed, instant."</p>
+          <p class="ts-card-name">— Mads Andersen</p>
+          <p class="ts-card-role">CB · Luton Town F.C</p>
+        </div>
+      </div>
+
+      <!-- Card 4 — Magnus Westergaard -->
+      <div class="ts-card">
+        <div class="ts-card-img-wrap">
+          <img src="../../assets/Bio Pics/Testimonials/MW1.jpeg" alt="Magnus Westergaard" loading="lazy">
+          <div class="ts-card-gradient"></div>
+        </div>
+        <div class="ts-card-body">
+          <p class="ts-card-quote">"It's like ChatGPT but for football — I ask, it delivers. Simple, fast, and brutally effective."</p>
+          <p class="ts-card-name">— Magnus Westergaard</p>
+          <p class="ts-card-role">CM · Vålerenga I.F</p>
+        </div>
+      </div>
+
+      <!-- Card 5 — Sivert Heltne Nilsen -->
+      <div class="ts-card">
+        <div class="ts-card-img-wrap">
+          <img src="../../assets/Bio Pics/Testimonials/SHN1.jpeg" alt="Sivert Heltne Nilsen" loading="lazy">
+          <div class="ts-card-gradient"></div>
+        </div>
+        <div class="ts-card-body">
+          <p class="ts-card-quote">"My scanning was costing me the ball every game and I had no idea why. Three questions to Rob and I understood the whole pattern. That's not normal."</p>
+          <p class="ts-card-name">— Sivert Heltne Nilsen</p>
+          <p class="ts-card-role">CDM · Aberdeen F.C</p>
+        </div>
+      </div>
+
+    </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ [features section removed — carousel is now in the hero] ═══════ -->
+
+<!-- CTA after testimonials -->
+<div style="background:#050505;padding:0 24px 80px;display:flex;flex-direction:column;align-items:center;">
+  <button class="ihb-btn" onclick="openModal()" type="button" style="width:100%;max-width:340px;">
+    <div class="ihb-dot" aria-hidden="true"></div>
+    <span class="ihb-text-idle">JOIN WAITLIST</span>
+    <div class="ihb-text-hover" aria-hidden="true">
+      <span>JOIN WAITLIST</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </div>
+  </button>
+  <div class="scarcity-new" style="width:100%;max-width:340px;">
+    <div class="scarcity-track">
+      <div class="scarcity-fill"></div>
+      <div class="scarcity-remaining"></div>
+    </div>
+    <div class="scarcity-labels">
+      <span class="scarcity-taken">76 spots claimed</span>
+      <span class="scarcity-left">24 left</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FAQ ════════════════════════════════════════════════════════════════ -->
+<section id="faq" style="position:relative;overflow:hidden;background:#080808;border-top:1px solid rgba(255,255,255,0.04);padding:96px 24px 48px;">
+
+
+  <div style="max-width:900px;margin:0 auto;position:relative;">
+
+    <!-- Header -->
+    <div style="margin-bottom:52px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.07);">
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3.2rem,9vw,6rem);letter-spacing:0.04em;color:#fff;line-height:0.9;margin:0;">FAQ</h2>
+      <p style="font-family:'Space Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.38);margin-top:14px;letter-spacing:0.06em;">Everything you need to know about Briqx.ai</p>
+    </div>
+
+    <!-- FAQ grid — items injected by JS -->
+    <div id="faq-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+
+
+  </div>
+</section>
+
+<style>
+  .faq-item {
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,0.09);
+    background:rgba(255,255,255,0.025);
+    padding:20px;
+    cursor:pointer;
+    transition:border-color 0.28s ease, background 0.28s ease;
+  }
+  .faq-item:hover { border-color:rgba(255,255,255,0.2); background:rgba(255,255,255,0.045); }
+  .faq-item.faq-open { border-color:rgba(190,221,0,0.28); background:rgba(190,221,0,0.04); }
+  .faq-answer {
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    transition:max-height 0.42s cubic-bezier(0.4,0,0.2,1), opacity 0.32s ease;
+  }
+  .faq-item.faq-open .faq-answer { max-height:400px; opacity:1; }
+  .faq-toggle { transition:color 0.22s ease, transform 0.28s ease; }
+  @media(max-width:640px) { #faq-grid { grid-template-columns:1fr !important; } }
+</style>
+
+<script>
+(function () {
+  /* ── FAQ accordion ─────────────────────────────────────────────── */
+  var faqs = [
+    { q: 'What is Briqx.ai?',
+      a: 'Briqx.ai is an AI-powered football analytics platform that converts your match data into personalised performance insights — so you know exactly what to work on and why.' },
+    { q: 'Who is Briqx.ai built for?',
+      a: 'Professional, semi-professional, and elite youth players who want real intelligence on their own game — whether you\'re at a top club or pushing for the next level.' },
+    { q: 'What performance data does it track?',
+      a: 'Defensive positioning, aerial duels, channel ball management, decision-making speed, and dozens of position-specific KPIs — measured match by match across your entire season.' },
+    { q: 'How does the AI analysis work?',
+      a: 'Our models analyse match footage and stats to score each KPI on a 1–10 scale, benchmark you against professional standards, and surface clear, prioritised development actions.' },
+    { q: 'When does Briqx.ai launch?',
+      a: 'We\'re in closed development. Join the waitlist now — early access members get priority onboarding and founding member pricing locked in for life.' },
+    { q: 'Is there a free tier?',
+      a: 'Yes. A core tier will always be free. Premium features — deep video analysis, club dashboards, and agent-ready reports — will be available on subscription at launch.' },
+  ];
+
+  function buildFAQ() {
+    var grid = document.getElementById('faq-grid');
+    if (!grid) return;
+    faqs.forEach(function (item, i) {
+      var el = document.createElement('div');
+      el.className = 'faq-item';
+      el.innerHTML =
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">'
+        + '<div style="display:flex;align-items:baseline;gap:10px;">'
+        + '<span style="font-family:\'Space Mono\',monospace;font-size:0.36rem;color:rgba(255,255,255,0.28);flex-shrink:0;line-height:1.4;">'
+        + String(i + 1).padStart(2, '0') + '</span>'
+        + '<h3 style="font-family:\'Bebas Neue\',sans-serif;font-size:1.05rem;letter-spacing:0.04em;color:#fff;line-height:1.15;margin:0;">'
+        + item.q + '</h3>'
+        + '</div>'
+        + '<span class="faq-toggle" style="font-family:\'Space Mono\',monospace;font-size:1rem;color:rgba(255,255,255,0.35);flex-shrink:0;line-height:1;margin-top:2px;">+</span>'
+        + '</div>'
+        + '<div class="faq-answer">'
+        + '<p style="font-family:\'Inter\',sans-serif;font-size:0.88rem;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.7;margin:14px 0 2px;">'
+        + item.a + '</p>'
+        + '</div>';
+      el.addEventListener('click', function () {
+        var isOpen = el.classList.contains('faq-open');
+        document.querySelectorAll('.faq-item.faq-open').forEach(function (other) {
+          other.classList.remove('faq-open');
+          other.querySelector('.faq-toggle').textContent = '+';
+          other.querySelector('.faq-toggle').style.color = 'rgba(255,255,255,0.35)';
+        });
+        if (!isOpen) {
+          el.classList.add('faq-open');
+          el.querySelector('.faq-toggle').textContent = '–';
+          el.querySelector('.faq-toggle').style.color = '#BEDD00';
+        }
+      });
+      grid.appendChild(el);
+    });
+  }
+
+  buildFAQ();
+})();
+</script>
+
+
+<style>
+  @media (max-width: 640px) {
+    .fc-grid { grid-template-columns: 1fr !important; }
+    .fc-grid > div:last-child { display: none; }
+  }
+  /* Hero split layout */
+  .hero-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 52px;
+    align-items: center;
+    width: 100%;
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+  @media (max-width: 900px) {
+    .hero-split { grid-template-columns: 1fr; gap: 40px; }
+  }
+  .hero-rob-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: rgba(190,221,0,0.07);
+    border: 1px solid rgba(190,221,0,0.18);
+    border-radius: 9999px;
+    padding: 5px 14px 5px 7px;
+    margin-bottom: 22px;
+  }
+  .hero-props {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+  .hero-prop {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+  }
+  .hero-prop-icon {
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .hero-prop-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+  }
+
+  .fc-step:hover { opacity: 0.85; }
+
+  /* KPI play buttons — circular, fixed brand green */
+  .fc-play-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%; padding: 0;
+    font-size: 0.5rem; cursor: pointer; line-height: 1; flex-shrink: 0;
+    font-family: inherit; background: transparent;
+    border: 1.5px solid #BEDD00; color: #BEDD00;
+    transition: background 0.18s, transform 0.12s, box-shadow 0.15s;
+  }
+  .fc-play-btn:hover {
+    background: rgba(190,221,0,0.15);
+    transform: scale(1.12);
+    box-shadow: 0 0 7px rgba(190,221,0,0.45);
+  }
+  .fc-play-btn:active { transform: scale(0.88); transition-duration: 0.07s; }
+  .fc-play-btn.fc-pb-fire { animation: fc-pb-pulse 0.42s ease; }
+  @keyframes fc-pb-pulse {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.25); box-shadow: 0 0 10px rgba(190,221,0,0.6); }
+    70%  { transform: scale(0.93); }
+    100% { transform: scale(1); }
+  }
+
+  /* ══════════════════════════════════════════
+     FLOATING VIDEO WIDGET
+  ══════════════════════════════════════════ */
+  #fvw-label {
+    position: fixed; bottom: 84px; right: 108px; z-index: 9998;
+    background: #1e2a1e;
+    border-radius: 18px 18px 4px 18px;
+    padding: 11px 15px;
+    max-width: 185px;
+    pointer-events: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+    opacity: 0;
+    animation: fvw-label-in 0.4s ease 2.5s forwards;
+  }
+  #fvw-label p {
+    font-family: 'Inter', sans-serif;
+    font-style: italic;
+    font-size: 0.82rem; font-weight: 400;
+    color: #e8f5e8; line-height: 1.4; margin: 0;
+  }
+  #fvw-label::after {
+    content: '';
+    position: absolute; bottom: -8px; right: 10px;
+    border-left: 8px solid transparent;
+    border-top: 8px solid #1e2a1e;
+  }
+  @keyframes fvw-label-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  #fvw-bubble {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 3px solid #BEDD00;
+    cursor: pointer; overflow: visible;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  #fvw-bubble:hover { transform: scale(1.07); box-shadow: 0 6px 32px rgba(190,221,0,0.25); }
+  #fvw-bubble-inner {
+    width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+    background: #000;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #fvw-loop {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  #fvw-initials {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem;
+    letter-spacing: 0.1em; color: #BEDD00;
+  }
+  #fvw-live-dot {
+    position: absolute; top: 2px; right: 2px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid #050505;
+    animation: fvw-pulse 2s ease-in-out infinite;
+  }
+  @keyframes fvw-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
+    50%       { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+  }
+
+</style>
+
+<script>
+(function () {
+  const INTERVAL = 18000;
+  let current = 0;
+  let progressTimer = null;
+  let progressStart = null;
+  let progressPaused = false;
+  let progressElapsed = 0;
+  const progressEl = document.getElementById('fc-progress');
+
+  const steps = [
+    {
+      label: 'Match Analysis',
+      title: 'VIDEO BREAKDOWN AFTER EVERY GAME',
+      desc: "Let Rob analyse your every game while you perform. Evaluate together, learn from your performance, and improve. It takes just 5 minutes.",
+      img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80&fit=crop',
+      alt: 'Match Analysis'
+    },
+    {
+      label: 'Game IQ',
+      title: 'GAME IQ ANALYSIS',
+      desc: "Rob analyses all your actions through 3 different stages. Why, How & What Happened — allowing you to understand and improve the most overlooked part of your game. Your Brain.",
+      img: 'https://images.unsplash.com/photo-1551958219-acbc898f4b56?w=800&q=80&fit=crop',
+      alt: 'Game IQ'
+    },
+    {
+      label: 'Progress Tracking',
+      title: 'WEEK TO WEEK IMPROVEMENT THAT MATTERS',
+      desc: "Track what matters and improve consistently from every match. Stop guessing, and track what matters to you. Your coach. And your future career.",
+      img: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800&q=80&fit=crop',
+      alt: 'Progress Tracking'
+    },
+    {
+      label: 'Ask Rob Anything',
+      title: 'YOU ASK. ROB DELIVERS.',
+      desc: "Ever been wondering how you improve that one thing? But you don't know where to start? Rob got you. Spar with Rob, understand your game & start growing.",
+      img: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&q=80&fit=crop',
+      alt: 'Ask Rob Anything'
+    }
+  ];
+
+  function updateUI(idx) {
+    const s = steps[idx];
+    const textEl = document.getElementById('fc-text');
+    const imgWrap = document.getElementById('fc-img-wrap');
+
+    // Fade out
+    textEl.style.opacity = '0';
+    textEl.style.transform = 'translateY(10px)';
+    imgWrap.style.opacity = '0';
+    imgWrap.style.transform = 'scale(0.97)';
+
+    const chatWidget = document.getElementById('fc-chat-widget');
+    const slide1Wrap = document.getElementById('fc-slide1-wrap');
+    const frameworkWrap = document.getElementById('fc-framework-wrap');
+    const slide3Wrap = document.getElementById('fc-slide3-wrap');
+    setTimeout(() => {
+      document.getElementById('fc-label').textContent = s.label;
+      document.getElementById('fc-title').innerHTML = s.title;
+      document.getElementById('fc-desc').textContent = s.desc;
+
+      if (idx === 0) {
+        imgWrap.style.display = 'none';
+        chatWidget.style.display = 'none';
+        slide1Wrap.style.display = 'flex';
+        if (frameworkWrap) frameworkWrap.style.display = 'none';
+        if (slide3Wrap) slide3Wrap.style.display = 'none';
+        const vid = document.getElementById('fc-slide1-video');
+        vid.play().catch(function(){});
+        // Respect coach toggle state
+        const notes = document.getElementById('fc-rob-notes');
+        if (typeof fcCoachOn === 'undefined' || fcCoachOn) {
+          if (notes) notes.style.display = 'flex';
+          fcRobStart();
+        } else {
+          if (notes) notes.style.display = 'none';
+        }
+        fcAicStop();
+      } else if (idx === 1) {
+        imgWrap.style.display = 'none';
+        chatWidget.style.display = 'none';
+        slide1Wrap.style.display = 'none';
+        if (frameworkWrap) frameworkWrap.style.display = 'flex';
+        if (slide3Wrap) slide3Wrap.style.display = 'none';
+        fcAicStop();
+        fcRobStop();
+      } else if (idx === 2) {
+        imgWrap.style.display = 'none';
+        chatWidget.style.display = 'none';
+        slide1Wrap.style.display = 'none';
+        if (frameworkWrap) frameworkWrap.style.display = 'none';
+        if (slide3Wrap) { slide3Wrap.style.display = 'flex'; if (typeof fcSlide3Build === 'function') fcSlide3Build(); if (typeof fcSlide3Enter === 'function') fcSlide3Enter(); }
+        fcAicStop();
+        fcRobStop();
+      } else if (idx === 3) {
+        imgWrap.style.display = 'none';
+        chatWidget.style.display = 'flex';
+        chatWidget.style.flexDirection = 'column';
+        slide1Wrap.style.display = 'none';
+        if (frameworkWrap) frameworkWrap.style.display = 'none';
+        if (slide3Wrap) slide3Wrap.style.display = 'none';
+        fcAicStart();
+        fcRobStop();
+      }
+
+      // Fade in
+      textEl.style.opacity = '1';
+      textEl.style.transform = 'translateY(0)';
+    }, 350);
+
+    // Update step pills
+    for (let i = 0; i < 4; i++) {
+      const btn = document.getElementById('fc-s' + i);
+      const dot = btn.querySelector('.fc-dot');
+      const lbl = btn.querySelector('span:last-child');
+      const isActive = i === idx;
+      const isPast = i < idx;
+
+      if (isActive) {
+        btn.style.background = 'rgba(190,221,0,0.12)';
+        dot.style.background = '#BEDD00';
+        dot.style.color = '#000';
+        lbl.style.color = '#BEDD00';
+        dot.textContent = i + 1;
+      } else if (isPast) {
+        btn.style.background = 'rgba(255,255,255,0.05)';
+        dot.style.background = 'rgba(190,221,0,0.25)';
+        dot.style.color = '#BEDD00';
+        lbl.style.color = 'rgba(255,255,255,0.4)';
+        dot.innerHTML = '<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#BEDD00" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      } else {
+        btn.style.background = 'rgba(255,255,255,0.05)';
+        dot.style.background = 'rgba(255,255,255,0.15)';
+        dot.style.color = 'rgba(255,255,255,0.5)';
+        lbl.style.color = 'rgba(255,255,255,0.4)';
+        dot.textContent = i + 1;
+      }
+    }
+  }
+
+  function startProgress(resumeFrom) {
+    if (progressTimer) cancelAnimationFrame(progressTimer);
+    progressPaused = false;
+    progressElapsed = resumeFrom || 0;
+    progressStart = performance.now() - progressElapsed;
+    function tick(now) {
+      if (progressPaused) return;
+      const elapsed = now - progressStart;
+      progressElapsed = elapsed;
+      const pct = Math.min((elapsed / INTERVAL) * 100, 100);
+      progressEl.style.width = pct + '%';
+      if (pct < 100) {
+        progressTimer = requestAnimationFrame(tick);
+      } else {
+        current = (current + 1) % steps.length;
+        updateUI(current);
+        startProgress();
+      }
+    }
+    progressTimer = requestAnimationFrame(tick);
+  }
+
+  window.fcPauseToggle = function (e) {
+    e.stopPropagation();
+    if (progressPaused) {
+      // Resume from where we left off
+      progressPaused = false;
+      progressEl.style.opacity = '1';
+      startProgress(progressElapsed);
+    } else {
+      // Pause
+      progressPaused = true;
+      if (progressTimer) cancelAnimationFrame(progressTimer);
+      progressTimer = null;
+      progressEl.style.opacity = '0.4';
+    }
+  };
+
+  window.fcNext = function () {
+    current = (current + 1) % steps.length;
+    updateUI(current);
+    startProgress();
+  };
+
+  window.fcGo = function (idx, e) {
+    e.stopPropagation();
+    current = idx;
+    updateUI(current);
+    startProgress();
+  };
+
+  // Init
+  updateUI(0);
+  startProgress();
+})();
+</script>
+
+<script>
+// ── Shared: thinking state helpers ────────────────────────────────────────
+function aicThinkingShow(thinkingId, placeholderId) {
+  var thinking = document.getElementById(thinkingId);
+  var placeholder = document.getElementById(placeholderId);
+  if (!thinking) return;
+  var path = thinking.querySelector('.aic-loader-path');
+  if (path && !path._ready) {
+    var len = path.getTotalLength();
+    path.style.strokeDasharray = len;
+    path.style.setProperty('--path-length', len);
+    path._ready = true;
+  }
+  if (placeholder) placeholder.style.opacity = '0';
+  thinking.style.display = 'flex';
+}
+function aicThinkingHide(thinkingId, placeholderId) {
+  var thinking = document.getElementById(thinkingId);
+  if (thinking) thinking.style.display = 'none';
+  var ph = document.getElementById(placeholderId);
+  if (ph) ph.style.opacity = '1';
+}
+function aicBtnClick(btnId, originElId) {
+  var btn = document.getElementById(btnId);
+  if (!btn) return;
+  var btnRect = btn.getBoundingClientRect();
+  // Start cursor from the textarea area
+  var originEl = originElId ? document.getElementById(originElId) : btn;
+  var originRect = originEl.getBoundingClientRect();
+  var startX = originRect.left + originRect.width * 0.35;
+  var startY = originRect.top  + originRect.height * 0.6;
+
+  // Cursor SVG element
+  var cursor = document.createElement('div');
+  cursor.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;opacity:1;left:' + startX + 'px;top:' + startY + 'px;transform:translate(-4px,-2px);';
+  cursor.innerHTML = '<svg viewBox="0 0 18 22" width="18" height="22" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 1px 4px rgba(0,0,0,0.7))">'
+    + '<path d="M3 1 L3 17 L6.5 13.5 L9 19.5 L11 18.5 L8.5 12.5 L13 12.5 Z" fill="white" stroke="rgba(0,0,0,0.5)" stroke-width="0.8" stroke-linejoin="round"/>'
+    + '</svg>';
+  document.body.appendChild(cursor);
+
+  // Glide to button
+  setTimeout(function() {
+    cursor.style.transition = 'left 0.85s cubic-bezier(0.4,0,0.2,1), top 0.85s cubic-bezier(0.4,0,0.2,1)';
+    cursor.style.left = (btnRect.left + btnRect.width  * 0.5 - 4) + 'px';
+    cursor.style.top  = (btnRect.top  + btnRect.height * 0.5 - 2) + 'px';
+  }, 40);
+
+  // Hover effect — cursor is hovering over button just before click
+  setTimeout(function() {
+    btn.style.transition = 'background 0.2s ease, box-shadow 0.2s ease';
+    btn.style.background = 'rgba(190,221,0,0.18)';
+    btn.style.boxShadow = '0 0 0 3px rgba(190,221,0,0.22)';
+  }, 820);
+
+  // Click press
+  setTimeout(function() {
+    cursor.style.transition = 'transform 0.1s ease';
+    cursor.style.transform = 'translate(-4px,-2px) scale(0.72)';
+    btn.style.transition = 'transform 0.12s ease, background 0.1s ease, box-shadow 0.1s ease';
+    btn.style.transform = 'scale(0.8)';
+    btn.style.background = 'rgba(190,221,0,0.35)';
+    btn.style.boxShadow = '0 0 0 4px rgba(190,221,0,0.45)';
+  }, 980);
+
+  // Release
+  setTimeout(function() {
+    cursor.style.transform = 'translate(-4px,-2px) scale(1)';
+    btn.style.transition = 'transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease';
+    btn.style.transform = 'scale(1)';
+    btn.style.background = '';
+    btn.style.boxShadow = '';
+  }, 1120);
+
+  // Fade cursor out
+  setTimeout(function() {
+    cursor.style.transition = 'opacity 0.25s ease';
+    cursor.style.opacity = '0';
+    setTimeout(function() { cursor.remove(); }, 300);
+  }, 1260);
+}
+</script>
+
+<script>
+// ── Carousel chat widget (Step 4) ─────────────────────────────────────────
+(function () {
+  const HOLD_MS = 3000;
+  let idx = 0;
+  let cycleTimer  = null;
+  let flashTimer  = null;
+  let thinkTimer  = null;
+  let resultsTimer = null;
+  let running = false;
+
+  const prompts = [
+    { text: "Hi Rob, can you show and analyse 10 recent clips of how I defend from opponent crosses?", name: "Mads Andersen", detail: "CB · Luton Town F.C", initials: "MA", img: "../../assets/Bio Pics/SMall frames bios/MJA.jpeg" }
+  ];
+
+  const moments = [
+    { match: "vs Northampton", date: "04/03", clips: 8, label: "Lost marker from deep cross" },
+    { match: "vs Northampton", date: "04/03", clips: 6, label: "Ball-watching, runner unmarked" },
+    { match: "vs Northampton", date: "04/03", clips: 5, label: "Recovery run too late" },
+    { match: "vs Plymouth",    date: "24/02", clips: 7, label: "Positioned too narrow" },
+    { match: "vs Plymouth",    date: "24/02", clips: 4, label: "Overcommitted, beaten in air" },
+    { match: "vs Burton",      date: "21/02", clips: 9, label: "Slow reaction to deep cross" },
+    { match: "vs Burton",      date: "21/02", clips: 3, label: "Cross not challenged" },
+    { match: "vs Wigan",       date: "18/02", clips: 6, label: "Dropped too deep" },
+    { match: "vs Wigan",       date: "18/02", clips: 5, label: "Duel lost, cross converted" },
+  ];
+
+  function el(id) { return document.getElementById(id); }
+
+  function updatePlayer(pIdx, animate) {
+    const p = prompts[pIdx];
+    const metaEl  = el('fc-aic-player-meta');
+    const photoEl = el('fc-aic-photo-wrap');
+    if (animate) {
+      metaEl.classList.add('fading');
+      photoEl.classList.add('fading');
+      setTimeout(() => {
+        el('fc-aic-player-name').textContent   = p.name;
+        el('fc-aic-player-detail').textContent = p.detail;
+        el('fc-aic-photo-img').src = p.img;
+        el('fc-aic-photo-initials').textContent = p.initials;
+        metaEl.classList.remove('fading');
+        photoEl.classList.remove('fading');
+      }, 300);
+    } else {
+      el('fc-aic-player-name').textContent   = p.name;
+      el('fc-aic-player-detail').textContent = p.detail;
+      el('fc-aic-photo-img').src = p.img;
+      el('fc-aic-photo-initials').textContent = p.initials;
+    }
+  }
+
+  function showPlaceholder(text) {
+    const phInner = el('fc-aic-placeholder-inner');
+    phInner.innerHTML = '';
+    let charIndex = 0;
+    text.split(' ').forEach((word, wi, arr) => {
+      const wordWrap = document.createElement('span');
+      wordWrap.style.cssText = 'display:inline;white-space:nowrap;';
+      word.split('').forEach(char => {
+        const s = document.createElement('span');
+        s.className = 'aic-letter';
+        s.textContent = char;
+        s.style.transitionDelay = (charIndex * 0.022) + 's';
+        wordWrap.appendChild(s);
+        charIndex++;
+      });
+      phInner.appendChild(wordWrap);
+      if (wi < arr.length - 1) {
+        const sp = document.createElement('span');
+        sp.className = 'aic-letter';
+        sp.textContent = '\u00A0';
+        sp.style.transitionDelay = (charIndex * 0.022) + 's';
+        phInner.appendChild(sp);
+        charIndex++;
+      }
+    });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      phInner.querySelectorAll('.aic-letter').forEach(s => s.classList.add('in'));
+    }));
+  }
+
+  function fadeOutThen(cb) {
+    const letters = el('fc-aic-placeholder-inner').querySelectorAll('.aic-letter');
+    if (!letters.length) { cb(); return; }
+    letters.forEach((s, i) => {
+      s.style.transitionDelay = (i * 0.012) + 's';
+      s.classList.remove('in');
+      s.classList.add('out');
+    });
+    setTimeout(cb, 350);
+  }
+
+  function fcShowResults() {
+    var panel = document.getElementById('fc-results-panel');
+    if (!panel) return;
+    // Build cards once
+    var strip = document.getElementById('fc-moments-strip');
+    if (strip && !strip.childElementCount) {
+      moments.forEach(function(m, i) {
+        var card = document.createElement('div');
+        card.style.cssText = 'flex-shrink:0;width:112px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid ' + (i === 0 ? 'rgba(190,221,0,0.5)' : 'rgba(255,255,255,0.08)') + ';padding:8px 9px;cursor:default;';
+        card.innerHTML = '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:0.75rem;letter-spacing:0.04em;color:#fff;margin-bottom:4px;">' + m.match + '</div>'
+          + '<div style="font-family:\'Space Mono\',monospace;font-size:0.5rem;letter-spacing:0.06em;color:#BEDD00;">' + m.clips + ' clips</div>';
+        strip.appendChild(card);
+      });
+    }
+    panel.style.display = 'flex';
+    requestAnimationFrame(function() { requestAnimationFrame(function() { panel.style.opacity = '1'; }); });
+  }
+
+  function fcHideResults(cb) {
+    var panel = document.getElementById('fc-results-panel');
+    if (!panel || panel.style.display === 'none') { if (cb) cb(); return; }
+    panel.style.opacity = '0';
+    setTimeout(function() { panel.style.display = 'none'; if (cb) cb(); }, 500);
+  }
+
+  function stopCycle() {
+    clearTimeout(cycleTimer);  cycleTimer  = null;
+    clearTimeout(flashTimer);  flashTimer  = null;
+    clearTimeout(thinkTimer);  thinkTimer  = null;
+    clearTimeout(resultsTimer); resultsTimer = null;
+    aicThinkingHide('fc-aic-thinking', 'fc-aic-placeholder');
+    fcHideResults();
+  }
+
+  function showAndSchedule(text) {
+    if (!running) return;
+    showPlaceholder(text);
+    stopCycle();
+    const animMs = text.length * 22;
+    // Cursor glides to send button after typewriter finishes
+    flashTimer = setTimeout(() => {
+      if (!running) return;
+      aicBtnClick('fc-aic-send-btn', 'fc-aic-placeholder');
+    }, animMs + 400);
+    // Show Analysing state
+    thinkTimer = setTimeout(() => {
+      if (!running) return;
+      aicThinkingShow('fc-aic-thinking', 'fc-aic-placeholder');
+    }, animMs + 1500);
+    // After ~5s of Analysing → fade in results panel
+    cycleTimer = setTimeout(() => {
+      if (!running) return;
+      aicThinkingHide('fc-aic-thinking', 'fc-aic-placeholder');
+      fcShowResults();
+    }, animMs + 6500);
+    // After 8s on results panel → fade out and restart
+    resultsTimer = setTimeout(() => {
+      if (!running) return;
+      fcHideResults(() => {
+        if (!running) return;
+        showAndSchedule(prompts[0].text);
+      });
+    }, animMs + 14500);
+  }
+
+  window.fcAicStart = function () {
+    if (running) return;
+    running = true;
+    idx = 0;
+    updatePlayer(0, false);
+    var panel = document.getElementById('fc-results-panel');
+    if (panel) { panel.style.opacity = '0'; panel.style.display = 'none'; }
+    el('fc-aic-placeholder-inner').innerHTML = '';
+    setTimeout(() => showAndSchedule(prompts[0].text), 300);
+  };
+
+  window.fcAicStop = function () {
+    running = false;
+    stopCycle();
+    const phInner = el('fc-aic-placeholder-inner');
+    if (phInner) phInner.innerHTML = '';
+  };
+})();
+</script>
+
+<script>
+// ── Carousel slide 1: Rob's timestamped notes ─────────────────────────────
+(function () {
+  // Replace these cues with real timestamps + note content when ready.
+  // Format: { time: seconds_from_start, note: "..." }
+  var cues = [
+    { time: 1.25, note: "You recognise the danger too late — you fail to anticipate the situation & scan for your opponent." },
+    { time: 4.02, note: "As the cross comes in, reacting to the danger now is too late." },
+    { time: 6,    note: "Opponent xG: 0.76." },
+    { time: 9,    note: "This situation could have been prevented. Let's keep working on your awareness & anticipation from opponent crosses." },
+  ];
+  // ↑ Adjust time values (seconds) to match exact freeze frames in the video.
+
+  var activeIdx = -1;
+  var vid = null;
+
+  function buildDots() {
+    var container = document.getElementById('fc-rob-dots');
+    if (!container) return;
+    container.innerHTML = '';
+    cues.forEach(function (c, i) {
+      var dot = document.createElement('button');
+      dot.style.cssText = 'width:7px;height:7px;border-radius:50%;border:none;padding:0;cursor:pointer;transition:background 0.25s,transform 0.25s;flex-shrink:0;';
+      dot.setAttribute('aria-label', 'Jump to note ' + (i + 1));
+      dot.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (vid) { vid.currentTime = c.time; }
+        showCue(i, true);
+      });
+      container.appendChild(dot);
+    });
+    updateDots(0);
+  }
+
+  function updateDots(idx) {
+    var container = document.getElementById('fc-rob-dots');
+    if (!container) return;
+    var dots = container.querySelectorAll('button');
+    dots.forEach(function (d, i) {
+      if (i === idx) {
+        d.style.background = '#BEDD00';
+        d.style.transform = 'scale(1.25)';
+      } else {
+        d.style.background = 'rgba(255,255,255,0.2)';
+        d.style.transform = 'scale(1)';
+      }
+    });
+  }
+
+  function showCue(idx, immediate) {
+    if (idx === activeIdx) return;
+    activeIdx = idx;
+    var noteEl = document.getElementById('fc-rob-note-text');
+    if (!noteEl) return;
+    updateDots(idx);
+    if (immediate) {
+      noteEl.textContent = cues[idx].note;
+      return;
+    }
+    // Fade out → swap → fade in
+    noteEl.style.opacity = '0';
+    noteEl.style.transform = 'translateY(6px)';
+    setTimeout(function () {
+      noteEl.textContent = cues[idx].note;
+      noteEl.style.opacity = '1';
+      noteEl.style.transform = 'translateY(0)';
+    }, 300);
+  }
+
+  function onTimeUpdate() {
+    var t = vid.currentTime;
+    var best = 0;
+    for (var i = cues.length - 1; i >= 0; i--) {
+      if (t >= cues[i].time) { best = i; break; }
+    }
+    showCue(best, false);
+  }
+
+  window.fcRobStart = function () {
+    vid = document.getElementById('fc-slide1-video');
+    if (!vid) return;
+    activeIdx = -1;
+    buildDots();
+    // Show first cue immediately
+    var noteEl = document.getElementById('fc-rob-note-text');
+    if (noteEl) {
+      noteEl.style.opacity = '1';
+      noteEl.style.transform = 'translateY(0)';
+      noteEl.textContent = cues[0].note;
+      activeIdx = 0;
+      updateDots(0);
+    }
+    vid.addEventListener('timeupdate', onTimeUpdate);
+  };
+
+  window.fcRobStop = function () {
+    if (vid) { vid.removeEventListener('timeupdate', onTimeUpdate); }
+    vid = null;
+    activeIdx = -1;
+  };
+
+  // ── Coach toggle ──────────────────────────────────────────────────────────
+  var fcCoachOn = true;
+
+  window.fcToggleCoach = function () {
+    fcCoachOn = !fcCoachOn;
+
+    var pill  = document.getElementById('fc-coach-pill');
+    var knob  = document.getElementById('fc-coach-knob');
+    var label = document.getElementById('fc-coach-label');
+    var notes = document.getElementById('fc-rob-notes');
+
+    if (fcCoachOn) {
+      pill.style.background = '#BEDD00';
+      knob.style.transform  = 'translateX(16px)';
+      knob.style.background = '#000';
+      label.style.color     = '#BEDD00';
+      if (notes) notes.style.display = 'flex';
+      fcRobStart();
+    } else {
+      pill.style.background = '#444';
+      knob.style.transform  = 'translateX(0)';
+      knob.style.background = '#fff';
+      label.style.color     = 'rgba(255,255,255,0.5)';
+      if (notes) notes.style.display = 'none';
+      fcRobStop();
+    }
+  };
+})();
+</script>
+
+<script>
+// ── Framework card hover interactions (Step 2) ────────────────────────────
+(function () {
+  var T = 'transform';
+  // card1 = Action (back), card2 = Decision-Making (mid), card3 = Awareness (front)
+  var base = [
+    'skewY(-8deg)',
+    'translateX(62px) translateY(48px) skewY(-8deg)',
+    'translateX(124px) translateY(96px) skewY(-8deg)'
+  ];
+  var c1, c2, c3, o1, o2;
+
+  function reset() {
+    if (!c1) return;
+    c1.style[T] = base[0];
+    c2.style[T] = base[1];
+    c3.style[T] = base[2];
+    if (o1) o1.style.opacity = '1';
+    if (o2) o2.style.opacity = '1';
+  }
+
+  function bind() {
+    // Hover Action (back/card1): pop card1 up, card2+card3 drop down to fully clear card1
+    c1.addEventListener('mouseenter', function () {
+      c1.style[T] = 'translateY(-16px) skewY(-8deg)';
+      c2.style[T] = 'translateX(62px) translateY(140px) skewY(-8deg)';
+      c3.style[T] = 'translateX(124px) translateY(168px) skewY(-8deg)';
+      if (o1) o1.style.opacity = '0';
+    });
+    c1.addEventListener('mouseleave', reset);
+
+    // Hover Decision-Making (mid/card2): pop card2 up, card3 drops down to fully clear card2
+    c2.addEventListener('mouseenter', function () {
+      c2.style[T] = 'translateX(62px) translateY(24px) skewY(-8deg)';
+      c3.style[T] = 'translateX(124px) translateY(178px) skewY(-8deg)';
+      if (o2) o2.style.opacity = '0';
+    });
+    c2.addEventListener('mouseleave', reset);
+
+    // Hover Awareness (front/card3): gentle lift
+    c3.addEventListener('mouseenter', function () {
+      c3.style[T] = 'translateX(124px) translateY(82px) skewY(-8deg)';
+    });
+    c3.addEventListener('mouseleave', reset);
+  }
+
+  function init() {
+    c1 = document.getElementById('fc-fw-card1');
+    c2 = document.getElementById('fc-fw-card2');
+    c3 = document.getElementById('fc-fw-card3');
+    o1 = document.getElementById('fc-fw-ov1');
+    o2 = document.getElementById('fc-fw-ov2');
+    if (c1) bind();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+<script>
+// ── Step 3: KPI bar chart ──────────────────────────────────────────────────
+(function () {
+  var kpiLabels = ['Def. Cross Positioning', 'Aerial Duel', 'Channel Balls', 'Decision-Making'];
+  // Scores adjusted: Wigan avg ~7.3 (green), Cardiff avg ~8.7 (blue)
+  var games = [
+    { date: 'Feb 18', opponent: 'vs Northampton', scores: [7.5, 8.2, 7.4, 8.1] },  // avg 7.8 green
+    { date: 'Feb 21', opponent: 'vs Plymouth',    scores: [6.5, 7.2, 6.8, 7.1] },  // avg 6.9 orange
+    { date: 'Feb 24', opponent: 'vs Burton',      scores: [7.0, 7.5, 6.8, 7.5] },  // avg 7.2 green
+    { date: 'Mar 4',  opponent: 'vs Wigan',       scores: [8.6, 8.8, 8.5, 8.9] },  // avg 8.7 blue
+    { date: 'Mar 11', opponent: 'vs Cardiff',     scores: [7.2, 7.8, 7.3, 7.7] }   // avg 7.5 green
+  ];
+
+  function kpiColor(v) {
+    if (v < 6) return '#ef4444';
+    if (v < 7) return '#f97316';
+    if (v < 8.5) return '#22c55e';
+    return '#3b82f6';
+  }
+  function avgArr(arr) { return arr.reduce(function(a,b){return a+b;},0)/arr.length; }
+
+  var _built = false;
+  var selectedIdx = 4;
+  var svgEls = [];
+  var _selectGame = null; // exposed for dropdown
+  var _trendLine = null;  // ref for re-animating on each visit
+
+  window.fcSlide3Build = function () {
+    if (_built) return;
+    _built = true;
+
+    var chartDiv   = document.getElementById('fc-kpi-chart');
+    var detailDiv  = document.getElementById('fc-kpi-detail');
+    var selectWrap = document.getElementById('fc-kpi-select-wrap');
+    if (!chartDiv || !detailDiv) return;
+
+    // ── Period dropdown (fluid animated, no native select) ────────────────
+    if (selectWrap) {
+      var ddPeriods  = ['Last 5 Games', 'Last 10 Games', '2025/2026 Season'];
+      var ddSelected = 0;
+      var ddIsOpen   = false;
+      var ITEM_H     = 28;
+      var menuTotalH = 8 + ddPeriods.length * ITEM_H; // 4px top+bottom padding
+
+      var ddRoot = document.createElement('div');
+      ddRoot.style.cssText = 'position:relative;';
+
+      // Trigger button
+      var ddBtn = document.createElement('button');
+      ddBtn.type = 'button';
+      ddBtn.style.cssText = 'width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px;'
+        + 'background:#161616;border:1px solid rgba(255,255,255,0.1);border-radius:7px;'
+        + 'padding:5px 9px;font-family:Space Mono,monospace;font-size:0.37rem;letter-spacing:0.06em;'
+        + 'text-transform:uppercase;color:rgba(255,255,255,0.6);cursor:pointer;outline:none;'
+        + 'transition:background 0.15s,border-color 0.15s;';
+      ddBtn.addEventListener('mouseenter', function(){ ddBtn.style.background='#1e1e1e'; ddBtn.style.borderColor='rgba(255,255,255,0.18)'; });
+      ddBtn.addEventListener('mouseleave', function(){ if(!ddIsOpen){ddBtn.style.background='#161616'; ddBtn.style.borderColor='rgba(255,255,255,0.1)';} });
+
+      var ddLabel = document.createElement('span');
+      ddLabel.textContent = ddPeriods[ddSelected];
+
+      // Chevron SVG
+      var ddCaret = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      ddCaret.setAttribute('viewBox','0 0 10 6'); ddCaret.setAttribute('width','8'); ddCaret.setAttribute('height','5');
+      ddCaret.style.cssText = 'flex-shrink:0;transition:transform 0.22s ease;';
+      var caretPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+      caretPath.setAttribute('d','M0 0l5 6 5-6z'); caretPath.setAttribute('fill','rgba(255,255,255,0.32)');
+      ddCaret.appendChild(caretPath);
+      ddBtn.appendChild(ddLabel); ddBtn.appendChild(ddCaret);
+
+      // Dropdown panel
+      var ddPanel = document.createElement('div');
+      ddPanel.style.cssText = 'position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:30;'
+        + 'background:#161616;border:1px solid rgba(255,255,255,0.1);border-radius:9px;'
+        + 'overflow:hidden;height:0;transition:height 0.26s cubic-bezier(0.4,0,0.2,1);'
+        + 'box-shadow:0 8px 28px rgba(0,0,0,0.65);';
+
+      var ddInner = document.createElement('div');
+      ddInner.style.cssText = 'position:relative;padding:4px;';
+
+      // Sliding hover highlight
+      var ddHL = document.createElement('div');
+      ddHL.style.cssText = 'position:absolute;left:4px;right:4px;height:' + ITEM_H + 'px;'
+        + 'background:rgba(255,255,255,0.06);border-radius:5px;'
+        + 'transform:translateY(0);transition:transform 0.22s cubic-bezier(0.4,0,0.2,1);opacity:0;'
+        + 'pointer-events:none;';
+      ddInner.appendChild(ddHL);
+
+      // Item rows
+      ddPeriods.forEach(function(p, i) {
+        var item = document.createElement('div');
+        item.style.cssText = 'position:relative;height:' + ITEM_H + 'px;display:flex;align-items:center;'
+          + 'padding:0 10px;font-family:Space Mono,monospace;font-size:0.37rem;letter-spacing:0.06em;'
+          + 'text-transform:uppercase;border-radius:5px;cursor:pointer;user-select:none;'
+          + 'color:rgba(255,255,255,' + (i === ddSelected ? '0.85' : '0.42') + ');'
+          + 'transition:color 0.15s;';
+        item.textContent = p;
+        item.addEventListener('mouseenter', function() {
+          ddHL.style.transform = 'translateY(' + (i * ITEM_H) + 'px)';
+          ddHL.style.opacity = '1';
+        });
+        item.addEventListener('mouseleave', function() { ddHL.style.opacity = '0'; });
+        item.addEventListener('click', function() {
+          ddSelected = i; ddLabel.textContent = p;
+          ddInner.querySelectorAll('[data-dd]').forEach(function(el, j) {
+            el.style.color = 'rgba(255,255,255,' + (j === i ? '0.85' : '0.42') + ')';
+          });
+          closeDD();
+        });
+        item.setAttribute('data-dd', i);
+        ddInner.appendChild(item);
+      });
+
+      ddPanel.appendChild(ddInner);
+
+      function openDD() {
+        ddIsOpen = true;
+        ddPanel.style.height = menuTotalH + 'px';
+        ddCaret.style.transform = 'rotate(180deg)';
+        ddBtn.style.background = '#1e1e1e';
+        ddBtn.style.borderColor = 'rgba(255,255,255,0.18)';
+      }
+      function closeDD() {
+        ddIsOpen = false;
+        ddPanel.style.height = '0';
+        ddCaret.style.transform = 'rotate(0deg)';
+        ddBtn.style.background = '#161616';
+        ddBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+      }
+
+      ddBtn.addEventListener('click', function(e) { e.stopPropagation(); ddIsOpen ? closeDD() : openDD(); });
+      document.addEventListener('click', function(e) { if (!ddRoot.contains(e.target)) closeDD(); });
+
+      ddRoot.appendChild(ddBtn); ddRoot.appendChild(ddPanel);
+      selectWrap.appendChild(ddRoot);
+    }
+
+    // ── Bar chart SVG ──────────────────────────────────────────────────────
+    var W = 300, H = 130;
+    var padT = 26, padB = 32, padR = 6;
+    var plotH = H - padT - padB;
+    var n = games.length;
+    var barL = 20;           // first bar x — clear gap from Y-axis
+    var barR = W - padR - 4;
+    var BW   = 7;            // tube bar width
+    var NS   = 'http://www.w3.org/2000/svg';
+
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('width', '100%');
+    svg.style.display = 'block';
+    svg.style.overflow = 'visible';
+
+    // Tube highlight gradient (shared)
+    var defs = document.createElementNS(NS, 'defs');
+    var tubeGrad = document.createElementNS(NS, 'linearGradient');
+    tubeGrad.setAttribute('id', 'fc-tube-hl');
+    tubeGrad.setAttribute('x1', '0'); tubeGrad.setAttribute('y1', '0');
+    tubeGrad.setAttribute('x2', '1'); tubeGrad.setAttribute('y2', '0');
+    [['0%','0.55'],['22%','0.15'],['50%','0'],['78%','0'],['100%','0.3']].forEach(function(s) {
+      var stop = document.createElementNS(NS, 'stop');
+      stop.setAttribute('offset', s[0]);
+      stop.setAttribute('stop-color', 'rgba(255,255,255,' + s[1] + ')');
+      tubeGrad.appendChild(stop);
+    });
+    defs.appendChild(tubeGrad); svg.appendChild(defs);
+
+    function xPos(i) { return barL + (i / (n - 1)) * (barR - barL); }
+    function yPos(v) { return padT + plotH - ((v - 1) / 9) * plotH; }
+    function mkEl(tag, attrs) {
+      var e = document.createElementNS(NS, tag);
+      Object.keys(attrs).forEach(function(k){ e.setAttribute(k, attrs[k]); });
+      return e;
+    }
+
+    // Y grid lines — no vertical axis line; labels at x=0 (aligned with "v" in "vs")
+    [2, 4, 6, 8, 10].forEach(function(yv) {
+      var y = yPos(yv);
+      svg.appendChild(mkEl('line', { x1: 0, y1: y, x2: W - padR, y2: y,
+        stroke: 'rgba(255,255,255,0.05)', 'stroke-width': '1', 'stroke-dasharray': '3,3' }));
+      var t = mkEl('text', { x: 0, y: y - 2, 'text-anchor': 'start',
+        'font-family': 'Space Mono, monospace', 'font-size': '6', fill: 'rgba(255,255,255,0.2)' });
+      t.textContent = yv; svg.appendChild(t);
+    });
+
+    // Opponent logo paths (URL-encoded)
+    var logoPaths = [
+      '../../assets/Opp%20logo%20Mads/NTFC.png',
+      '../../assets/Opp%20logo%20Mads/PAFC.webp',
+      '../../assets/Opp%20logo%20Mads/BAFC%20.png',
+      '../../assets/Opp%20logo%20Mads/WAFC%20.png',
+      '../../assets/Opp%20logo%20Mads/CCFC%20.png'
+    ];
+    var logoDefs = document.createElementNS(NS, 'defs');
+    svg.appendChild(logoDefs);
+
+    // Dotted progression line through bar tops — animates left-to-right on load
+    var linePts = games.map(function(g, j) {
+      return xPos(j) + ',' + yPos(avgArr(g.scores));
+    }).join(' ');
+    _trendLine = mkEl('polyline', {
+      points: linePts, fill: 'none',
+      stroke: 'rgba(255,255,255,0.16)', 'stroke-width': '1.2',
+      'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+    });
+    svg.appendChild(_trendLine);
+
+    // Per-bar
+    games.forEach(function(g, i) {
+      var x     = xPos(i);
+      var a     = avgArr(g.scores);
+      var yTop  = yPos(a);
+      var yBase = padT + plotH;
+      var col   = kpiColor(a);
+      var barH  = yBase - yTop;
+
+      // Tube bar: rounded rect with solid color + highlight overlay
+      var barRect = mkEl('rect', { x: x - BW/2, y: yTop, width: BW, height: barH,
+        rx: BW/2, ry: BW/2, fill: col });
+      barRect.style.transition = 'filter 0.28s ease, width 0.28s ease, x 0.28s ease';
+      svg.appendChild(barRect);
+      var barHL = mkEl('rect', { x: x - BW/2, y: yTop, width: BW, height: barH,
+        rx: BW/2, ry: BW/2, fill: 'url(#fc-tube-hl)' });
+      barHL.style.transition = 'width 0.28s ease, x 0.28s ease';
+      svg.appendChild(barHL);
+
+      // Logo circle — always visible, opponent logo clipped to circle above bar
+      var logoR = 7, logoCY = yTop - logoR - 4;
+      var clipId = 'fc-lc-' + i;
+      var cp = document.createElementNS(NS, 'clipPath'); cp.setAttribute('id', clipId);
+      var cpCirc = mkEl('circle', { cx: x, cy: logoCY, r: logoR }); cp.appendChild(cpCirc);
+      logoDefs.appendChild(cp);
+      var topDot = mkEl('image', { href: logoPaths[i], x: x - logoR, y: logoCY - logoR,
+        width: logoR * 2, height: logoR * 2, 'clip-path': 'url(#' + clipId + ')',
+        preserveAspectRatio: 'xMidYMid slice', opacity: '1' });
+      topDot.style.transition = 'opacity 0.28s ease';
+      svg.appendChild(topDot);
+
+      // Score text — appears above logo on hover/select
+      var scoreText = mkEl('text', { x: x, y: logoCY - logoR - 3, 'text-anchor': 'middle',
+        'font-family': 'Bebas Neue, sans-serif', 'font-size': '8', fill: col,
+        'font-weight': '600', opacity: '0' });
+      scoreText.textContent = a.toFixed(1);
+      scoreText.style.transition = 'opacity 0.28s ease';
+      svg.appendChild(scoreText);
+
+      // X-axis indicator dot (selected) — opacity-animated
+      var baseDot = mkEl('circle', { cx: x, cy: yBase + 6, r: '3', fill: col, opacity: '0' });
+      baseDot.style.transition = 'opacity 0.28s ease';
+      svg.appendChild(baseDot);
+
+      // Date label — color-transitioned via filter
+      var dateText = mkEl('text', { x: x, y: yBase + 18, 'text-anchor': 'middle',
+        'font-family': 'Space Mono, monospace', 'font-size': '6.5', fill: 'rgba(255,255,255,0.32)' });
+      dateText.style.transition = 'fill 0.28s ease';
+      dateText.textContent = g.date; svg.appendChild(dateText);
+
+      // Hit area
+      var hit = mkEl('rect', { x: x - 22, y: 0, width: 44, height: H, fill: 'transparent' });
+      hit.style.cursor = 'pointer';
+      (function(idx) {
+        hit.addEventListener('mouseenter', function(){ selectGame(idx); });
+        hit.addEventListener('click',      function(){ selectGame(idx); });
+      })(i);
+      svg.appendChild(hit);
+
+      svgEls.push({ barRect: barRect, barHL: barHL, barX: x,
+                    topDot: topDot, scoreText: scoreText, baseDot: baseDot, dateText: dateText });
+    });
+
+    chartDiv.appendChild(svg);
+
+    function selectGame(idx) {
+      selectedIdx = idx;
+      svgEls.forEach(function(els, i) {
+        var on = i === idx;
+        var bw = on ? BW + 2 : BW;
+        els.barRect.setAttribute('width', bw);
+        els.barRect.setAttribute('x', els.barX - bw / 2);
+        els.barRect.style.filter = on ? 'brightness(1.28)' : 'brightness(1)';
+        els.barHL.setAttribute('width', bw);
+        els.barHL.setAttribute('x', els.barX - bw / 2);
+        els.scoreText.setAttribute('opacity', on ? '1' : '0');
+        els.baseDot.setAttribute('opacity',  on ? '1' : '0');
+        els.dateText.setAttribute('fill', on ? '#fff' : 'rgba(255,255,255,0.32)');
+        els.dateText.setAttribute('font-weight', on ? '600' : '400');
+      });
+      renderDetail(idx);
+    }
+    _selectGame = selectGame;
+
+    function renderDetail(idx) {
+      var g      = games[idx];
+      var tot    = avgArr(g.scores);
+      var totCol = kpiColor(tot);
+
+      // Header: opponent + date on left, avg score on right — same row
+      var html = '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:5px;">'
+        + '<div style="display:flex;align-items:baseline;gap:6px;">'
+        + '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:0.05em;color:#fff;line-height:1;">' + g.opponent + '</span>'
+        + '<span style="font-family:\'Space Mono\',monospace;font-size:0.37rem;color:rgba(255,255,255,0.32);text-transform:uppercase;">' + g.date + '</span>'
+        + '</div>'
+        + '<div style="display:flex;align-items:baseline;gap:4px;flex-shrink:0;">'
+        + '<span style="font-family:\'Space Mono\',monospace;font-size:0.33rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.28);">avg</span>'
+        + '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;color:' + totCol + ';line-height:1;">' + tot.toFixed(1) + '</span>'
+        + '</div>'
+        + '</div>';
+
+      // KPI rows — bar + score + play button share one flex row
+      // Bar is flex:1, so it fills remaining space; score/button are fixed right
+      g.scores.forEach(function(s, i) {
+        var c   = kpiColor(s);
+        var pct = (s / 10 * 100).toFixed(1);
+        html += '<div style="margin-bottom:4px;">'
+          // label above
+          + '<span style="display:block;font-family:\'Space Mono\',monospace;font-size:0.38rem;'
+          + 'letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.68);margin-bottom:3px;">'
+          + kpiLabels[i] + '</span>'
+          // bar + score + button in one row
+          + '<div style="display:flex;align-items:center;gap:7px;">'
+          + '<div style="flex:1;height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;">'
+          + '<div data-pct="' + pct + '" style="width:0%;height:100%;background:' + c + ';border-radius:2px;transition:width 0.45s cubic-bezier(0.4,0,0.2,1);"></div>'
+          + '</div>'
+          + '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:0.88rem;color:' + c + ';line-height:1;flex-shrink:0;">' + s.toFixed(1) + '</span>'
+          + '<button class="fc-play-btn" data-kpi="' + i + '" title="Watch ' + kpiLabels[i] + ' clips">▶</button>'
+          + '</div></div>';
+      });
+
+      detailDiv.innerHTML = html;
+
+      // Wire up play button clicks (delegation)
+      detailDiv.addEventListener('click', function(e) {
+        var btn = e.target.closest ? e.target.closest('.fc-play-btn') : null;
+        if (!btn) return;
+        btn.classList.remove('fc-pb-fire');
+        // Force reflow to restart animation
+        void btn.offsetWidth;
+        btn.classList.add('fc-pb-fire');
+        var orig = btn.textContent;
+        btn.textContent = '●';
+        setTimeout(function() { btn.textContent = orig; }, 420);
+      });
+
+      // Double rAF so bars animate from 0→target after DOM paint
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          detailDiv.querySelectorAll('[data-pct]').forEach(function(el) {
+            el.style.width = el.getAttribute('data-pct') + '%';
+          });
+        });
+      });
+    }
+
+    selectGame(selectedIdx);
+  };
+
+  // Called every time the carousel lands on step 3 — re-runs the draw-in animation
+  window.fcSlide3Enter = function () {
+    if (!_trendLine) return;
+    var len = _trendLine.getTotalLength ? _trendLine.getTotalLength() : 280;
+    _trendLine.style.transition = 'none';
+    _trendLine.setAttribute('stroke-dasharray', len);
+    _trendLine.setAttribute('stroke-dashoffset', len);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        _trendLine.style.transition = 'stroke-dashoffset 1.1s cubic-bezier(0.4,0,0.2,1)';
+        _trendLine.setAttribute('stroke-dashoffset', '0');
+        setTimeout(function () {
+          _trendLine.style.transition = '';
+          _trendLine.setAttribute('stroke-dasharray', '3 3');
+          _trendLine.removeAttribute('stroke-dashoffset');
+        }, 1150);
+      });
+    });
+  };
+})();
+</script>
+
+
+<!-- ═══ 3. FOUNDER QUOTE ══════════════════════════════════════════════════ -->
+<section class="py-14 px-4 sm:px-6 lg:px-8"
+         style="background:rgba(255,255,255,0.01);border-top:1px solid rgba(255,255,255,0.04);">
+  <div class="max-w-xl mx-auto">
+    <div class="flex items-start gap-6">
+      <img src="../../../../BRIQX team/team-photos/sebastian.jpg"
+           alt="Sebastian Avanzini — Founder, Briqx.ai"
+           class="w-14 h-14 rounded-full object-cover flex-shrink-0"
+           style="border:1px solid rgba(255,255,255,0.1);object-position:top;"
+           onerror="this.style.display='none'">
+      <div style="border-left:2px solid rgba(255,255,255,0.15);padding-left:20px;">
+        <blockquote class="font-serif text-white/75 italic leading-relaxed mb-4"
+                    style="font-weight:300;font-size:clamp(1rem,2vw,1.15rem);">
+          "I spent 20 years as a professional footballer waiting for a tool
+          like this. So I built it."
+        </blockquote>
+        <p class="font-mono text-white/30 uppercase"
+           style="font-size:0.6rem;letter-spacing:0.14em;">
+          &mdash; Sebastian Avanzini, Founder &amp; Professional Footballer
+        </p>
+        <button onclick="document.getElementById('modal-overlay').classList.add('open');document.body.style.overflow='hidden';"
+                class="btn-primary mt-6"
+                style="height:48px;min-width:0;padding:0 28px;">
+          <svg class="btn-motion-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          <span class="btn-motion-text" style="font-size:0.9rem;">CLAIM MY FREE SPOT</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ 4. FOOTER ═════════════════════════════════════════════════════════ -->
+<footer style="background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.05);">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16
+              flex flex-col sm:flex-row items-center justify-between gap-6">
+    <span class="font-mono text-white/10" style="font-size:0.6rem;">&copy; 2026 Briqx.ai</span>
+    <nav aria-label="Footer links" class="flex items-center gap-6">
+      <a href="#" class="font-mono text-white/20 hover:text-white/50 transition-colors duration-150"
+         style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;">About</a>
+      <a href="#" class="font-mono text-white/20 hover:text-white/50 transition-colors duration-150"
+         style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;">Privacy</a>
+      <a href="#" class="font-mono text-white/20 hover:text-white/50 transition-colors duration-150"
+         style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;">Terms</a>
+    </nav>
+  </div>
+</footer>
+
+
+
+
+<!-- ═══ FLOATING ROB WIDGET ═══════════════════════════════════════════════ -->
+
+<!-- Live dot (sits above bubble) -->
+<div id="rob-live-dot" aria-hidden="true"></div>
+
+<!-- Trigger bubble -->
+<button id="rob-bubble" aria-label="Chat with Rob" aria-expanded="false" aria-controls="rob-panel">
+  <img src="../../assets/Avatars/Rob-headshot.png" alt="Rob — AI Football Analyst"
+       onerror="this.style.display='none'">
+</button>
+
+<!-- Chat panel -->
+<div id="rob-panel" role="dialog" aria-label="Chat with Rob" aria-modal="false">
+
+  <!-- Header -->
+  <div class="rob-panel-header">
+    <div class="rob-avatar-sm">
+      <img src="../../assets/Avatars/Rob-headshot.png" alt="Rob">
+    </div>
+    <div class="rob-header-text">
+      <div class="rob-header-name">ROB</div>
+      <div class="rob-header-sub">AI Football Analyst · Online</div>
+    </div>
+    <button id="rob-close" aria-label="Close chat">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div class="rob-messages" id="rob-messages">
+    <div class="rob-typing" id="rob-typing" aria-label="Rob is typing">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="rob-input-row">
+    <input id="rob-input" type="text" placeholder="Ask Rob anything…"
+           autocomplete="off" aria-label="Message Rob"/>
+    <button id="rob-send" aria-label="Send message">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="12" y1="19" x2="12" y2="5"/>
+        <polyline points="5 12 12 5 19 12"/>
+      </svg>
+    </button>
+  </div>
+
+</div>
+
+
+<!-- ═══ JAVASCRIPT ════════════════════════════════════════════════════════ -->
+<script>
+// ── Config ────────────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const REDUCED_MOTION    = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let db = null;
+try {
+  if (window.supabase && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch(e) {}
+
+
+
+
+// ── AI Chat Input (hero widget removed — carousel step 4 uses fcAicStart) ─
+// TW_PROMPTS kept for carousel step 4 compatibility
+const TW_PROMPTS = [
+  {
+    text: "I'm struggling to get to chances from crosses. Can you show me why? and how I can improve my box movements & timing?",
+    name: "Magnus Westergaard", detail: "CM · Vålerenga I.F",
+    initials: "MW", img: "../../assets/Bio Pics/SMall frames bios/MW.jpeg"
+  },
+  {
+    text: "I want to improve my ability to defend the space behind me, when the striker runs in behind. Can you help me?",
+    name: "Mads Andersen", detail: "CB · Luton Town F.C",
+    initials: "MA", img: "../../assets/Bio Pics/SMall frames bios/MJA.jpeg"
+  },
+  {
+    text: "I want to improve my scanning and anticipate my next move before I get the ball throughout the full game. Can you help me show my scanning habits prior to receiving the ball?",
+    name: "Sivert Heltne Nilsen", detail: "CDM · Aberdeen F.C",
+    initials: "SH", img: "../../assets/Bio Pics/SMall frames bios/SHN.jpg"
+  }
+];
+
+(function () {
+  const HOLD_MS = 3000; // stay 3s after fully animated in
+
+  let aicIdx        = 0;
+  let aicFocused    = false;
+  let aicCycleTimer = null;
+  let aicFlashTimer = null;
+  let aicThinkTimer = null;
+
+  const wrapper   = document.getElementById('aic-wrapper');
+  if (!wrapper) return; // hero chat widget removed — bail early
+  const realInput = document.getElementById('aic-real-input');
+  const phInner   = document.getElementById('aic-placeholder-inner');
+  const sendBtn   = document.getElementById('aic-send-btn');
+
+  // ── Auto-resize textarea ─────────────────────────────────────────────────
+  function autoResize() {
+    realInput.style.height = 'auto';
+    realInput.style.height = Math.min(realInput.scrollHeight, 180) + 'px';
+  }
+
+  // ── Update player identity (photo + name/detail) ─────────────────────────
+  function updatePlayer(idx, animate) {
+    const metaEl   = document.getElementById('aic-player-meta');
+    const photoEl  = document.getElementById('aic-photo-wrap');
+    const nameEl   = document.getElementById('aic-player-name');
+    const detailEl = document.getElementById('aic-player-detail');
+    const imgEl    = document.getElementById('aic-photo-img');
+    const initEl   = document.getElementById('aic-photo-initials');
+    const p = TW_PROMPTS[idx];
+    if (animate) {
+      metaEl.classList.add('fading');
+      photoEl.classList.add('fading');
+      setTimeout(() => {
+        nameEl.textContent   = p.name;
+        detailEl.textContent = p.detail;
+        imgEl.src = p.img; imgEl.style.display = '';
+        initEl.textContent = p.initials;
+        metaEl.classList.remove('fading');
+        photoEl.classList.remove('fading');
+      }, 300);
+    } else {
+      nameEl.textContent   = p.name;
+      detailEl.textContent = p.detail;
+      imgEl.src = p.img;
+      initEl.textContent = p.initials;
+    }
+  }
+
+  // ── Placeholder letter animation (horizontal gradual spacing) ────────────
+  function showPlaceholder(text) {
+    if (aicFocused || realInput.value) return;
+    phInner.innerHTML = '';
+    let charIndex = 0;
+    // Group chars by word so lines only break at spaces, never mid-word
+    text.split(' ').forEach((word, wi, arr) => {
+      const wordWrap = document.createElement('span');
+      wordWrap.style.cssText = 'display:inline; white-space:nowrap;';
+      word.split('').forEach(char => {
+        const s = document.createElement('span');
+        s.className = 'aic-letter';
+        s.textContent = char;
+        s.style.transitionDelay = (charIndex * 0.022) + 's';
+        wordWrap.appendChild(s);
+        charIndex++;
+      });
+      phInner.appendChild(wordWrap);
+      if (wi < arr.length - 1) {
+        const sp = document.createElement('span');
+        sp.className = 'aic-letter';
+        sp.textContent = '\u00A0';
+        sp.style.transitionDelay = (charIndex * 0.022) + 's';
+        phInner.appendChild(sp);
+        charIndex++;
+      }
+    });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      phInner.querySelectorAll('.aic-letter').forEach(s => s.classList.add('in'));
+    }));
+  }
+
+  function fadeOutThen(cb) {
+    const letters = phInner.querySelectorAll('.aic-letter');
+    if (!letters.length) { cb(); return; }
+    letters.forEach((s, i) => {
+      s.style.transitionDelay = (i * 0.012) + 's';
+      s.classList.remove('in');
+      s.classList.add('out');
+    });
+    setTimeout(cb, 350);
+  }
+
+  function stopCycle() {
+    clearTimeout(aicCycleTimer); aicCycleTimer = null;
+    clearTimeout(aicFlashTimer); aicFlashTimer = null;
+    clearTimeout(aicThinkTimer); aicThinkTimer = null;
+    aicThinkingHide('aic-thinking', 'aic-placeholder');
+  }
+
+  // Show text, then schedule next cycle after (animDuration + HOLD_MS)
+  function showAndSchedule(text) {
+    showPlaceholder(text);
+    stopCycle();
+    const animMs = text.length * 22;
+    // Cursor glides to send button after typewriter finishes
+    aicFlashTimer = setTimeout(() => {
+      if (aicFocused || realInput.value) return;
+      aicBtnClick('aic-send-btn', 'aic-placeholder');
+    }, animMs + 400);
+    // Show thinking state after cursor click lands
+    aicThinkTimer = setTimeout(() => {
+      if (aicFocused || realInput.value) return;
+      aicThinkingShow('aic-thinking', 'aic-placeholder');
+    }, animMs + 1500);
+    // Advance to next prompt after 5s of Analysing
+    aicCycleTimer = setTimeout(() => {
+      if (aicFocused || realInput.value) return;
+      aicThinkingHide('aic-thinking', 'aic-placeholder');
+      fadeOutThen(() => {
+        aicIdx = (aicIdx + 1) % TW_PROMPTS.length;
+        updatePlayer(aicIdx, true);
+        showAndSchedule(TW_PROMPTS[aicIdx].text);
+      });
+    }, animMs + 6500);
+  }
+
+  // ── Events ───────────────────────────────────────────────────────────────
+  wrapper.addEventListener('click', () => realInput.focus());
+
+  realInput.addEventListener('focus', () => {
+    aicFocused = true;
+    stopCycle();
+    phInner.innerHTML = '';
+  });
+
+  realInput.addEventListener('blur', () => {
+    aicFocused = false;
+    if (!realInput.value) {
+      showAndSchedule(TW_PROMPTS[aicIdx].text);
+    }
+  });
+
+  realInput.addEventListener('input', () => {
+    autoResize();
+    phInner.style.visibility = realInput.value ? 'hidden' : '';
+    sendBtn.classList.toggle('can-send', realInput.value.trim().length > 0);
+  });
+
+  sendBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (realInput.value.trim()) openModal();
+  });
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+  updatePlayer(0, false);
+  if (!REDUCED_MOTION) {
+    setTimeout(() => showAndSchedule(TW_PROMPTS[0].text), 600);
+  } else {
+    phInner.textContent = TW_PROMPTS[0].text;
+  }
+})();
+
+
+// ── Modal ─────────────────────────────────────────────────────────────────
+const modalOverlay = document.getElementById('modal-overlay');
+const modalCard    = document.getElementById('modal-card');
+
+function openModal() {
+  modalOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  var _mlv = document.getElementById('modal-left-video');
+  if (_mlv) { _mlv.currentTime = 0; _mlv.play().catch(function(){}); }
+  var _loopVid = document.getElementById('fvw-loop');
+  if (_loopVid) _loopVid.pause();
+  // Focus first field after animation settles
+  setTimeout(() => {
+    const first = modalCard.querySelector('input:not([type="hidden"])');
+    if (first) first.focus();
+  }, 320);
+}
+
+function closeModal() {
+  modalOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+  var _mlv = document.getElementById('modal-left-video');
+  if (_mlv) _mlv.pause();
+  var _loopVid = document.getElementById('fvw-loop');
+  if (_loopVid) _loopVid.play().catch(function(){});
+  // Reset Typeform panel so form shows again on next open
+  var tf = document.getElementById('modal-typeform');
+  if (tf) tf.style.display = 'none';
+}
+
+var _navCta = document.getElementById('nav-cta');
+if (_navCta) _navCta.addEventListener('click', openModal);
+var _heroCta = document.getElementById('hero-cta');
+if (_heroCta) _heroCta.addEventListener('click', openModal);
+var _modalClose = document.getElementById('modal-close');
+if (_modalClose) _modalClose.addEventListener('click', closeModal);
+
+// Close on overlay background click
+modalOverlay.addEventListener('click', (e) => {
+  if (e.target === modalOverlay) closeModal();
+});
+
+// Close on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
+});
+
+
+// ── Modal form ────────────────────────────────────────────────────────────
+const modalForm      = document.getElementById('modal-form');
+const modalSubmitBtn = document.getElementById('modal-submit-btn');
+const modalFormWrap  = document.getElementById('modal-form-wrap');
+const modalSuccess   = document.getElementById('modal-success');
+
+const errName  = document.getElementById('err-m-name');
+const errEmail = document.getElementById('err-m-email');
+
+function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+function clearErr(el)     { el.textContent = ''; el.style.display = 'none'; }
+function validEmail(v)    { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+document.getElementById('m-name').addEventListener('input',  () => clearErr(errName));
+document.getElementById('m-email').addEventListener('input', () => clearErr(errEmail));
+
+modalForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name      = document.getElementById('m-name').value.trim();
+  const email     = document.getElementById('m-email').value.trim();
+  const club      = document.getElementById('m-club').value.trim();
+  const instagram = document.getElementById('m-instagram').value.trim();
+
+  clearErr(errName); clearErr(errEmail);
+  let ok = true;
+  if (!name)               { showErr(errName,  'Please enter your name.'); ok = false; }
+  if (!email)              { showErr(errEmail, 'Please enter your email.'); ok = false; }
+  else if (!validEmail(email)) { showErr(errEmail, 'Please enter a valid email.'); ok = false; }
+  if (!ok) return;
+
+  modalSubmitBtn.disabled = true;
+  modalSubmitBtn.querySelector('.btn-motion-text').textContent = 'SAVING YOUR SPOT...';
+
+  if (db) {
+    const { error } = await db.from('waitlist_v2').insert({ name, email, club, instagram });
+    if (error?.code === '23505') {
+      showErr(errEmail, 'This email is already on the waitlist.');
+      modalSubmitBtn.disabled = false;
+      modalSubmitBtn.querySelector('.btn-motion-text').textContent = 'CLAIM MY SPOT — IT\'S FREE';
+      return;
+    }
+  }
+
+  // Transition to Typeform
+  modalFormWrap.style.transition = 'opacity 0.25s ease';
+  modalFormWrap.style.opacity = '0';
+  setTimeout(() => {
+    modalFormWrap.style.display = 'none';
+    var tf = document.getElementById('modal-typeform');
+    if (tf) tf.style.display = 'block';
+  }, 250);
+});
+
+</script>
+
+<!-- ═══ WAITLIST AUTO-TRIGGER ═════════════════════════════════════════════ -->
+<script>
+(function () {
+  var DELAY_MS  = 4000;
+  var triggered = false;
+  var timer     = setTimeout(trigger, DELAY_MS);
+
+  function trigger() {
+    if (triggered) return;
+    triggered = true;
+    clearTimeout(timer);
+    if (typeof openModal === 'function') openModal();
+  }
+
+  // Exit intent (desktop: cursor leaves top of viewport)
+  document.addEventListener('mouseleave', function(e) {
+    if (e.clientY <= 0) trigger();
+  });
+})();
+</script>
+
+
+<!-- ═══ FLOATING ROB — JS ══════════════════════════════════════════════════ -->
+<script>
+(function () {
+  const bubble  = document.getElementById('rob-bubble');
+  const panel   = document.getElementById('rob-panel');
+  const closeBtn= document.getElementById('rob-close');
+  const msgArea = document.getElementById('rob-messages');
+  const typingEl= document.getElementById('rob-typing');
+  const inputEl = document.getElementById('rob-input');
+  const sendBtn = document.getElementById('rob-send');
+
+  let isOpen = false;
+  let greeted = false;
+
+  const GREETING = "Hey — I'm Rob. Your personal AI football analyst. Ask me anything about your game, or tell me what you want to improve.";
+  const REPLIES = [
+    "That's exactly the kind of thing I can break down for you. Sign up to get full access.",
+    "Good question. I analyse positioning, scanning habits, decision-making — the layers most coaches never reach.",
+    "I'd need to see your match data, but I can already tell you where most players at your level are losing the ball.",
+    "That's where Layer 1 analysis comes in. The why behind every moment. Want to see it in action?",
+  ];
+  let replyIdx = 0;
+
+  function openPanel() {
+    isOpen = true;
+    panel.classList.add('open');
+    bubble.setAttribute('aria-expanded', 'true');
+    inputEl.focus();
+    if (!greeted) {
+      greeted = true;
+      setTimeout(() => {
+        typingEl.remove();
+        addMessage(GREETING);
+      }, 1200);
+    }
+  }
+
+  function closePanel() {
+    isOpen = false;
+    panel.classList.remove('open');
+    bubble.setAttribute('aria-expanded', 'false');
+  }
+
+  function addMessage(text, isUser = false) {
+    const div = document.createElement('div');
+    div.className = isUser
+      ? 'rob-msg'
+      : 'rob-msg';
+    if (isUser) {
+      div.style.cssText = 'background:rgba(190,221,0,0.08);border-color:rgba(190,221,0,0.15);font-family:Inter,sans-serif;font-style:normal;font-size:0.8rem;color:rgba(255,255,255,0.85);border-radius:12px 12px 4px 12px;align-self:flex-end;';
+    }
+    div.textContent = text;
+    msgArea.appendChild(div);
+    msgArea.scrollTop = msgArea.scrollHeight;
+  }
+
+  function addTypingThenReply() {
+    const typing = document.createElement('div');
+    typing.className = 'rob-typing';
+    typing.innerHTML = '<span></span><span></span><span></span>';
+    msgArea.appendChild(typing);
+    msgArea.scrollTop = msgArea.scrollHeight;
+
+    setTimeout(() => {
+      typing.remove();
+      const reply = REPLIES[replyIdx % REPLIES.length];
+      replyIdx++;
+      addMessage(reply);
+
+      // After 2nd reply, nudge to sign up
+      if (replyIdx === 2) {
+        setTimeout(() => {
+          addMessage('Want the full analysis? Claim your free spot — only 24 pilots left.');
+        }, 800);
+      }
+    }, 1400);
+  }
+
+  function handleSend() {
+    const text = inputEl.value.trim();
+    if (!text) return;
+    addMessage(text, true);
+    inputEl.value = '';
+    addTypingThenReply();
+  }
+
+  bubble.addEventListener('click', () => isOpen ? closePanel() : openPanel());
+  closeBtn.addEventListener('click', closePanel);
+  sendBtn.addEventListener('click', handleSend);
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  });
+
+  // Close on outside click
+  document.addEventListener('click', e => {
+    if (isOpen && !panel.contains(e.target) && !bubble.contains(e.target)) {
+      closePanel();
+    }
+  });
+})();
+</script>
+
+<!-- ═══ FLOATING VIDEO WIDGET ════════════════════════════════════════════ -->
+
+<!-- Bubble label -->
+<div id="fvw-label" aria-hidden="true">
+  <p>Get Started Today &amp; Claim Lifetime Access!</p>
+</div>
+
+<!-- Bubble -->
+<div id="fvw-bubble" role="button" aria-label="Watch intro video">
+  <div id="fvw-bubble-inner">
+    <video id="fvw-loop" src="../../assets/Videos/intro-loop.mp4"
+           autoplay muted loop playsinline
+           onerror="this.style.display='none';document.getElementById('fvw-initials').style.display='block'">
+    </video>
+    <span id="fvw-initials" style="display:none;">SEB</span>
+  </div>
+  <div id="fvw-live-dot"></div>
+</div>
+
+<script>
+(function () {
+  var bubble = document.getElementById('fvw-bubble');
+  if (bubble) {
+    bubble.addEventListener('click', function() {
+      if (typeof openModal === 'function') openModal();
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
