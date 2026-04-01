@@ -204,7 +204,8 @@
       white-space: nowrap;
     }
     .ihb-btn:not(.ihb-scarcity):hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
-    .ihb-btn:hover { transform: translateY(-2px) scale(1.04); }
+    .ihb-btn:not(.ihb-scarcity):hover { transform: translateY(-2px) scale(1.04); }
+    .ihb-btn.ihb-scarcity:hover { transform: scale(1.02); }
     .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
     /* ── Scarcity merged into button ── */
     .ihb-btn.ihb-scarcity { height: 72px; }
@@ -951,6 +952,11 @@
 
 <body>
 
+<!-- Floating BRIQX logo top-left -->
+<div style="position:fixed;top:22px;left:24px;z-index:9990;pointer-events:none;">
+  <img src="assets/Logo/Logo/BRIQX%20LOGO%20.png" alt="BRIQX" style="height:30px;width:auto;opacity:0.92;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
+</div>
+
 <!-- ═══ MODAL ════════════════════════════════════════════════════════════ -->
 <!-- Floating CTA -->
 <div id="top-cta-wrap" style="position:fixed;top:28px;right:28px;z-index:90;">
@@ -1327,32 +1333,32 @@
 
               <!-- Framework wrap — Step 2 -->
               <div id="fc-framework-wrap" style="display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;">
-                <div style="display:grid;grid-template-areas:'stack';place-items:center;flex-shrink:0;transform:translate(-111px,-69px);">
-                  <div id="fc-fw-card1" style="grid-area:stack;position:relative;width:570px;border-radius:24px;background:#212121;border:1px solid rgba(255,255,255,0.08);padding:45px 36px;transform:skewY(-8deg);transition:transform 0.65s ease,opacity 0.65s ease;cursor:default;overflow:hidden;">
+                <div style="display:grid;grid-template-areas:'stack';place-items:center;flex-shrink:0;transform:translate(-130px,-100px);">
+                  <div id="fc-fw-card1" style="grid-area:stack;position:relative;width:460px;border-radius:24px;background:#212121;border:1px solid rgba(255,255,255,0.08);padding:45px 28px;transform:skewY(-8deg);transition:transform 0.65s ease,opacity 0.65s ease;cursor:default;overflow:hidden;">
                     <div id="fc-fw-ov1" style="position:absolute;inset:0;background:rgba(0,0,0,0.52);border-radius:24px;pointer-events:none;transition:opacity 0.65s ease;"></div>
                     <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
                       <span style="font-family:'Space Mono',monospace;font-size:0.82rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.42);">What happened</span>
                       <span style="font-family:'Bebas Neue',sans-serif;font-size:1.65rem;color:rgba(190,221,0,0.38);">3</span>
                     </div>
                     <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:3.0rem;letter-spacing:0.05em;color:rgba(255,255,255,0.55);margin-bottom:12px;">Action</div>
-                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:300;color:rgba(255,255,255,0.3);line-height:1.55;margin:0;">This is your execution. The outcome. This is highly correlated to your awareness & decision-making.</p>
+                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.3);line-height:1.55;margin:0;">This is your execution. The outcome. This is highly correlated to your awareness & decision-making.</p>
                   </div>
-                  <div id="fc-fw-card2" style="grid-area:stack;position:relative;width:570px;border-radius:24px;background:#1c1c1c;border:1px solid rgba(255,255,255,0.1);padding:45px 36px;transform:translateX(93px) translateY(72px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;overflow:hidden;">
+                  <div id="fc-fw-card2" style="grid-area:stack;position:relative;width:460px;border-radius:24px;background:#1c1c1c;border:1px solid rgba(255,255,255,0.1);padding:45px 28px;transform:translateX(75px) translateY(58px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;overflow:hidden;">
                     <div id="fc-fw-ov2" style="position:absolute;inset:0;background:rgba(0,0,0,0.3);border-radius:24px;pointer-events:none;transition:opacity 0.65s ease;"></div>
                     <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
                       <span style="font-family:'Space Mono',monospace;font-size:0.82rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.62);">How it happened</span>
                       <span style="font-family:'Bebas Neue',sans-serif;font-size:1.65rem;color:rgba(190,221,0,0.58);">2</span>
                     </div>
                     <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:3.0rem;letter-spacing:0.05em;color:rgba(255,255,255,0.78);margin-bottom:12px;">Decision-Making</div>
-                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.55;margin:0;">Your ability to assess risk & reward in different situations, and choose the most feasible option.</p>
+                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.55;margin:0;">Your ability to assess risk & reward in different situations, and choose the most feasible option.</p>
                   </div>
-                  <div id="fc-fw-card3" style="grid-area:stack;width:570px;border-radius:24px;background:#141414;border:1px solid rgba(190,221,0,0.28);padding:45px 36px;transform:translateX(186px) translateY(144px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;box-shadow:0 12px 54px rgba(0,0,0,0.7);">
+                  <div id="fc-fw-card3" style="grid-area:stack;width:460px;border-radius:24px;background:#141414;border:1px solid rgba(190,221,0,0.28);padding:45px 28px;transform:translateX(150px) translateY(116px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;box-shadow:0 12px 54px rgba(0,0,0,0.7);">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
                       <span style="font-family:'Space Mono',monospace;font-size:0.82rem;letter-spacing:0.15em;text-transform:uppercase;color:#BEDD00;">Why it happened</span>
                       <span style="font-family:'Bebas Neue',sans-serif;font-size:1.65rem;color:#BEDD00;">1</span>
                     </div>
                     <div style="font-family:'Bebas Neue',sans-serif;font-size:3.0rem;letter-spacing:0.05em;color:#fff;margin-bottom:12px;">Awareness</div>
-                    <p style="font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.55;margin:0;">This is the foundation of your performance. Your ability to anticipate, scan, position your body, react. Everything that goes prior to the actions.</p>
+                    <p style="font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.55;margin:0;">This is the foundation of your performance. Your ability to anticipate, scan, position your body, react. Everything that goes prior to the actions.</p>
                     <div style="margin-top:21px;height:3px;width:60px;background:#BEDD00;border-radius:2px;"></div>
                   </div>
                 </div>
@@ -2514,8 +2520,8 @@ function aicBtnClick(btnId, originElId) {
   // card1 = Action (back), card2 = Decision-Making (mid), card3 = Awareness (front)
   var base = [
     'skewY(-8deg)',
-    'translateX(93px) translateY(72px) skewY(-8deg)',
-    'translateX(186px) translateY(144px) skewY(-8deg)'
+    'translateX(75px) translateY(58px) skewY(-8deg)',
+    'translateX(150px) translateY(116px) skewY(-8deg)'
   ];
   var c1, c2, c3, o1, o2;
 
@@ -2531,24 +2537,24 @@ function aicBtnClick(btnId, originElId) {
   function bind() {
     // Hover Action (back/card1): pop card1 up, card2+card3 drop down to fully clear card1
     c1.addEventListener('mouseenter', function () {
-      c1.style[T] = 'translateY(-24px) skewY(-8deg)';
-      c2.style[T] = 'translateX(93px) translateY(210px) skewY(-8deg)';
-      c3.style[T] = 'translateX(186px) translateY(252px) skewY(-8deg)';
+      c1.style[T] = 'translateY(-20px) skewY(-8deg)';
+      c2.style[T] = 'translateX(75px) translateY(170px) skewY(-8deg)';
+      c3.style[T] = 'translateX(150px) translateY(204px) skewY(-8deg)';
       if (o1) o1.style.opacity = '0';
     });
     c1.addEventListener('mouseleave', reset);
 
     // Hover Decision-Making (mid/card2): pop card2 up, card3 drops down to fully clear card2
     c2.addEventListener('mouseenter', function () {
-      c2.style[T] = 'translateX(93px) translateY(36px) skewY(-8deg)';
-      c3.style[T] = 'translateX(186px) translateY(267px) skewY(-8deg)';
+      c2.style[T] = 'translateX(75px) translateY(29px) skewY(-8deg)';
+      c3.style[T] = 'translateX(150px) translateY(215px) skewY(-8deg)';
       if (o2) o2.style.opacity = '0';
     });
     c2.addEventListener('mouseleave', reset);
 
     // Hover Awareness (front/card3): gentle lift
     c3.addEventListener('mouseenter', function () {
-      c3.style[T] = 'translateX(186px) translateY(123px) skewY(-8deg)';
+      c3.style[T] = 'translateX(150px) translateY(99px) skewY(-8deg)';
     });
     c3.addEventListener('mouseleave', reset);
   }
