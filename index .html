@@ -1621,6 +1621,39 @@
     .fc-grid { grid-template-columns: 1fr !important; }
     .fc-grid > div:last-child { display: none; }
   }
+
+  /* ── MOBILE HERO ── */
+  @media (max-width: 768px) {
+    /* Headline */
+    h1.font-display { font-size: clamp(2rem, 8vw, 3rem) !important; }
+
+    /* Carousel card height */
+    #fc-card { height: auto !important; min-height: 420px; }
+
+    /* Step nav — smaller pills */
+    .fc-step { padding: 5px 8px !important; gap: 5px !important; }
+    .fc-step span:last-child { display: none; }
+
+    /* CTA button full width */
+    .ihb-btn { width: 100% !important; }
+
+    /* Floating top-right CTA — hide on mobile */
+    #fvw-label { display: none !important; }
+
+    /* Subheadline font size */
+    .anim-d2 { font-size: 0.85rem !important; }
+
+    /* Founder section stack */
+    .max-w-xl .flex { flex-direction: column; align-items: center; text-align: center; }
+    .max-w-xl .flex > div { border-left: none !important; border-top: 2px solid rgba(255,255,255,0.15); padding-left: 0 !important; padding-top: 20px; margin-top: 10px; }
+
+    /* Testimonial cards min width */
+    .ts-card { min-width: 280px !important; }
+
+    /* Top right CTA — smaller */
+    #fvw-bubble { width: 52px !important; height: 52px !important; bottom: 16px !important; right: 16px !important; }
+  }
+
   /* Hero split layout */
   .hero-split {
     display: grid;
