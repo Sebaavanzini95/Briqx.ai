@@ -1106,8 +1106,22 @@
 
     <!-- Headline -->
     <h1 class="font-display text-white anim-d1" style="font-size:clamp(2.6rem,6vw,5.8rem);letter-spacing:0.02em;line-height:1.0;margin-bottom:20px;">
-      <span style="font-size:1.0em;">Your Own Personal</span><br><span style="color:#BEDD00;font-size:1.2em;">Football AI Analyst</span>
+      <span id="hl-row1" style="display:inline-block;white-space:nowrap;">Your Own Personal</span><br><span id="hl-row2" style="display:inline-block;white-space:nowrap;color:#BEDD00;">Football AI Analyst</span>
     </h1>
+    <script>
+    (function(){
+      var r1=document.getElementById('hl-row1'),r2=document.getElementById('hl-row2');
+      function eq(){
+        r1.style.fontSize=''; r2.style.fontSize='';
+        var w1=r1.scrollWidth, w2=r2.scrollWidth;
+        var base=parseFloat(getComputedStyle(r1.parentElement).fontSize);
+        if(w1<w2){ r1.style.fontSize=(base*w2/w1)+'px'; }
+        else{ r2.style.fontSize=(base*w1/w2)+'px'; }
+      }
+      if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',eq); } else { eq(); }
+      window.addEventListener('resize',eq);
+    })();
+    </script>
 
     <!-- Subheadline -->
     <p class="anim-d2" style="font-family:'Inter',sans-serif;font-size:clamp(0.9rem,1.6vw,1.1rem);margin-bottom:40px;line-height:1.6;letter-spacing:0.02em;">
@@ -1701,7 +1715,7 @@
     /* Step 2: scale down the stacked cards to fit */
     #fc-framework-wrap { height: 100% !important; width: 100% !important; overflow: hidden !important; }
     #fc-framework-wrap > div {
-      transform: scale(0.52) translate(-50%, -50%) !important;
+      transform: scale(1.04) translate(-50%, -50%) !important;
       transform-origin: top left !important;
       position: absolute !important;
       top: 50% !important; left: 50% !important;
