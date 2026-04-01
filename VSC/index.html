@@ -176,7 +176,7 @@
       transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
       pointer-events: none;
     }
-    .ihb-btn:hover .ihb-dot { transform: translateY(-50%) scale(55); }
+    .ihb-btn:not(.ihb-scarcity):hover .ihb-dot { transform: translateY(-50%) scale(55); }
     .ihb-text-idle {
       position: relative;
       z-index: 1;
@@ -184,7 +184,7 @@
       transition: transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.45s ease;
       pointer-events: none;
     }
-    .ihb-btn:hover .ihb-text-idle { transform: translateX(72px); opacity: 0; }
+    .ihb-btn:not(.ihb-scarcity):hover .ihb-text-idle { transform: translateX(72px); opacity: 0; }
     .ihb-text-hover {
       position: absolute;
       inset: 0;
@@ -203,23 +203,25 @@
       pointer-events: none;
       white-space: nowrap;
     }
-    .ihb-btn:hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
-    .ihb-btn:hover { transform: translateY(-2px) scale(1.04); }
+    .ihb-btn:not(.ihb-scarcity):hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
+    .ihb-btn:not(.ihb-scarcity):hover { transform: translateY(-2px) scale(1.04); }
+    .ihb-btn.ihb-scarcity:hover { transform: scale(1.02); }
     .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
     /* ── Scarcity merged into button ── */
     .ihb-btn.ihb-scarcity { height: 72px; }
-    .ihb-btn.ihb-scarcity .ihb-dot { display: none; }
-    .ihb-btn.ihb-scarcity::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 0;
+    /* Use dot but clip it to 76% using clip-path on the button */
+    .ihb-btn.ihb-scarcity .ihb-dot {
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%) translateX(-101%);
+      transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+      width: 200%; height: 200%;
+      border-radius: 0;
       background: #BEDD00;
-      border-radius: 9999px 0 0 9999px;
-      transition: width 0.55s cubic-bezier(0.4,0,0.2,1);
-      z-index: 0;
     }
-    .ihb-btn.ihb-scarcity:hover::before { width: 76%; }
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot {
+      transform: translateY(-50%) translateX(-62%);
+    }
     .ihb-spots-row {
       position: absolute; bottom: 0; left: 0; right: 0;
       padding: 0 14px 9px;
@@ -233,7 +235,9 @@
       opacity: 0;
       transition: opacity 0.4s ease 0.2s;
     }
-    .ihb-btn.ihb-scarcity:hover .ihb-spots-label { opacity: 1; }
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-spots-label { opacity: 1; }
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px); opacity: 0; }
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-hover { transform: translateX(0); opacity: 1; }
 
     /* ══════════════════════════════════════════
        AI CHAT INPUT
@@ -948,6 +952,11 @@
 
 <body>
 
+<!-- Floating BRIQX logo top-left -->
+<div style="position:fixed;top:22px;left:24px;z-index:9990;pointer-events:none;">
+  <img src="assets/Logo/Logo/BRIQX%20LOGO%20.png" alt="BRIQX" style="height:75px;width:auto;opacity:0.92;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
+</div>
+
 <!-- ═══ MODAL ════════════════════════════════════════════════════════════ -->
 <!-- Floating CTA -->
 <div id="top-cta-wrap" style="position:fixed;top:28px;right:28px;z-index:90;">
@@ -1106,8 +1115,22 @@
 
     <!-- Headline -->
     <h1 class="font-display text-white anim-d1" style="font-size:clamp(2.6rem,6vw,5.8rem);letter-spacing:0.02em;line-height:1.0;margin-bottom:20px;">
-      <span style="font-size:1.13em;">Your Own Personal</span><br><span style="color:#BEDD00;">Football AI Analyst</span>
+      <span id="hl-row1" style="display:inline-block;white-space:nowrap;">Your Own Personal</span><br><span id="hl-row2" style="display:inline-block;white-space:nowrap;color:#BEDD00;">Football AI Analyst</span>
     </h1>
+    <script>
+    (function(){
+      var r1=document.getElementById('hl-row1'),r2=document.getElementById('hl-row2');
+      function eq(){
+        r1.style.fontSize=''; r2.style.fontSize='';
+        var w1=r1.scrollWidth, w2=r2.scrollWidth;
+        var base=parseFloat(getComputedStyle(r1.parentElement).fontSize);
+        if(w1<w2){ r1.style.fontSize=(base*w2/w1)+'px'; }
+        else{ r2.style.fontSize=(base*w1/w2)+'px'; }
+      }
+      if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',eq); } else { eq(); }
+      window.addEventListener('resize',eq);
+    })();
+    </script>
 
     <!-- Subheadline -->
     <p class="anim-d2" style="font-family:'Inter',sans-serif;font-size:clamp(0.9rem,1.6vw,1.1rem);margin-bottom:40px;line-height:1.6;letter-spacing:0.02em;">
@@ -1125,7 +1148,7 @@
 
     <div class="anim-d3" style="width:100%;margin-bottom:16px;">
       <div style="border-radius:24px;background:rgba(255,255,255,0.04);padding:6px;width:100%;">
-        <div id="fc-card" style="position:relative;border-radius:20px;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:1px solid rgba(255,255,255,0.07);overflow:hidden;height:530px;cursor:pointer;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
+        <div id="fc-card" style="position:relative;border-radius:20px;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:1px solid rgba(255,255,255,0.07);overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
 
           <!-- Rob badge — top-left corner -->
           <div id="fc-rob-badge" style="position:absolute;top:16px;left:20px;z-index:20;pointer-events:none;">
@@ -1310,33 +1333,33 @@
 
               <!-- Framework wrap — Step 2 -->
               <div id="fc-framework-wrap" style="display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;">
-                <div style="display:grid;grid-template-areas:'stack';place-items:center;flex-shrink:0;transform:translate(-74px,-46px);">
-                  <div id="fc-fw-card1" style="grid-area:stack;position:relative;width:314px;border-radius:14px;background:#212121;border:1px solid rgba(255,255,255,0.08);padding:28px 22px;transform:skewY(-8deg);transition:transform 0.65s ease,opacity 0.65s ease;cursor:default;overflow:hidden;">
-                    <div id="fc-fw-ov1" style="position:absolute;inset:0;background:rgba(0,0,0,0.52);border-radius:14px;pointer-events:none;transition:opacity 0.65s ease;"></div>
-                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.42);">What happened</span>
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:rgba(190,221,0,0.38);">3</span>
+                <div style="display:grid;grid-template-areas:'stack';place-items:center;flex-shrink:0;transform:translate(-126px,-90px);">
+                  <div id="fc-fw-card1" style="grid-area:stack;position:relative;width:460px;border-radius:24px;background:#212121;border:1px solid rgba(255,255,255,0.08);padding:45px 28px;transform:skewY(-8deg);transition:transform 0.65s ease,opacity 0.65s ease;cursor:default;overflow:hidden;">
+                    <div id="fc-fw-ov1" style="position:absolute;inset:0;background:rgba(0,0,0,0.52);border-radius:24px;pointer-events:none;transition:opacity 0.65s ease;"></div>
+                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                      <span style="font-family:'Space Mono',monospace;font-size:0.82rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.42);">What happened</span>
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.65rem;color:rgba(190,221,0,0.38);">3</span>
                     </div>
-                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:0.05em;color:rgba(255,255,255,0.55);margin-bottom:7px;">Action</div>
-                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:300;color:rgba(255,255,255,0.3);line-height:1.55;margin:0;">This is your execution. The outcome. This is highly correlated to your awareness & decision-making.</p>
+                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:3.0rem;letter-spacing:0.05em;color:rgba(255,255,255,0.55);margin-bottom:12px;">Action</div>
+                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.3);line-height:1.55;margin:0;">This is your execution. The outcome. This is highly correlated to your awareness & decision-making.</p>
                   </div>
-                  <div id="fc-fw-card2" style="grid-area:stack;position:relative;width:314px;border-radius:14px;background:#1c1c1c;border:1px solid rgba(255,255,255,0.1);padding:28px 22px;transform:translateX(62px) translateY(48px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;overflow:hidden;">
-                    <div id="fc-fw-ov2" style="position:absolute;inset:0;background:rgba(0,0,0,0.3);border-radius:14px;pointer-events:none;transition:opacity 0.65s ease;"></div>
-                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.62);">How it happened</span>
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:rgba(190,221,0,0.58);">2</span>
+                  <div id="fc-fw-card2" style="grid-area:stack;position:relative;width:460px;border-radius:24px;background:#1c1c1c;border:1px solid rgba(255,255,255,0.1);padding:45px 28px;transform:translateX(75px) translateY(58px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;overflow:hidden;">
+                    <div id="fc-fw-ov2" style="position:absolute;inset:0;background:rgba(0,0,0,0.3);border-radius:24px;pointer-events:none;transition:opacity 0.65s ease;"></div>
+                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                      <span style="font-family:'Space Mono',monospace;font-size:0.82rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.62);">How it happened</span>
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.65rem;color:rgba(190,221,0,0.58);">2</span>
                     </div>
-                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:0.05em;color:rgba(255,255,255,0.78);margin-bottom:7px;">Decision-Making</div>
-                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.55;margin:0;">Your ability to assess risk & reward in different situations, and choose the most feasible option.</p>
+                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:3.0rem;letter-spacing:0.05em;color:rgba(255,255,255,0.78);margin-bottom:12px;">Decision-Making</div>
+                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.55;margin:0;">Your ability to assess risk & reward in different situations, and choose the most feasible option.</p>
                   </div>
-                  <div id="fc-fw-card3" style="grid-area:stack;width:314px;border-radius:14px;background:#141414;border:1px solid rgba(190,221,0,0.28);padding:28px 22px;transform:translateX(124px) translateY(96px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;box-shadow:0 8px 36px rgba(0,0,0,0.7);">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.15em;text-transform:uppercase;color:#BEDD00;">Why it happened</span>
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:#BEDD00;">1</span>
+                  <div id="fc-fw-card3" style="grid-area:stack;width:460px;border-radius:24px;background:#141414;border:1px solid rgba(190,221,0,0.28);padding:45px 28px;transform:translateX(150px) translateY(116px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;box-shadow:0 12px 54px rgba(0,0,0,0.7);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                      <span style="font-family:'Space Mono',monospace;font-size:0.82rem;letter-spacing:0.15em;text-transform:uppercase;color:#BEDD00;">Why it happened</span>
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.65rem;color:#BEDD00;">1</span>
                     </div>
-                    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:0.05em;color:#fff;margin-bottom:7px;">Awareness</div>
-                    <p style="font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.55;margin:0;">This is the foundation of your performance. Your ability to anticipate, scan, position your body, react. Everything that goes prior to the actions.</p>
-                    <div style="margin-top:14px;height:2px;width:36px;background:#BEDD00;border-radius:2px;"></div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:3.0rem;letter-spacing:0.05em;color:#fff;margin-bottom:12px;">Awareness</div>
+                    <p style="font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.55;margin:0;">This is the foundation of your performance. Your ability to anticipate, scan, position your body, react. Everything that goes prior to the actions.</p>
+                    <div style="margin-top:21px;height:3px;width:60px;background:#BEDD00;border-radius:2px;"></div>
                   </div>
                 </div>
               </div>
@@ -1669,7 +1692,7 @@
     #fc-step-nav-mobile { display: flex !important; }
 
     /* Carousel card — 1/3 bigger than 220 = ~293, use 300px */
-    #fc-card { height: 300px !important; }
+    #fc-card { height: 375px !important; }
 
     /* Carousel grid — right panel only, no padding */
     .fc-grid {
@@ -1721,23 +1744,24 @@
       width: 100%;
       margin-top: 16px;
     }
-    .ihb-btn.ihb-scarcity:active::before,
-    .ihb-btn.ihb-scarcity.ihb-touch-active::before { width: 76% !important; }
+    .ihb-btn.ihb-scarcity:active .ihb-dot,
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { transform: translateY(-50%) translateX(-62%) !important; }
+    .ihb-btn.ihb-scarcity:not(:active):not(.ihb-active) .ihb-dot { transform: translateY(-50%) translateX(-101%) !important; }
     .ihb-btn.ihb-scarcity:active .ihb-text-idle,
-    .ihb-btn.ihb-scarcity.ihb-touch-active .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
     .ihb-btn.ihb-scarcity:active .ihb-text-hover,
-    .ihb-btn.ihb-scarcity.ihb-touch-active .ihb-text-hover { transform: translateX(0) !important; opacity: 1 !important; }
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-hover { transform: translateX(0) !important; opacity: 1 !important; }
     .ihb-btn.ihb-scarcity:active .ihb-spots-label,
-    .ihb-btn.ihb-scarcity.ihb-touch-active .ihb-spots-label { opacity: 1 !important; }
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-spots-label { opacity: 1 !important; }
     .ihb-btn.ihb-scarcity:active,
-    .ihb-btn.ihb-scarcity.ihb-touch-active { transform: translateY(-2px) scale(1.04) !important; }
+    .ihb-btn.ihb-scarcity.ihb-active { transform: translateY(-2px) scale(1.04) !important; }
 
     /* Testimonial cards */
     .ts-card { min-width: 280px !important; }
 
     /* Video bubble — keep, smaller on mobile */
     #fvw-bubble { width: 56px !important; height: 56px !important; bottom: 16px !important; right: 16px !important; }
-    #fvw-label { bottom: 76px !important; right: 76px !important; max-width: 160px !important; }
+    #fvw-label { bottom: 36px !important; right: 98px !important; max-width: 150px !important; }
   }
 
   /* Hide mobile step nav and CTA on desktop */
@@ -1824,9 +1848,9 @@
      FLOATING VIDEO WIDGET
   ══════════════════════════════════════════ */
   #fvw-label {
-    position: fixed; bottom: 84px; right: 108px; z-index: 9998;
+    position: fixed; bottom: 44px; right: 108px; z-index: 9998;
     background: #1e2a1e;
-    border-radius: 18px 18px 4px 18px;
+    border-radius: 12px 12px 12px 4px;
     padding: 11px 15px;
     max-width: 185px;
     pointer-events: none;
@@ -1842,9 +1866,11 @@
   }
   #fvw-label::after {
     content: '';
-    position: absolute; bottom: -8px; right: 10px;
-    border-left: 8px solid transparent;
-    border-top: 8px solid #1e2a1e;
+    position: absolute; top: 50%; right: -8px;
+    transform: translateY(-50%);
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #1e2a1e;
   }
   @keyframes fvw-label-in {
     from { opacity: 0; transform: translateY(6px); }
@@ -1956,6 +1982,17 @@
       document.getElementById('fc-label').textContent = s.label;
       document.getElementById('fc-title').innerHTML = s.title;
       document.getElementById('fc-desc').textContent = s.desc;
+
+      // Full-width toggle for step 2
+      var fcGrid = document.querySelector('.fc-grid');
+      var fcLeftPanel = fcGrid ? fcGrid.querySelector(':scope > div:first-child') : null;
+      if (idx === 1) {
+        if (fcGrid) fcGrid.style.gridTemplateColumns = '1fr';
+        if (fcLeftPanel) { fcLeftPanel.style.display = 'none'; fcLeftPanel.style.visibility = 'hidden'; }
+      } else {
+        if (fcGrid) fcGrid.style.gridTemplateColumns = '';
+        if (fcLeftPanel) { fcLeftPanel.style.display = ''; fcLeftPanel.style.visibility = ''; }
+      }
 
       if (idx === 0) {
         imgWrap.style.display = 'none';
@@ -2494,8 +2531,8 @@ function aicBtnClick(btnId, originElId) {
   // card1 = Action (back), card2 = Decision-Making (mid), card3 = Awareness (front)
   var base = [
     'skewY(-8deg)',
-    'translateX(62px) translateY(48px) skewY(-8deg)',
-    'translateX(124px) translateY(96px) skewY(-8deg)'
+    'translateX(75px) translateY(58px) skewY(-8deg)',
+    'translateX(150px) translateY(116px) skewY(-8deg)'
   ];
   var c1, c2, c3, o1, o2;
 
@@ -2511,24 +2548,24 @@ function aicBtnClick(btnId, originElId) {
   function bind() {
     // Hover Action (back/card1): pop card1 up, card2+card3 drop down to fully clear card1
     c1.addEventListener('mouseenter', function () {
-      c1.style[T] = 'translateY(-16px) skewY(-8deg)';
-      c2.style[T] = 'translateX(62px) translateY(140px) skewY(-8deg)';
-      c3.style[T] = 'translateX(124px) translateY(168px) skewY(-8deg)';
+      c1.style[T] = 'translateY(-20px) skewY(-8deg)';
+      c2.style[T] = 'translateX(75px) translateY(170px) skewY(-8deg)';
+      c3.style[T] = 'translateX(150px) translateY(204px) skewY(-8deg)';
       if (o1) o1.style.opacity = '0';
     });
     c1.addEventListener('mouseleave', reset);
 
     // Hover Decision-Making (mid/card2): pop card2 up, card3 drops down to fully clear card2
     c2.addEventListener('mouseenter', function () {
-      c2.style[T] = 'translateX(62px) translateY(24px) skewY(-8deg)';
-      c3.style[T] = 'translateX(124px) translateY(178px) skewY(-8deg)';
+      c2.style[T] = 'translateX(75px) translateY(29px) skewY(-8deg)';
+      c3.style[T] = 'translateX(150px) translateY(215px) skewY(-8deg)';
       if (o2) o2.style.opacity = '0';
     });
     c2.addEventListener('mouseleave', reset);
 
     // Hover Awareness (front/card3): gentle lift
     c3.addEventListener('mouseenter', function () {
-      c3.style[T] = 'translateX(124px) translateY(82px) skewY(-8deg)';
+      c3.style[T] = 'translateX(150px) translateY(99px) skewY(-8deg)';
     });
     c3.addEventListener('mouseleave', reset);
   }
@@ -3279,16 +3316,16 @@ document.querySelectorAll('.ihb-btn.ihb-scarcity').forEach(function(btn) {
   }
 
   // Desktop hover
-  btn.addEventListener('mouseenter', startAnim);
-  btn.addEventListener('mouseleave', resetAnim);
+  btn.addEventListener('mouseenter', function() { btn.classList.add('ihb-active'); startAnim(); });
+  btn.addEventListener('mouseleave', function() { btn.classList.remove('ihb-active'); resetAnim(); });
 
   // Mobile touch
   btn.addEventListener('touchstart', function(e) {
-    btn.classList.add('ihb-touch-active');
+    btn.classList.add('ihb-active');
     startAnim();
   }, { passive: true });
   btn.addEventListener('touchend', function() {
-    setTimeout(function() { btn.classList.remove('ihb-touch-active'); resetAnim(); }, 400);
+    setTimeout(function() { btn.classList.remove('ihb-active'); resetAnim(); }, 400);
   });
 });
 
@@ -3476,7 +3513,7 @@ modalForm.addEventListener('submit', async (e) => {
 
 <!-- Bubble label -->
 <div id="fvw-label" aria-hidden="true">
-  <p>Sign up today and claim your priority seat!</p>
+  <p>Learn more about BRIQX.ai here.</p>
 </div>
 
 <!-- Bubble -->
@@ -3497,6 +3534,45 @@ modalForm.addEventListener('submit', async (e) => {
   <div id="fvw-live-dot"></div>
 </div>
 
+<!-- Video Player Modal (9:16) -->
+<div id="fvw-vid-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;flex-direction:column;">
+  <button onclick="closeFvwModal()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.12);border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;z-index:2;">✕</button>
+  <div style="width:min(340px,85vw);display:flex;flex-direction:column;align-items:center;gap:16px;">
+    <!-- 9:16 video container -->
+    <div style="width:100%;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 8px 48px rgba(0,0,0,0.7);">
+      <video id="fvw-modal-vid" src="assets/Waiting list video/Landingpage.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+    </div>
+    <!-- CTA below video -->
+    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();openModal();" type="button" style="width:100%;max-width:340px;">
+      <div class="ihb-dot"></div>
+      <span class="ihb-text-idle">JOIN WAITLIST</span>
+      <span class="ihb-text-hover">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        CLAIM YOUR SPOT
+      </span>
+      <div class="ihb-spots-row"><span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span></div>
+    </button>
+  </div>
+</div>
+
+<script>
+function openFvwModal() {
+  var m = document.getElementById('fvw-vid-modal');
+  var v = document.getElementById('fvw-modal-vid');
+  m.style.display = 'flex';
+  if (v) { v.currentTime = 0; v.play().catch(function(){}); }
+}
+function closeFvwModal() {
+  var m = document.getElementById('fvw-vid-modal');
+  var v = document.getElementById('fvw-modal-vid');
+  m.style.display = 'none';
+  if (v) { v.pause(); }
+}
+document.getElementById('fvw-vid-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeFvwModal();
+});
+</script>
+
 <script>
 (function () {
   var bubble  = document.getElementById('fvw-bubble');
@@ -3516,10 +3592,10 @@ modalForm.addEventListener('submit', async (e) => {
     });
   }
 
-  // Bubble click → open waitlist modal
+  // Bubble click → open video modal
   if (bubble) {
     bubble.addEventListener('click', function() {
-      if (typeof openModal === 'function') openModal();
+      openFvwModal();
     });
   }
 })();
