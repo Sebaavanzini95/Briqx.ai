@@ -3337,13 +3337,17 @@ modalForm.addEventListener('submit', async (e) => {
 </div>
 
 <!-- Bubble -->
-<div id="fvw-bubble" role="button" aria-label="Join waitlist" onclick="openModal()" style="cursor:pointer;">
+<div id="fvw-bubble" role="button" aria-label="Join waitlist">
   <div id="fvw-bubble-inner">
-    <img src="assets/Avatars/Rob-headshot.png" style="width:100%;height:100%;object-fit:cover;display:block;" alt="Rob">
+    <video id="fvw-loop" src="assets/Waiting list video/Landingpage.mp4"
+           autoplay muted loop playsinline
+           onerror="this.style.display='none';document.getElementById('fvw-initials').style.display='block'">
+    </video>
+    <span id="fvw-initials" style="display:none;">SEB</span>
   </div>
   <!-- Play button overlay -->
   <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:5;">
-    <div style="width:22px;height:22px;border-radius:50%;background:rgba(190,221,0,0.9);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:transform 0.2s ease;">
+    <div style="width:22px;height:22px;border-radius:50%;background:rgba(190,221,0,0.9);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);">
       <svg width="8" height="8" viewBox="0 0 10 10" fill="#000"><polygon points="2,1 9,5 2,9"/></svg>
     </div>
   </div>
