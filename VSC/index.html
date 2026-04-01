@@ -1736,13 +1736,11 @@
     #fc-slide1-video { object-fit: cover !important; width: 100% !important; height: 100% !important; border-radius: 0 !important; }
     #fc-rob-notes { flex: 1 !important; border-radius: 0 !important; padding: 6px 10px !important; overflow: hidden !important; }
 
-    /* Step 2: scale down the stacked cards to fit */
-    #fc-framework-wrap { height: 100% !important; width: 100% !important; overflow: hidden !important; }
+    /* Step 2: scale down the stacked cards to fit — centered */
+    #fc-framework-wrap { height: 100% !important; width: 100% !important; overflow: hidden !important; display: flex !important; align-items: center !important; justify-content: center !important; }
     #fc-framework-wrap > div {
-      transform: scale(0.52) translate(-50%, -50%) !important;
-      transform-origin: top left !important;
-      position: absolute !important;
-      top: 50% !important; left: 50% !important;
+      transform: scale(0.52) !important;
+      transform-origin: center center !important;
     }
 
     /* Step 3 fills card */
