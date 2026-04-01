@@ -1668,8 +1668,8 @@
     /* Mobile step dots — show above carousel */
     #fc-step-nav-mobile { display: flex !important; }
 
-    /* Carousel card — taller for 16:9 video */
-    #fc-card { height: 220px !important; }
+    /* Carousel card — 1/3 bigger than 220 = ~293, use 300px */
+    #fc-card { height: 300px !important; }
 
     /* Carousel grid — right panel only, no padding */
     .fc-grid {
@@ -1692,20 +1692,28 @@
     }
     #fc-img-wrap img { object-fit: cover !important; width: 100% !important; height: 100% !important; }
 
-    /* Step 1 video — 16:9, fill full card */
-    #fc-slide1-wrap { height: 100% !important; width: 100% !important; flex-direction: column !important; }
-    #fc-video-wrap { flex: 1 !important; min-height: 0 !important; }
+    /* Step 1: video 16:9 with Rob notes below */
+    #fc-slide1-wrap { height: 100% !important; width: 100% !important; flex-direction: column !important; padding-bottom: 0 !important; gap: 0 !important; }
+    #fc-video-wrap { aspect-ratio: 16/9 !important; flex: none !important; width: 100% !important; }
     #fc-slide1-video { object-fit: cover !important; width: 100% !important; height: 100% !important; border-radius: 0 !important; }
-    #fc-rob-notes { display: none !important; }
+    #fc-rob-notes { flex: 1 !important; border-radius: 0 !important; padding: 6px 10px !important; overflow: hidden !important; }
 
-    /* Steps 2 & 3 panels fill card */
-    #fc-framework-wrap { height: 100% !important; width: 100% !important; }
+    /* Step 2: scale down the stacked cards to fit */
+    #fc-framework-wrap { height: 100% !important; width: 100% !important; overflow: hidden !important; }
+    #fc-framework-wrap > div {
+      transform: scale(0.52) translate(-50%, -50%) !important;
+      transform-origin: top left !important;
+      position: absolute !important;
+      top: 50% !important; left: 50% !important;
+    }
+
+    /* Step 3 fills card */
     #fc-slide3-wrap { height: 100% !important; width: 100% !important; }
 
     /* Step 4 chat widget */
     #fc-chat-widget { height: 100% !important; width: 100% !important; }
 
-    /* Mobile CTA — show */
+    /* Mobile CTA — show, with hover effect via :active for touch */
     #mobile-cta-wrap {
       display: flex !important;
       flex-direction: column;
@@ -1713,9 +1721,16 @@
       width: 100%;
       margin-top: 16px;
     }
-
-    /* CTA hover — override ihb-scarcity::before for mobile */
-    .ihb-btn.ihb-scarcity::before { transition: width 0.55s cubic-bezier(0.4,0,0.2,1) !important; }
+    .ihb-btn.ihb-scarcity:active::before,
+    .ihb-btn.ihb-scarcity.ihb-touch-active::before { width: 76% !important; }
+    .ihb-btn.ihb-scarcity:active .ihb-text-idle,
+    .ihb-btn.ihb-scarcity.ihb-touch-active .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
+    .ihb-btn.ihb-scarcity:active .ihb-text-hover,
+    .ihb-btn.ihb-scarcity.ihb-touch-active .ihb-text-hover { transform: translateX(0) !important; opacity: 1 !important; }
+    .ihb-btn.ihb-scarcity:active .ihb-spots-label,
+    .ihb-btn.ihb-scarcity.ihb-touch-active .ihb-spots-label { opacity: 1 !important; }
+    .ihb-btn.ihb-scarcity:active,
+    .ihb-btn.ihb-scarcity.ihb-touch-active { transform: translateY(-2px) scale(1.04) !important; }
 
     /* Testimonial cards */
     .ts-card { min-width: 280px !important; }
@@ -3238,10 +3253,11 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
 });
 
-// ── Scarcity counter animation on CTA hover ─────────────────────────────
+// ── Scarcity counter animation on CTA hover + touch ──────────────────────
 document.querySelectorAll('.ihb-btn.ihb-scarcity').forEach(function(btn) {
   var animFrame;
-  btn.addEventListener('mouseenter', function() {
+
+  function startAnim() {
     var numEl = btn.querySelector('.ihb-spots-num');
     if (!numEl) return;
     var start = 100, end = 24, duration = 1000, startTime = null;
@@ -3254,11 +3270,25 @@ document.querySelectorAll('.ihb-btn.ihb-scarcity').forEach(function(btn) {
       if (progress < 1) animFrame = requestAnimationFrame(step);
     }
     animFrame = requestAnimationFrame(step);
-  });
-  btn.addEventListener('mouseleave', function() {
+  }
+
+  function resetAnim() {
     cancelAnimationFrame(animFrame);
     var numEl = btn.querySelector('.ihb-spots-num');
     if (numEl) numEl.textContent = '24';
+  }
+
+  // Desktop hover
+  btn.addEventListener('mouseenter', startAnim);
+  btn.addEventListener('mouseleave', resetAnim);
+
+  // Mobile touch
+  btn.addEventListener('touchstart', function(e) {
+    btn.classList.add('ihb-touch-active');
+    startAnim();
+  }, { passive: true });
+  btn.addEventListener('touchend', function() {
+    setTimeout(function() { btn.classList.remove('ihb-touch-active'); resetAnim(); }, 400);
   });
 });
 
