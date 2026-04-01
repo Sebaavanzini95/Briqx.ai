@@ -1116,6 +1116,11 @@
 
   <div class="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
 
+    <!-- Mobile logo above headline (hidden on desktop) -->
+    <div id="mobile-hero-logo" style="display:none;margin-bottom:18px;">
+      <img src="assets/Logo/Logo/BRIQX%20LOGO%20.png" alt="BRIQX" style="height:60px;width:auto;opacity:0.95;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
+    </div>
+
     <!-- Headline -->
     <h1 class="font-display text-white anim-d1" style="font-size:clamp(2.6rem,6vw,5.8rem);letter-spacing:0.02em;line-height:1.0;margin-bottom:20px;">
       <span id="hl-row1" style="display:inline-block;white-space:nowrap;">Your Own Personal</span><br><span id="hl-row2" style="display:inline-block;white-space:nowrap;color:#BEDD00;">Football AI Analyst</span>
@@ -1672,6 +1677,13 @@
   @media (max-width: 768px) {
     /* Hide floating top-right CTA */
     #top-cta-wrap { display: none !important; }
+
+    /* Hide floating logos on mobile — replaced by inline logo in hero */
+    body > div[style*="position:fixed"][style*="z-index:9990"],
+    body > div[style*="position:fixed"][style*="z-index:50"] { display: none !important; }
+
+    /* Show inline mobile logo */
+    #mobile-hero-logo { display: block !important; }
 
     /* Hide Rob badge in carousel */
     #fc-rob-badge { display: none !important; }
