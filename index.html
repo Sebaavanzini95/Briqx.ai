@@ -205,11 +205,10 @@
     }
     .ihb-btn:not(.ihb-scarcity):hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-btn:not(.ihb-scarcity):hover { transform: translateY(-2px) scale(1.04); }
-    .ihb-btn.ihb-scarcity:hover { transform: scale(1.02); }
     .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
     /* ── Scarcity merged into button ── */
     .ihb-btn.ihb-scarcity { height: 72px; }
-    /* Use dot but clip it to 76% using clip-path on the button */
+    /* Dot starts hidden off-screen left */
     .ihb-btn.ihb-scarcity .ihb-dot {
       left: 0;
       top: 50%;
@@ -219,9 +218,10 @@
       border-radius: 0;
       background: #BEDD00;
     }
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot {
-      transform: translateY(-50%) translateX(-62%);
-    }
+    /* CSS :hover drives the animation on desktop — 100% reliable */
+    .ihb-btn.ihb-scarcity:hover .ihb-dot { transform: translateY(-50%) translateX(-62%); }
+    .ihb-btn.ihb-scarcity:hover .ihb-text-idle { transform: translateX(72px); opacity: 0; }
+    .ihb-btn.ihb-scarcity:hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-spots-row {
       position: absolute; bottom: 0; left: 0; right: 0;
       padding: 0 14px 9px;
@@ -235,6 +235,9 @@
       opacity: 0;
       transition: opacity 0.4s ease 0.2s;
     }
+    .ihb-btn.ihb-scarcity:hover .ihb-spots-label { opacity: 1; }
+    /* ihb-active kept for mobile touch */
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { transform: translateY(-50%) translateX(-62%); }
     .ihb-btn.ihb-scarcity.ihb-active .ihb-spots-label { opacity: 1; }
     .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px); opacity: 0; }
     .ihb-btn.ihb-scarcity.ihb-active .ihb-text-hover { transform: translateX(0); opacity: 1; }
@@ -1113,6 +1116,11 @@
 
   <div class="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
 
+    <!-- Mobile logo above headline (hidden on desktop) -->
+    <div id="mobile-hero-logo" style="display:none;margin-bottom:18px;">
+      <img src="assets/Logo/Logo/BRIQX%20LOGO%20.png" alt="BRIQX" style="height:60px;width:auto;opacity:0.95;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
+    </div>
+
     <!-- Headline -->
     <h1 class="font-display text-white anim-d1" style="font-size:clamp(2.6rem,6vw,5.8rem);letter-spacing:0.02em;line-height:1.0;margin-bottom:20px;">
       <span id="hl-row1" style="display:inline-block;white-space:nowrap;">Your Own Personal</span><br><span id="hl-row2" style="display:inline-block;white-space:nowrap;color:#BEDD00;">Football AI Analyst</span>
@@ -1670,6 +1678,13 @@
     /* Hide floating top-right CTA */
     #top-cta-wrap { display: none !important; }
 
+    /* Hide floating logos on mobile — replaced by inline logo in hero */
+    body > div[style*="position:fixed"][style*="z-index:9990"],
+    body > div[style*="position:fixed"][style*="z-index:50"] { display: none !important; }
+
+    /* Show inline mobile logo */
+    #mobile-hero-logo { display: block !important; }
+
     /* Hide Rob badge in carousel */
     #fc-rob-badge { display: none !important; }
 
@@ -1721,13 +1736,11 @@
     #fc-slide1-video { object-fit: cover !important; width: 100% !important; height: 100% !important; border-radius: 0 !important; }
     #fc-rob-notes { flex: 1 !important; border-radius: 0 !important; padding: 6px 10px !important; overflow: hidden !important; }
 
-    /* Step 2: scale down the stacked cards to fit */
-    #fc-framework-wrap { height: 100% !important; width: 100% !important; overflow: hidden !important; }
+    /* Step 2: scale down the stacked cards to fit — centered */
+    #fc-framework-wrap { height: 100% !important; width: 100% !important; overflow: hidden !important; display: flex !important; align-items: center !important; justify-content: center !important; }
     #fc-framework-wrap > div {
-      transform: scale(0.52) translate(-50%, -50%) !important;
-      transform-origin: top left !important;
-      position: absolute !important;
-      top: 50% !important; left: 50% !important;
+      transform: scale(0.52) !important;
+      transform-origin: center center !important;
     }
 
     /* Step 3 fills card */
