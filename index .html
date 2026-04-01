@@ -1111,10 +1111,18 @@
 
     <!-- Subheadline -->
     <p class="anim-d2" style="font-family:'Inter',sans-serif;font-size:clamp(0.9rem,1.6vw,1.1rem);margin-bottom:40px;line-height:1.6;letter-spacing:0.02em;">
-      <span style="font-weight:700;color:rgba(255,255,255,0.85);">Sign Up Today For Free!</span><br><span style="font-weight:300;font-style:italic;color:rgba(255,255,255,0.38);">Get Your Personalised Match Analysis &amp; Track Your Progress From Game to Game.</span><br><span style="font-weight:300;font-style:italic;color:rgba(255,255,255,0.38);">Spots are Limited!</span>
+      <span style="font-weight:700;color:rgba(255,255,255,0.85);">Sign Up Today For Free!</span><br><span style="font-weight:300;font-style:italic;color:rgba(255,255,255,0.38);">Get Your Personalised Match Analysis &amp; Track Your Progress From Game to Game.</span>
     </p>
 
     <!-- Carousel -->
+    <!-- Mobile-only step nav ABOVE carousel -->
+    <div id="fc-step-nav-mobile" style="display:none;justify-content:center;gap:10px;margin-bottom:8px;">
+      <button class="fc-step fc-step-m" id="fc-sm0" onclick="fcGo(0,event)" style="width:10px;height:10px;border-radius:50%;border:none;background:#BEDD00;cursor:pointer;padding:0;transition:all 0.25s ease;"></button>
+      <button class="fc-step fc-step-m" id="fc-sm1" onclick="fcGo(1,event)" style="width:10px;height:10px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);cursor:pointer;padding:0;transition:all 0.25s ease;"></button>
+      <button class="fc-step fc-step-m" id="fc-sm2" onclick="fcGo(2,event)" style="width:10px;height:10px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);cursor:pointer;padding:0;transition:all 0.25s ease;"></button>
+      <button class="fc-step fc-step-m" id="fc-sm3" onclick="fcGo(3,event)" style="width:10px;height:10px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);cursor:pointer;padding:0;transition:all 0.25s ease;"></button>
+    </div>
+
     <div class="anim-d3" style="width:100%;margin-bottom:16px;">
       <div style="border-radius:24px;background:rgba(255,255,255,0.04);padding:6px;width:100%;">
         <div id="fc-card" style="position:relative;border-radius:20px;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:1px solid rgba(255,255,255,0.07);overflow:hidden;height:530px;cursor:pointer;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
@@ -1126,8 +1134,8 @@
                  onerror="this.style.display='none'">
           </div>
 
-          <!-- Step nav -->
-          <div style="display:flex;justify-content:center;gap:12px;padding:24px 24px 0;position:relative;z-index:10;">
+          <!-- Step nav (desktop) -->
+          <div id="fc-step-nav-desktop" style="display:flex;justify-content:center;gap:12px;padding:24px 24px 0;position:relative;z-index:10;">
             <button class="fc-step" id="fc-s0" onclick="fcGo(0,event)" style="display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:9999px;border:none;background:rgba(190,221,0,0.12);cursor:pointer;transition:all 0.25s ease;">
               <span class="fc-dot" style="width:16px;height:16px;border-radius:50%;background:#BEDD00;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.5rem;color:#000;font-weight:700;flex-shrink:0;">1</span>
               <span style="font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#BEDD00;">Step 1</span>
@@ -1642,7 +1650,10 @@
     /* Hide Rob badge in carousel */
     #fc-rob-badge { display: none !important; }
 
-    /* Hero section — reduce top padding so it moves up */
+    /* Hide Rob chat bubble — keep video bubble only */
+    #rob-bubble, #rob-live-dot, #rob-panel { display: none !important; }
+
+    /* Hero section — reduce top padding */
     section.relative.min-h-screen { padding-top: 16px !important; }
 
     /* Headline */
@@ -1651,13 +1662,19 @@
     /* Subheadline font size */
     .anim-d2 { font-size: 0.82rem !important; }
 
-    /* Carousel card — fixed height, stable */
-    #fc-card { height: 300px !important; }
+    /* Desktop step nav — hide inside carousel */
+    #fc-step-nav-desktop { display: none !important; }
 
-    /* Carousel grid — right panel only */
+    /* Mobile step dots — show above carousel */
+    #fc-step-nav-mobile { display: flex !important; }
+
+    /* Carousel card — taller for 16:9 video */
+    #fc-card { height: 220px !important; }
+
+    /* Carousel grid — right panel only, no padding */
     .fc-grid {
       grid-template-columns: 1fr !important;
-      padding: 10px !important;
+      padding: 0 !important;
       height: 100% !important;
     }
     .fc-grid > div:first-child { display: none !important; }
@@ -1666,15 +1683,27 @@
       height: 100% !important;
       width: 100% !important;
     }
-    #fc-img-wrap { height: 100% !important; border-radius: 10px !important; width: 100% !important; }
-    #fc-chat-widget { height: 100% !important; }
-    #fc-slide1-wrap { height: 100% !important; }
-    #fc-framework-wrap { height: 100% !important; }
-    #fc-slide3-wrap { height: 100% !important; }
 
-    /* Step nav — numbers only */
-    .fc-step { padding: 5px 8px !important; gap: 0 !important; }
-    .fc-step span:not(.fc-dot) { display: none !important; }
+    /* Images fill full card */
+    #fc-img-wrap {
+      height: 100% !important;
+      width: 100% !important;
+      border-radius: 0 !important;
+    }
+    #fc-img-wrap img { object-fit: cover !important; width: 100% !important; height: 100% !important; }
+
+    /* Step 1 video — 16:9, fill full card */
+    #fc-slide1-wrap { height: 100% !important; width: 100% !important; flex-direction: column !important; }
+    #fc-video-wrap { flex: 1 !important; min-height: 0 !important; }
+    #fc-slide1-video { object-fit: cover !important; width: 100% !important; height: 100% !important; border-radius: 0 !important; }
+    #fc-rob-notes { display: none !important; }
+
+    /* Steps 2 & 3 panels fill card */
+    #fc-framework-wrap { height: 100% !important; width: 100% !important; }
+    #fc-slide3-wrap { height: 100% !important; width: 100% !important; }
+
+    /* Step 4 chat widget */
+    #fc-chat-widget { height: 100% !important; width: 100% !important; }
 
     /* Mobile CTA — show */
     #mobile-cta-wrap {
@@ -1685,16 +1714,20 @@
       margin-top: 16px;
     }
 
+    /* CTA hover — override ihb-scarcity::before for mobile */
+    .ihb-btn.ihb-scarcity::before { transition: width 0.55s cubic-bezier(0.4,0,0.2,1) !important; }
+
     /* Testimonial cards */
     .ts-card { min-width: 280px !important; }
 
-    /* Bubble — keep, smaller on mobile */
+    /* Video bubble — keep, smaller on mobile */
     #fvw-bubble { width: 56px !important; height: 56px !important; bottom: 16px !important; right: 16px !important; }
-    #fvw-label { bottom: 76px !important; right: 80px !important; max-width: 160px !important; font-size: 0.72rem !important; }
+    #fvw-label { bottom: 76px !important; right: 76px !important; max-width: 160px !important; }
   }
 
-  /* Hide mobile CTA on desktop */
+  /* Hide mobile step nav and CTA on desktop */
   @media (min-width: 769px) {
+    #fc-step-nav-mobile { display: none !important; }
     #mobile-cta-wrap { display: none !important; }
   }
 
@@ -1985,6 +2018,9 @@
         lbl.style.color = 'rgba(255,255,255,0.4)';
         dot.textContent = i + 1;
       }
+      // Sync mobile dots
+      var mdot = document.getElementById('fc-sm' + i);
+      if (mdot) mdot.style.background = i === idx ? '#BEDD00' : 'rgba(255,255,255,0.2)';
     }
   }
 
