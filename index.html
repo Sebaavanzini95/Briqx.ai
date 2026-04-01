@@ -950,7 +950,7 @@
 
 <!-- ═══ MODAL ════════════════════════════════════════════════════════════ -->
 <!-- Floating CTA -->
-<div style="position:fixed;top:28px;right:28px;z-index:90;">
+<div id="top-cta-wrap" style="position:fixed;top:28px;right:28px;z-index:90;">
   <button class="ihb-btn ihb-scarcity" onclick="openModal()" type="button" style="width:260px;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
     <div class="ihb-dot" aria-hidden="true"></div>
     <span class="ihb-text-idle">JOIN WAITLIST</span>
@@ -1115,12 +1115,12 @@
     </p>
 
     <!-- Carousel -->
-    <div class="anim-d3" style="width:100%;margin-bottom:36px;">
+    <div class="anim-d3" style="width:100%;margin-bottom:16px;">
       <div style="border-radius:24px;background:rgba(255,255,255,0.04);padding:6px;width:100%;">
         <div id="fc-card" style="position:relative;border-radius:20px;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:1px solid rgba(255,255,255,0.07);overflow:hidden;height:530px;cursor:pointer;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
 
           <!-- Rob badge — top-left corner -->
-          <div style="position:absolute;top:16px;left:20px;z-index:20;pointer-events:none;">
+          <div id="fc-rob-badge" style="position:absolute;top:16px;left:20px;z-index:20;pointer-events:none;">
             <img src="assets/Avatars/Rob-headshot.png"
                  style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #BEDD00;display:block;"
                  onerror="this.style.display='none'">
@@ -1370,6 +1370,22 @@
     </div>
 
 
+    <!-- Mobile-only CTA (hidden on desktop) -->
+    <div id="mobile-cta-wrap">
+      <button class="ihb-btn ihb-scarcity" type="button" onclick="openModal()" style="width:100%;max-width:340px;">
+        <div class="ihb-dot" aria-hidden="true"></div>
+        <span class="ihb-text-idle">JOIN WAITLIST</span>
+        <div class="ihb-text-hover" aria-hidden="true">
+          <span>JOIN WAITLIST</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+        <div class="ihb-spots-row">
+          <span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span>
+        </div>
+      </button>
+      <p style="font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.28);margin-top:10px;letter-spacing:0.02em;text-align:center;">Only 100 players get priority access with special benefits! Claim your spot now for free!</p>
+    </div>
+
   </div>
 </section>
 
@@ -1617,41 +1633,69 @@
 
 
 <style>
-  @media (max-width: 640px) {
-    .fc-grid { grid-template-columns: 1fr !important; }
-    .fc-grid > div:last-child { display: none; }
-  }
 
   /* ── MOBILE HERO ── */
   @media (max-width: 768px) {
+    /* Hide floating top-right CTA */
+    #top-cta-wrap { display: none !important; }
+
+    /* Hide Rob badge in carousel */
+    #fc-rob-badge { display: none !important; }
+
+    /* Hero section — reduce top padding so it moves up */
+    section.relative.min-h-screen { padding-top: 16px !important; }
+
     /* Headline */
-    h1.font-display { font-size: clamp(2rem, 8vw, 3rem) !important; }
-
-    /* Carousel card height */
-    #fc-card { height: auto !important; min-height: 420px; }
-
-    /* Step nav — smaller pills */
-    .fc-step { padding: 5px 8px !important; gap: 5px !important; }
-    .fc-step span:last-child { display: none; }
-
-    /* CTA button full width */
-    .ihb-btn { width: 100% !important; }
-
-    /* Floating top-right CTA — hide on mobile */
-    #fvw-label { display: none !important; }
+    h1.font-display { font-size: clamp(2rem, 8vw, 2.8rem) !important; }
 
     /* Subheadline font size */
-    .anim-d2 { font-size: 0.85rem !important; }
+    .anim-d2 { font-size: 0.82rem !important; }
 
-    /* Founder section stack */
-    .max-w-xl .flex { flex-direction: column; align-items: center; text-align: center; }
-    .max-w-xl .flex > div { border-left: none !important; border-top: 2px solid rgba(255,255,255,0.15); padding-left: 0 !important; padding-top: 20px; margin-top: 10px; }
+    /* Carousel card — fixed height, stable */
+    #fc-card { height: 300px !important; }
 
-    /* Testimonial cards min width */
+    /* Carousel grid — right panel only */
+    .fc-grid {
+      grid-template-columns: 1fr !important;
+      padding: 10px !important;
+      height: 100% !important;
+    }
+    .fc-grid > div:first-child { display: none !important; }
+    .fc-grid > div:last-child {
+      display: flex !important;
+      height: 100% !important;
+      width: 100% !important;
+    }
+    #fc-img-wrap { height: 100% !important; border-radius: 10px !important; width: 100% !important; }
+    #fc-chat-widget { height: 100% !important; }
+    #fc-slide1-wrap { height: 100% !important; }
+    #fc-framework-wrap { height: 100% !important; }
+    #fc-slide3-wrap { height: 100% !important; }
+
+    /* Step nav — numbers only */
+    .fc-step { padding: 5px 8px !important; gap: 0 !important; }
+    .fc-step span:not(.fc-dot) { display: none !important; }
+
+    /* Mobile CTA — show */
+    #mobile-cta-wrap {
+      display: flex !important;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    /* Testimonial cards */
     .ts-card { min-width: 280px !important; }
 
-    /* Top right CTA — smaller */
-    #fvw-bubble { width: 52px !important; height: 52px !important; bottom: 16px !important; right: 16px !important; }
+    /* Bubble — keep, smaller on mobile */
+    #fvw-bubble { width: 56px !important; height: 56px !important; bottom: 16px !important; right: 16px !important; }
+    #fvw-label { bottom: 76px !important; right: 80px !important; max-width: 160px !important; font-size: 0.72rem !important; }
+  }
+
+  /* Hide mobile CTA on desktop */
+  @media (min-width: 769px) {
+    #mobile-cta-wrap { display: none !important; }
   }
 
   /* Hero split layout */
