@@ -205,11 +205,10 @@
     }
     .ihb-btn:not(.ihb-scarcity):hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-btn:not(.ihb-scarcity):hover { transform: translateY(-2px) scale(1.04); }
-    .ihb-btn.ihb-scarcity:hover { transform: scale(1.02); }
     .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
     /* ── Scarcity merged into button ── */
     .ihb-btn.ihb-scarcity { height: 72px; }
-    /* Use dot but clip it to 76% using clip-path on the button */
+    /* Dot starts hidden off-screen left */
     .ihb-btn.ihb-scarcity .ihb-dot {
       left: 0;
       top: 50%;
@@ -219,9 +218,10 @@
       border-radius: 0;
       background: #BEDD00;
     }
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot {
-      transform: translateY(-50%) translateX(-62%);
-    }
+    /* CSS :hover drives the animation on desktop — 100% reliable */
+    .ihb-btn.ihb-scarcity:hover .ihb-dot { transform: translateY(-50%) translateX(-62%); }
+    .ihb-btn.ihb-scarcity:hover .ihb-text-idle { transform: translateX(72px); opacity: 0; }
+    .ihb-btn.ihb-scarcity:hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-spots-row {
       position: absolute; bottom: 0; left: 0; right: 0;
       padding: 0 14px 9px;
@@ -235,6 +235,9 @@
       opacity: 0;
       transition: opacity 0.4s ease 0.2s;
     }
+    .ihb-btn.ihb-scarcity:hover .ihb-spots-label { opacity: 1; }
+    /* ihb-active kept for mobile touch */
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { transform: translateY(-50%) translateX(-62%); }
     .ihb-btn.ihb-scarcity.ihb-active .ihb-spots-label { opacity: 1; }
     .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px); opacity: 0; }
     .ihb-btn.ihb-scarcity.ihb-active .ihb-text-hover { transform: translateX(0); opacity: 1; }
