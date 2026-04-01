@@ -210,7 +210,7 @@
     .ihb-btn.ihb-scarcity { height: 72px; }
     /* Use dot but clip it to 76% using clip-path on the button */
     .ihb-btn.ihb-scarcity .ihb-dot {
-      left: -100%;
+      left: -201%;
       transform: translateY(-50%) scale(1);
       transition: left 0.55s cubic-bezier(0.4,0,0.2,1), transform 0s;
       width: 200%; height: 200%;
@@ -1139,7 +1139,7 @@
 
     <div class="anim-d3" style="width:100%;margin-bottom:16px;">
       <div style="border-radius:24px;background:rgba(255,255,255,0.04);padding:6px;width:100%;">
-        <div id="fc-card" style="position:relative;border-radius:20px;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:1px solid rgba(255,255,255,0.07);overflow:hidden;height:662px;cursor:pointer;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
+        <div id="fc-card" style="position:relative;border-radius:20px;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:1px solid rgba(255,255,255,0.07);overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
 
           <!-- Rob badge — top-left corner -->
           <div id="fc-rob-badge" style="position:absolute;top:16px;left:20px;z-index:20;pointer-events:none;">
@@ -1324,33 +1324,33 @@
 
               <!-- Framework wrap — Step 2 -->
               <div id="fc-framework-wrap" style="display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;">
-                <div style="display:grid;grid-template-areas:'stack';place-items:center;flex-shrink:0;transform:translate(-74px,-46px);">
-                  <div id="fc-fw-card1" style="grid-area:stack;position:relative;width:314px;border-radius:14px;background:#212121;border:1px solid rgba(255,255,255,0.08);padding:28px 22px;transform:skewY(-8deg);transition:transform 0.65s ease,opacity 0.65s ease;cursor:default;overflow:hidden;">
-                    <div id="fc-fw-ov1" style="position:absolute;inset:0;background:rgba(0,0,0,0.52);border-radius:14px;pointer-events:none;transition:opacity 0.65s ease;"></div>
-                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.42);">What happened</span>
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:rgba(190,221,0,0.38);">3</span>
+                <div style="display:grid;grid-template-areas:'stack';place-items:center;flex-shrink:0;transform:translate(-148px,-92px);">
+                  <div id="fc-fw-card1" style="grid-area:stack;position:relative;width:628px;border-radius:20px;background:#212121;border:1px solid rgba(255,255,255,0.08);padding:40px 36px;transform:skewY(-8deg);transition:transform 0.65s ease,opacity 0.65s ease;cursor:default;overflow:hidden;">
+                    <div id="fc-fw-ov1" style="position:absolute;inset:0;background:rgba(0,0,0,0.52);border-radius:20px;pointer-events:none;transition:opacity 0.65s ease;"></div>
+                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                      <span style="font-family:'Space Mono',monospace;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.42);">What happened</span>
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:rgba(190,221,0,0.38);">3</span>
                     </div>
-                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:0.05em;color:rgba(255,255,255,0.55);margin-bottom:7px;">Action</div>
-                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:300;color:rgba(255,255,255,0.3);line-height:1.55;margin:0;">This is your execution. The outcome. This is highly correlated to your awareness & decision-making.</p>
+                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:2.6rem;letter-spacing:0.05em;color:rgba(255,255,255,0.55);margin-bottom:10px;">Action</div>
+                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.3);line-height:1.55;margin:0;">This is your execution. The outcome. This is highly correlated to your awareness & decision-making.</p>
                   </div>
-                  <div id="fc-fw-card2" style="grid-area:stack;position:relative;width:314px;border-radius:14px;background:#1c1c1c;border:1px solid rgba(255,255,255,0.1);padding:28px 22px;transform:translateX(62px) translateY(48px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;overflow:hidden;">
-                    <div id="fc-fw-ov2" style="position:absolute;inset:0;background:rgba(0,0,0,0.3);border-radius:14px;pointer-events:none;transition:opacity 0.65s ease;"></div>
-                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.62);">How it happened</span>
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:rgba(190,221,0,0.58);">2</span>
+                  <div id="fc-fw-card2" style="grid-area:stack;position:relative;width:628px;border-radius:20px;background:#1c1c1c;border:1px solid rgba(255,255,255,0.1);padding:40px 36px;transform:translateX(124px) translateY(96px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;overflow:hidden;">
+                    <div id="fc-fw-ov2" style="position:absolute;inset:0;background:rgba(0,0,0,0.3);border-radius:20px;pointer-events:none;transition:opacity 0.65s ease;"></div>
+                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                      <span style="font-family:'Space Mono',monospace;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.62);">How it happened</span>
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:rgba(190,221,0,0.58);">2</span>
                     </div>
-                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:0.05em;color:rgba(255,255,255,0.78);margin-bottom:7px;">Decision-Making</div>
-                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.55;margin:0;">Your ability to assess risk & reward in different situations, and choose the most feasible option.</p>
+                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:2.6rem;letter-spacing:0.05em;color:rgba(255,255,255,0.78);margin-bottom:10px;">Decision-Making</div>
+                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.55;margin:0;">Your ability to assess risk & reward in different situations, and choose the most feasible option.</p>
                   </div>
-                  <div id="fc-fw-card3" style="grid-area:stack;width:314px;border-radius:14px;background:#141414;border:1px solid rgba(190,221,0,0.28);padding:28px 22px;transform:translateX(124px) translateY(96px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;box-shadow:0 8px 36px rgba(0,0,0,0.7);">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.15em;text-transform:uppercase;color:#BEDD00;">Why it happened</span>
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:#BEDD00;">1</span>
+                  <div id="fc-fw-card3" style="grid-area:stack;width:628px;border-radius:20px;background:#141414;border:1px solid rgba(190,221,0,0.28);padding:40px 36px;transform:translateX(248px) translateY(192px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;box-shadow:0 16px 72px rgba(0,0,0,0.7);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                      <span style="font-family:'Space Mono',monospace;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:#BEDD00;">Why it happened</span>
+                      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#BEDD00;">1</span>
                     </div>
-                    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:0.05em;color:#fff;margin-bottom:7px;">Awareness</div>
-                    <p style="font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.55;margin:0;">This is the foundation of your performance. Your ability to anticipate, scan, position your body, react. Everything that goes prior to the actions.</p>
-                    <div style="margin-top:14px;height:2px;width:36px;background:#BEDD00;border-radius:2px;"></div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:2.6rem;letter-spacing:0.05em;color:#fff;margin-bottom:10px;">Awareness</div>
+                    <p style="font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.55;margin:0;">This is the foundation of your performance. Your ability to anticipate, scan, position your body, react. Everything that goes prior to the actions.</p>
+                    <div style="margin-top:20px;height:3px;width:56px;background:#BEDD00;border-radius:2px;"></div>
                   </div>
                 </div>
               </div>
@@ -1715,7 +1715,7 @@
     /* Step 2: scale down the stacked cards to fit */
     #fc-framework-wrap { height: 100% !important; width: 100% !important; overflow: hidden !important; }
     #fc-framework-wrap > div {
-      transform: scale(1.04) translate(-50%, -50%) !important;
+      transform: scale(0.52) translate(-50%, -50%) !important;
       transform-origin: top left !important;
       position: absolute !important;
       top: 50% !important; left: 50% !important;
@@ -1737,6 +1737,7 @@
     }
     .ihb-btn.ihb-scarcity:active .ihb-dot,
     .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { left: -124% !important; }
+    .ihb-btn.ihb-scarcity:not(:active):not(.ihb-active) .ihb-dot { left: -201% !important; }
     .ihb-btn.ihb-scarcity:active .ihb-text-idle,
     .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
     .ihb-btn.ihb-scarcity:active .ihb-text-hover,
@@ -1751,7 +1752,7 @@
 
     /* Video bubble — keep, smaller on mobile */
     #fvw-bubble { width: 56px !important; height: 56px !important; bottom: 16px !important; right: 16px !important; }
-    #fvw-label { bottom: 76px !important; right: 76px !important; max-width: 160px !important; }
+    #fvw-label { bottom: 36px !important; right: 98px !important; max-width: 150px !important; }
   }
 
   /* Hide mobile step nav and CTA on desktop */
@@ -1838,9 +1839,9 @@
      FLOATING VIDEO WIDGET
   ══════════════════════════════════════════ */
   #fvw-label {
-    position: fixed; bottom: 84px; right: 108px; z-index: 9998;
+    position: fixed; bottom: 44px; right: 108px; z-index: 9998;
     background: #1e2a1e;
-    border-radius: 18px 18px 4px 18px;
+    border-radius: 12px 12px 12px 4px;
     padding: 11px 15px;
     max-width: 185px;
     pointer-events: none;
@@ -1856,9 +1857,11 @@
   }
   #fvw-label::after {
     content: '';
-    position: absolute; bottom: -8px; right: 10px;
-    border-left: 8px solid transparent;
-    border-top: 8px solid #1e2a1e;
+    position: absolute; top: 50%; right: -8px;
+    transform: translateY(-50%);
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #1e2a1e;
   }
   @keyframes fvw-label-in {
     from { opacity: 0; transform: translateY(6px); }
