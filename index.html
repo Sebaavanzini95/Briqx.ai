@@ -210,14 +210,17 @@
     .ihb-btn.ihb-scarcity { height: 72px; }
     /* Use dot but clip it to 76% using clip-path on the button */
     .ihb-btn.ihb-scarcity .ihb-dot {
-      left: -201%;
-      transform: translateY(-50%) scale(1);
-      transition: left 0.55s cubic-bezier(0.4,0,0.2,1), transform 0s;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%) translateX(-101%);
+      transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
       width: 200%; height: 200%;
       border-radius: 0;
       background: #BEDD00;
     }
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { left: -124%; }
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot {
+      transform: translateY(-50%) translateX(-62%);
+    }
     .ihb-spots-row {
       position: absolute; bottom: 0; left: 0; right: 0;
       padding: 0 14px 9px;
@@ -1736,8 +1739,8 @@
       margin-top: 16px;
     }
     .ihb-btn.ihb-scarcity:active .ihb-dot,
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { left: -124% !important; }
-    .ihb-btn.ihb-scarcity:not(:active):not(.ihb-active) .ihb-dot { left: -201% !important; }
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { transform: translateY(-50%) translateX(-62%) !important; }
+    .ihb-btn.ihb-scarcity:not(:active):not(.ihb-active) .ihb-dot { transform: translateY(-50%) translateX(-101%) !important; }
     .ihb-btn.ihb-scarcity:active .ihb-text-idle,
     .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
     .ihb-btn.ihb-scarcity:active .ihb-text-hover,
@@ -3493,7 +3496,7 @@ modalForm.addEventListener('submit', async (e) => {
 
 <!-- Bubble label -->
 <div id="fvw-label" aria-hidden="true">
-  <p>Learn more about BRIQX.ai - Right here!</p>
+  <p>Learn more about BRIQX.ai here.</p>
 </div>
 
 <!-- Bubble -->
