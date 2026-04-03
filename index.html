@@ -963,7 +963,7 @@
 <!-- ═══ MODAL ════════════════════════════════════════════════════════════ -->
 <!-- Floating CTA -->
 <div id="top-cta-wrap" style="position:fixed;top:28px;right:28px;z-index:90;">
-  <button class="ihb-btn ihb-scarcity" onclick="openModal()" type="button" style="width:260px;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+  <button class="ihb-btn ihb-scarcity" onclick="openFvwModal()" type="button" style="width:260px;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
     <div class="ihb-dot" aria-hidden="true"></div>
     <span class="ihb-text-idle">JOIN WAITLIST</span>
     <div class="ihb-text-hover" aria-hidden="true">
@@ -1195,7 +1195,7 @@
 
               <!-- CTA — absolutely pinned to bottom, never shifts between steps -->
               <div style="position:absolute;bottom:18px;left:0;width:100%;">
-                <button id="hero-cta" class="ihb-btn ihb-scarcity" type="button" onclick="openModal()">
+                <button id="hero-cta" class="ihb-btn ihb-scarcity" type="button" onclick="openFvwModal()">
                   <div class="ihb-dot" aria-hidden="true"></div>
                   <span class="ihb-text-idle">JOIN WAITLIST</span>
                   <div class="ihb-text-hover" aria-hidden="true">
@@ -1346,7 +1346,7 @@
 
     <!-- Mobile-only CTA (hidden on desktop) -->
     <div id="mobile-cta-wrap">
-      <button class="ihb-btn ihb-scarcity" type="button" onclick="openModal()" style="width:100%;max-width:340px;">
+      <button class="ihb-btn ihb-scarcity" type="button" onclick="openFvwModal()" style="width:100%;max-width:340px;">
         <div class="ihb-dot" aria-hidden="true"></div>
         <span class="ihb-text-idle">JOIN WAITLIST</span>
         <div class="ihb-text-hover" aria-hidden="true">
@@ -1476,7 +1476,7 @@
 
 <!-- CTA after testimonials -->
 <div style="background:#050505;padding:0 24px 80px;display:flex;flex-direction:column;align-items:center;">
-  <button class="ihb-btn ihb-scarcity" onclick="openModal()" type="button" style="width:100%;max-width:340px;">
+  <button class="ihb-btn ihb-scarcity" onclick="openFvwModal()" type="button" style="width:100%;max-width:340px;">
     <div class="ihb-dot" aria-hidden="true"></div>
     <span class="ihb-text-idle">JOIN WAITLIST</span>
     <div class="ihb-text-hover" aria-hidden="true">
@@ -3106,7 +3106,7 @@ const TW_PROMPTS = [
 
   sendBtn.addEventListener('click', e => {
     e.stopPropagation();
-    if (realInput.value.trim()) openModal();
+    if (realInput.value.trim()) openFvwModal();
   });
 
   // ── Init ─────────────────────────────────────────────────────────────────
@@ -3150,9 +3150,9 @@ function closeModal() {
 }
 
 var _navCta = document.getElementById('nav-cta');
-if (_navCta) _navCta.addEventListener('click', openModal);
+if (_navCta) _navCta.addEventListener('click', openFvwModal);
 var _heroCta = document.getElementById('hero-cta');
-if (_heroCta) _heroCta.addEventListener('click', openModal);
+if (_heroCta) _heroCta.addEventListener('click', openFvwModal);
 var _modalClose = document.getElementById('modal-close');
 if (_modalClose) _modalClose.addEventListener('click', closeModal);
 
@@ -3272,7 +3272,7 @@ modalForm.addEventListener('submit', async (e) => {
     if (triggered) return;
     triggered = true;
     clearTimeout(timer);
-    if (typeof openModal === 'function') openModal();
+    if (typeof openFvwModal === 'function') openFvwModal();
   }
 
   // Exit intent (desktop: cursor leaves top of viewport)
@@ -3419,7 +3419,7 @@ modalForm.addEventListener('submit', async (e) => {
       <video id="fvw-modal-vid" src="assets/Waiting list video/Landingpage.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
     </div>
     <!-- CTA below video -->
-    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();openModal();" type="button" style="width:100%;max-width:340px;">
+    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();window.open('https://form.typeform.com/to/oBxtb6bM','_blank');" type="button" style="width:100%;max-width:340px;">
       <div class="ihb-dot"></div>
       <span class="ihb-text-idle">JOIN WAITLIST</span>
       <span class="ihb-text-hover">
