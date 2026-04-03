@@ -2051,7 +2051,7 @@ function aicBtnClick(btnId, originElId) {
 
   // Glide to button
   setTimeout(function() {
-    cursor.style.transition = 'left 0.85s cubic-bezier(0.4,0,0.2,1), top 0.85s cubic-bezier(0.4,0,0.2,1)';
+    cursor.style.transition = 'left 1.15s cubic-bezier(0.4,0,0.2,1), top 1.15s cubic-bezier(0.4,0,0.2,1)';
     cursor.style.left = (btnRect.left + btnRect.width  * 0.5 - 4) + 'px';
     cursor.style.top  = (btnRect.top  + btnRect.height * 0.5 - 2) + 'px';
   }, 40);
@@ -2223,22 +2223,22 @@ function aicBtnClick(btnId, originElId) {
     showPlaceholder(text);
     stopCycle();
     const animMs = text.length * 22;
-    // Cursor glides to send button after typewriter finishes
+    // Cursor glides to send button after typewriter finishes + 1.5s hold
     flashTimer = setTimeout(() => {
       if (!running) return;
       aicBtnClick('fc-aic-send-btn', 'fc-aic-placeholder');
-    }, animMs + 400);
+    }, animMs + 1900);
     // Show Analysing state
     thinkTimer = setTimeout(() => {
       if (!running) return;
       aicThinkingShow('fc-aic-thinking', 'fc-aic-placeholder');
-    }, animMs + 1500);
+    }, animMs + 3000);
     // After ~5s of Analysing → fade in results panel
     cycleTimer = setTimeout(() => {
       if (!running) return;
       aicThinkingHide('fc-aic-thinking', 'fc-aic-placeholder');
       fcShowResults();
-    }, animMs + 6500);
+    }, animMs + 8000);
     // After 8s on results panel → fade out and restart
     resultsTimer = setTimeout(() => {
       if (!running) return;
@@ -2246,7 +2246,7 @@ function aicBtnClick(btnId, originElId) {
         if (!running) return;
         showAndSchedule(prompts[0].text);
       });
-    }, animMs + 14500);
+    }, animMs + 16000);
   }
 
   window.fcAicStart = function () {
@@ -3424,7 +3424,7 @@ modalForm.addEventListener('submit', async (e) => {
       <span class="ihb-text-idle">TRY FOR FREE</span>
       <span class="ihb-text-hover">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        CLAIM YOUR SPOT
+        TRY FOR FREE
       </span>
       <div class="ihb-spots-row"><span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span></div>
     </button>
