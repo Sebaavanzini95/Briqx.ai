@@ -1871,6 +1871,18 @@
     transform-origin: center center;
   }
   #fc-phone-frame.phone-landscape { transform: rotate(90deg); }
+  /* Counter-rotate video so content stays horizontal inside landscape phone */
+  #fc-phone-frame.phone-landscape #fc-slide1-video {
+    position: absolute;
+    width: 437px;
+    height: 218px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    object-fit: cover;
+  }
+  /* Hide Rob notes in landscape (they'd appear rotated) */
+  #fc-phone-frame.phone-landscape #fc-rob-notes { display: none !important; }
   #fc-phone-frame:hover #fc-play-btn {
     transform: translate(-50%, -50%) scale(1.12);
     box-shadow: 0 0 0 14px rgba(190,221,0,0.22);
