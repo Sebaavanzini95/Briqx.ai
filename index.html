@@ -1211,14 +1211,28 @@
                     <!-- Dynamic Island -->
                     <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:70px;height:22px;border-radius:12px;background:#000;z-index:10;box-shadow:0 1px 2px rgba(0,0,0,0.7);pointer-events:none;"></div>
 
-                    <!-- Match Analysis: full-bleed video -->
+                    <!-- Match Analysis: thumbnail + play → rotate → video -->
                     <div id="fc-slide1-wrap" style="display:none;width:100%;height:100%;position:relative;">
+
+                      <!-- Thumbnail overlay (shown initially, hidden when video plays) -->
+                      <div id="fc-slide1-thumb" style="position:absolute;inset:0;z-index:5;cursor:pointer;">
+                        <img src="assets/Bio Pics/Testimonials/MJA thumbnails/MJA CELE.jpg"
+                             style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;"
+                             onerror="this.style.background='#111'">
+                        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
+                        <div id="fc-play-btn" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:rgba(190,221,0,0.92);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 10px rgba(190,221,0,0.18);transition:transform 0.2s ease,box-shadow 0.2s ease;">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="#000"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                        </div>
+                      </div>
+
+                      <!-- Video (hidden until play triggered) -->
                       <video id="fc-slide1-video"
                              src="assets/Carousel video/MP4 EX!.mp4"
-                             autoplay muted loop playsinline
-                             style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+                             muted loop playsinline preload="metadata"
+                             style="width:100%;height:100%;object-fit:cover;display:none;"></video>
+
                       <!-- Rob notes floating overlay -->
-                      <div id="fc-rob-notes" style="position:absolute;bottom:8px;left:6px;right:6px;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;padding:7px 9px;display:none;">
+                      <div id="fc-rob-notes" style="position:absolute;bottom:8px;left:6px;right:6px;z-index:6;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;padding:7px 9px;display:none;">
                         <p id="fc-rob-note-text" style="font-family:'Inter',sans-serif;font-size:0.6rem;color:rgba(255,255,255,0.88);line-height:1.4;margin:0;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">—</p>
                         <div id="fc-rob-dots" style="display:flex;gap:4px;align-items:center;margin-top:5px;"></div>
                       </div>
@@ -1857,6 +1871,10 @@
     transform-origin: center center;
   }
   #fc-phone-frame.phone-landscape { transform: rotate(90deg); }
+  #fc-phone-frame:hover #fc-play-btn {
+    transform: translate(-50%, -50%) scale(1.12);
+    box-shadow: 0 0 0 14px rgba(190,221,0,0.22);
+  }
   #fc-phone-screen {
     flex: 1;
     border-radius: 28px;
@@ -1947,30 +1965,51 @@
       document.getElementById('fc-desc').textContent = s.desc;
 
       var phoneFrame = document.getElementById('fc-phone-frame');
+      var slide1Thumb = document.getElementById('fc-slide1-thumb');
+      var vid = document.getElementById('fc-slide1-video');
+
       if (idx === 0) {
         imgWrap.style.display = 'none';
         chatWidget.style.display = 'none';
         slide1Wrap.style.display = 'flex';
-        const vid = document.getElementById('fc-slide1-video');
-        vid.play().catch(function(){});
-        const notes = document.getElementById('fc-rob-notes');
-        if (typeof fcCoachOn === 'undefined' || fcCoachOn) {
-          if (notes) notes.style.display = 'flex';
-          fcRobStart();
-        } else {
-          if (notes) notes.style.display = 'none';
-        }
+        // Reset: portrait, thumbnail shown, video hidden and paused
+        if (phoneFrame) phoneFrame.classList.remove('phone-landscape');
+        if (vid) { vid.pause(); vid.currentTime = 0; vid.style.display = 'none'; }
+        if (slide1Thumb) slide1Thumb.style.display = 'block';
+        var notes = document.getElementById('fc-rob-notes');
+        if (notes) notes.style.display = 'none';
         fcAicStop();
-        // Portrait → landscape after 900ms
-        if (phoneFrame) {
-          phoneFrame.classList.remove('phone-landscape');
-          setTimeout(function() { phoneFrame.classList.add('phone-landscape'); }, 5000);
+        fcRobStop();
+        // Hover on phone → rotate to landscape + play video
+        if (phoneFrame && !phoneFrame._hoverBound) {
+          phoneFrame._hoverBound = true;
+          phoneFrame.addEventListener('mouseenter', function() {
+            var pf = document.getElementById('fc-phone-frame');
+            var v  = document.getElementById('fc-slide1-video');
+            var th = document.getElementById('fc-slide1-thumb');
+            var sw = document.getElementById('fc-slide1-wrap');
+            if (!pf || !sw || sw.style.display === 'none') return;
+            if (pf.classList.contains('phone-landscape')) return;
+            pf.classList.add('phone-landscape');
+            setTimeout(function() {
+              if (th) th.style.display = 'none';
+              if (v)  { v.style.display = 'block'; v.play().catch(function(){}); }
+              var notesEl = document.getElementById('fc-rob-notes');
+              if (typeof fcCoachOn === 'undefined' || fcCoachOn) {
+                if (notesEl) notesEl.style.display = 'flex';
+                fcRobStart();
+              }
+            }, 900);
+          });
         }
       } else if (idx === 1) {
         imgWrap.style.display = 'none';
         chatWidget.style.display = 'flex';
         chatWidget.style.flexDirection = 'column';
         slide1Wrap.style.display = 'none';
+        // Reset video state for next time
+        if (vid) { vid.pause(); vid.currentTime = 0; vid.style.display = 'none'; }
+        if (slide1Thumb) slide1Thumb.style.display = 'block';
         fcAicStart();
         fcRobStop();
         // Return to portrait
