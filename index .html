@@ -2324,15 +2324,17 @@ function aicBtnClick(btnId, originElId) {
         wordWrap.appendChild(s);
         charIndex++;
       });
-      phInner.appendChild(wordWrap);
       if (wi < arr.length - 1) {
+        // Space lives inside the word span so it trails with the word,
+        // never orphaned at the start of line 2 where it would show as indent.
         const sp = document.createElement('span');
         sp.className = 'aic-letter';
         sp.textContent = '\u00A0';
         sp.style.transitionDelay = (charIndex * 0.022) + 's';
-        phInner.appendChild(sp);
+        wordWrap.appendChild(sp);
         charIndex++;
       }
+      phInner.appendChild(wordWrap);
     });
     requestAnimationFrame(() => requestAnimationFrame(() => {
       phInner.querySelectorAll('.aic-letter').forEach(s => s.classList.add('in'));
