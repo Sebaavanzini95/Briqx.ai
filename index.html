@@ -1306,9 +1306,14 @@
                          muted loop playsinline preload="metadata"
                          style="width:100%;height:100%;object-fit:cover;display:block;"></video>
                   <!-- Rob notes — at bottom of landscape video -->
-                  <div id="fc-rob-notes" style="position:absolute;bottom:8px;left:6px;right:6px;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;padding:7px 9px;display:none;">
-                    <p id="fc-rob-note-text" style="font-family:'Inter',sans-serif;font-size:0.6rem;color:rgba(255,255,255,0.88);line-height:1.4;margin:0;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">—</p>
-                    <div id="fc-rob-dots" style="display:flex;gap:4px;align-items:center;margin-top:5px;"></div>
+                  <div id="fc-rob-notes" style="position:absolute;bottom:8px;left:6px;right:6px;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;padding:7px 9px;display:none;align-items:flex-start;gap:8px;">
+                    <!-- Rob avatar -->
+                    <img src="assets/Avatars/Rob-headshot.png" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:1.5px solid #BEDD00;flex-shrink:0;display:block;" onerror="this.style.display='none'">
+                    <!-- Note text + dots -->
+                    <div style="flex:1;min-width:0;">
+                      <p id="fc-rob-note-text" style="font-family:'Inter',sans-serif;font-size:0.6rem;color:rgba(255,255,255,0.88);line-height:1.4;margin:0;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">—</p>
+                      <div id="fc-rob-dots" style="display:flex;gap:4px;align-items:center;margin-top:5px;"></div>
+                    </div>
                   </div>
                 </div>
 
