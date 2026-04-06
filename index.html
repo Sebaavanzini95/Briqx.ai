@@ -291,6 +291,7 @@
       right: 16px;
       pointer-events: none;
       overflow: hidden;
+      text-align: left;
       z-index: 0;
       line-height: 1.6;
     }
@@ -1267,21 +1268,19 @@
                     </svg>
                   </button>
                 </div>
-                <div id="fc-results-panel" style="display:none;position:absolute;inset:0;z-index:6;flex-direction:column;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border-radius:16px;overflow:hidden;opacity:0;transition:opacity 0.5s ease;">
-                  <div style="position:relative;flex:1;min-height:0;overflow:hidden;">
-                    <img src="assets/Bio Pics/Testimonials/MJA CELE.jpg"
-                         style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;"
-                         onerror="this.style.background='#1a1a1a'">
-                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.28);">
-                      <div style="width:44px;height:44px;border-radius:50%;background:rgba(190,221,0,0.9);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(190,221,0,0.18);">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                      </div>
-                    </div>
-                    <div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:6px;padding:4px 9px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);">10 Cross Defence Clips &nbsp;·&nbsp; Mads Andersen</span>
+                <div id="fc-results-panel" style="display:none;position:absolute;inset:0;z-index:6;background:#000;border-radius:16px;overflow:hidden;opacity:0;transition:opacity 0.5s ease;">
+                  <!-- Full-screen image -->
+                  <img src="assets/Bio Pics/Testimonials/MJA CELE.jpg"
+                       style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;display:block;"
+                       onerror="this.style.background='#1a1a1a'">
+                  <!-- Play button overlay -->
+                  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.22);">
+                    <div style="width:44px;height:44px;border-radius:50%;background:rgba(190,221,0,0.9);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(190,221,0,0.18);">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                     </div>
                   </div>
-                  <div id="fc-moments-strip" style="flex-shrink:0;padding:10px 12px;overflow-x:auto;display:flex;gap:8px;scrollbar-width:none;-ms-overflow-style:none;"></div>
+                  <!-- Moments strip overlaid at bottom -->
+                  <div id="fc-moments-strip" style="position:absolute;bottom:0;left:0;right:0;padding:8px 10px 10px;overflow-x:auto;display:flex;gap:7px;scrollbar-width:none;-ms-overflow-style:none;background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.4) 70%,transparent 100%);"></div>
                 </div>
               </div>
 
@@ -2270,15 +2269,15 @@ function aicBtnClick(btnId, originElId) {
   ];
 
   const moments = [
-    { match: "vs Northampton", date: "04/03", clips: 8, label: "Lost marker from deep cross" },
-    { match: "vs Northampton", date: "04/03", clips: 6, label: "Ball-watching, runner unmarked" },
-    { match: "vs Northampton", date: "04/03", clips: 5, label: "Recovery run too late" },
-    { match: "vs Plymouth",    date: "24/02", clips: 7, label: "Positioned too narrow" },
-    { match: "vs Plymouth",    date: "24/02", clips: 4, label: "Overcommitted, beaten in air" },
-    { match: "vs Burton",      date: "21/02", clips: 9, label: "Slow reaction to deep cross" },
-    { match: "vs Burton",      date: "21/02", clips: 3, label: "Cross not challenged" },
-    { match: "vs Wigan",       date: "18/02", clips: 6, label: "Dropped too deep" },
-    { match: "vs Wigan",       date: "18/02", clips: 5, label: "Duel lost, cross converted" },
+    { match: "vs Cardiff City", date: "04/03", clips: 8, label: "Lost marker from deep cross" },
+    { match: "vs Cardiff City", date: "04/03", clips: 6, label: "Ball-watching, runner unmarked" },
+    { match: "vs Cardiff City", date: "04/03", clips: 5, label: "Recovery run too late" },
+    { match: "vs Plymouth",     date: "24/02", clips: 7, label: "Positioned too narrow" },
+    { match: "vs Plymouth",     date: "24/02", clips: 4, label: "Overcommitted, beaten in air" },
+    { match: "vs Burton",       date: "21/02", clips: 9, label: "Slow reaction to deep cross" },
+    { match: "vs Burton",       date: "21/02", clips: 3, label: "Cross not challenged" },
+    { match: "vs Wigan",        date: "18/02", clips: 6, label: "Dropped too deep" },
+    { match: "vs Wigan",        date: "18/02", clips: 5, label: "Duel lost, cross converted" },
   ];
 
   function el(id) { return document.getElementById(id); }
@@ -2355,9 +2354,13 @@ function aicBtnClick(btnId, originElId) {
     if (strip && !strip.childElementCount) {
       moments.forEach(function(m, i) {
         var card = document.createElement('div');
-        card.style.cssText = 'flex-shrink:0;width:112px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid ' + (i === 0 ? 'rgba(190,221,0,0.5)' : 'rgba(255,255,255,0.08)') + ';padding:8px 9px;cursor:default;';
-        card.innerHTML = '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:0.75rem;letter-spacing:0.04em;color:#fff;margin-bottom:4px;">' + m.match + '</div>'
-          + '<div style="font-family:\'Space Mono\',monospace;font-size:0.5rem;letter-spacing:0.06em;color:#BEDD00;">' + m.clips + ' clips</div>';
+        card.style.cssText = 'flex-shrink:0;width:118px;border-radius:8px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid ' + (i === 0 ? 'rgba(190,221,0,0.55)' : 'rgba(255,255,255,0.1)') + ';padding:7px 8px;cursor:default;';
+        card.innerHTML = '<div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">'
+          + '<img src="assets/Avatars/Rob-headshot.png" style="width:16px;height:16px;border-radius:50%;object-fit:cover;border:1px solid #BEDD00;flex-shrink:0;">'
+          + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:0.72rem;letter-spacing:0.04em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + m.match + '</div>'
+          + '</div>'
+          + '<div style="font-family:\'Space Mono\',monospace;font-size:0.42rem;letter-spacing:0.05em;color:#BEDD00;margin-bottom:2px;">' + m.clips + ' clips · opp. crosses</div>'
+          + '<div style="font-family:\'Space Mono\',monospace;font-size:0.4rem;letter-spacing:0.04em;color:rgba(255,255,255,0.4);">' + m.date + '</div>';
         strip.appendChild(card);
       });
     }
