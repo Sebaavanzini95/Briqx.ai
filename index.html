@@ -1204,7 +1204,7 @@
               <!-- Hidden placeholder — kept for JS imgWrap references -->
               <div id="fc-img-wrap" style="display:none;"></div>
 
-              <div id="fc-phone-outer" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+              <div id="fc-phone-outer" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
                 <div id="fc-phone-frame">
                   <!-- Screen -->
                   <div id="fc-phone-screen">
@@ -1225,17 +1225,6 @@
                         </div>
                       </div>
 
-                      <!-- Video (hidden until play triggered) -->
-                      <video id="fc-slide1-video"
-                             src="assets/Carousel video/MP4 EX!.mp4"
-                             muted loop playsinline preload="metadata"
-                             style="width:100%;height:100%;object-fit:cover;display:none;"></video>
-
-                      <!-- Rob notes floating overlay -->
-                      <div id="fc-rob-notes" style="position:absolute;bottom:8px;left:6px;right:6px;z-index:6;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;padding:7px 9px;display:none;">
-                        <p id="fc-rob-note-text" style="font-family:'Inter',sans-serif;font-size:0.6rem;color:rgba(255,255,255,0.88);line-height:1.4;margin:0;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">—</p>
-                        <div id="fc-rob-dots" style="display:flex;gap:4px;align-items:center;margin-top:5px;"></div>
-                      </div>
                       <!-- Hidden coach toggle elements — JS still references these -->
                       <div id="fc-coach-toggle" style="display:none;">
                         <span id="fc-coach-label"></span>
@@ -1314,6 +1303,22 @@
                   <!-- Home indicator -->
                   <div style="width:76px;height:5px;border-radius:3px;margin:8px auto 0;flex-shrink:0;background:linear-gradient(180deg,rgba(255,255,255,0.7),rgba(255,255,255,0.35));opacity:0.9;pointer-events:none;"></div>
                 </div><!-- end fc-phone-frame -->
+
+                <!-- Landscape video overlay — lives OUTSIDE the rotated phone frame
+                     so no coordinate-system fights. Positioned to cover the phone screen
+                     after the frame has rotated 90deg. -->
+                <div id="fc-landscape-overlay" style="display:none;position:absolute;width:437px;height:218px;top:50%;left:calc(50% + 7px);transform:translate(-50%,-50%);border-radius:28px;overflow:hidden;z-index:20;background:#000;">
+                  <video id="fc-slide1-video"
+                         src="assets/Carousel video/MP4 EX!.mp4"
+                         muted loop playsinline preload="metadata"
+                         style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+                  <!-- Rob notes — at bottom of landscape video -->
+                  <div id="fc-rob-notes" style="position:absolute;bottom:8px;left:6px;right:6px;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;padding:7px 9px;display:none;">
+                    <p id="fc-rob-note-text" style="font-family:'Inter',sans-serif;font-size:0.6rem;color:rgba(255,255,255,0.88);line-height:1.4;margin:0;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">—</p>
+                    <div id="fc-rob-dots" style="display:flex;gap:4px;align-items:center;margin-top:5px;"></div>
+                  </div>
+                </div>
+
               </div><!-- end fc-phone-outer -->
             </div><!-- end right panel -->
 
@@ -1870,21 +1875,8 @@
     transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center center;
   }
-  /* Phone rotates to landscape */
+  /* Phone rotates to landscape — video lives in a separate overlay outside the frame */
   #fc-phone-frame.phone-landscape { transform: rotate(90deg); }
-  /* Video counter-rotates so content stays horizontal.
-     clip-path (not overflow:hidden) is used on the screen so it clips
-     the PAINTED area (post-transform), allowing the 437x218 video to
-     display fully without layout-box clipping. */
-  #fc-phone-frame.phone-landscape #fc-slide1-video {
-    position: absolute !important;
-    width: 437px !important;
-    height: 218px !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) rotate(-90deg) !important;
-    object-fit: cover !important;
-  }
   #fc-phone-frame:hover #fc-play-btn {
     transform: translate(-50%, -50%) scale(1.12);
     box-shadow: 0 0 0 14px rgba(190,221,0,0.22);
@@ -1892,10 +1884,7 @@
   #fc-phone-screen {
     flex: 1;
     border-radius: 28px;
-    /* clip-path clips painted output (post-transform), unlike overflow:hidden
-       which clips layout box — this lets counter-rotated video fill fully */
-    clip-path: inset(0 round 28px);
-    overflow: visible;
+    overflow: hidden;
     background: #000;
     position: relative;
     min-height: 0;
@@ -1985,32 +1974,39 @@
       var slide1Thumb = document.getElementById('fc-slide1-thumb');
       var vid = document.getElementById('fc-slide1-video');
 
+      var overlay = document.getElementById('fc-landscape-overlay');
+
       if (idx === 0) {
         imgWrap.style.display = 'none';
         chatWidget.style.display = 'none';
         slide1Wrap.style.display = 'flex';
-        // Reset: portrait, thumbnail shown, video hidden and paused
+        // Reset: portrait, thumbnail shown, overlay hidden
         if (phoneFrame) phoneFrame.classList.remove('phone-landscape');
-        if (vid) { vid.pause(); vid.currentTime = 0; vid.style.display = 'none'; }
+        if (overlay) overlay.style.display = 'none';
+        if (vid) { vid.pause(); vid.currentTime = 0; }
         if (slide1Thumb) slide1Thumb.style.display = 'block';
         var notes = document.getElementById('fc-rob-notes');
         if (notes) notes.style.display = 'none';
         fcAicStop();
         fcRobStop();
-        // Hover on phone → rotate to landscape + play video
+        // Hover on phone → rotate frame + show landscape overlay after rotation
         if (phoneFrame && !phoneFrame._hoverBound) {
           phoneFrame._hoverBound = true;
           phoneFrame.addEventListener('mouseenter', function() {
             var pf = document.getElementById('fc-phone-frame');
-            var v  = document.getElementById('fc-slide1-video');
             var th = document.getElementById('fc-slide1-thumb');
             var sw = document.getElementById('fc-slide1-wrap');
+            var ov = document.getElementById('fc-landscape-overlay');
+            var v  = document.getElementById('fc-slide1-video');
             if (!pf || !sw || sw.style.display === 'none') return;
             if (pf.classList.contains('phone-landscape')) return;
+            // Rotate the phone frame
             pf.classList.add('phone-landscape');
+            // After rotation completes: hide thumbnail, show landscape overlay + play
             setTimeout(function() {
               if (th) th.style.display = 'none';
-              if (v)  { v.style.display = 'block'; v.play().catch(function(){}); }
+              if (ov) ov.style.display = 'block';
+              if (v)  v.play().catch(function(){});
               var notesEl = document.getElementById('fc-rob-notes');
               if (typeof fcCoachOn === 'undefined' || fcCoachOn) {
                 if (notesEl) notesEl.style.display = 'flex';
@@ -2024,8 +2020,9 @@
         chatWidget.style.display = 'flex';
         chatWidget.style.flexDirection = 'column';
         slide1Wrap.style.display = 'none';
-        // Reset video state for next time
-        if (vid) { vid.pause(); vid.currentTime = 0; vid.style.display = 'none'; }
+        // Reset landscape overlay for next time
+        if (overlay) overlay.style.display = 'none';
+        if (vid) { vid.pause(); vid.currentTime = 0; }
         if (slide1Thumb) slide1Thumb.style.display = 'block';
         fcAicStart();
         fcRobStop();
