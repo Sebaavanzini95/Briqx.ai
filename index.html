@@ -1206,12 +1206,10 @@
 
               <div id="fc-phone-outer" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
                 <div id="fc-phone-frame">
-                  <!-- Notch -->
-                  <div style="display:flex;justify-content:center;margin-bottom:8px;flex-shrink:0;">
-                    <div style="width:50px;height:5px;border-radius:3px;background:rgba(255,255,255,0.15);"></div>
-                  </div>
                   <!-- Screen -->
                   <div id="fc-phone-screen">
+                    <!-- Dynamic Island -->
+                    <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:70px;height:22px;border-radius:12px;background:#000;z-index:10;box-shadow:0 1px 2px rgba(0,0,0,0.7);pointer-events:none;"></div>
 
                     <!-- Match Analysis: full-bleed video -->
                     <div id="fc-slide1-wrap" style="display:none;width:100%;height:100%;position:relative;">
@@ -1299,8 +1297,8 @@
               </div>
 
                   </div><!-- end fc-phone-screen -->
-                  <!-- Home bar -->
-                  <div style="width:48px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:7px auto 0;flex-shrink:0;"></div>
+                  <!-- Home indicator -->
+                  <div style="width:76px;height:5px;border-radius:3px;margin:8px auto 0;flex-shrink:0;background:linear-gradient(180deg,rgba(255,255,255,0.7),rgba(255,255,255,0.35));opacity:0.9;pointer-events:none;"></div>
                 </div><!-- end fc-phone-frame -->
               </div><!-- end fc-phone-outer -->
             </div><!-- end right panel -->
@@ -1843,29 +1841,30 @@
   /* ── Phone Frame ── */
   #fc-phone-frame {
     position: relative;
-    width: 190px;
-    height: 390px;
-    background: linear-gradient(160deg, #1c1c1e 0%, #111 100%);
-    border-radius: 28px;
-    border: 2px solid rgba(255,255,255,0.16);
+    width: 230px;
+    height: 470px;
+    background: linear-gradient(135deg, #222428 0%, #1c1e22 40%, #181a1e 100%);
+    border-radius: 38px;
+    border: 2px solid rgba(255,255,255,0.12);
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.05),
-      inset 0 0 0 1px rgba(255,255,255,0.04),
-      0 24px 64px rgba(0,0,0,0.8);
+      0 12px 30px rgba(0,0,0,0.45),
+      0 2px 6px rgba(0,0,0,0.3),
+      0 0 0 1px rgba(255,255,255,0.05);
     display: flex;
     flex-direction: column;
-    padding: 12px 5px 8px;
+    padding: 10px 6px 10px;
     transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center center;
   }
   #fc-phone-frame.phone-landscape { transform: rotate(90deg); }
   #fc-phone-screen {
     flex: 1;
-    border-radius: 18px;
+    border-radius: 28px;
     overflow: hidden;
     background: #000;
     position: relative;
     min-height: 0;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), inset 0 10px 20px rgba(0,0,0,0.35);
   }
 
   /* ── MacBook Frame ── */
@@ -1965,7 +1964,7 @@
         // Portrait → landscape after 900ms
         if (phoneFrame) {
           phoneFrame.classList.remove('phone-landscape');
-          setTimeout(function() { phoneFrame.classList.add('phone-landscape'); }, 900);
+          setTimeout(function() { phoneFrame.classList.add('phone-landscape'); }, 5000);
         }
       } else if (idx === 1) {
         imgWrap.style.display = 'none';
