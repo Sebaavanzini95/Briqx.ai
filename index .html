@@ -206,18 +206,19 @@
     .ihb-btn:not(.ihb-scarcity):hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-btn:not(.ihb-scarcity):hover { transform: translateY(-2px) scale(1.04); }
     .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
-    /* ── Scarcity merged into button — always shown ── */
+    /* ── Scarcity merged into button ── */
     .ihb-btn.ihb-scarcity { height: 72px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    /* Dot fills the button by default (no hover needed) */
+    /* Dot starts hidden — JS animates it to 76% fill on page load */
     .ihb-btn.ihb-scarcity .ihb-dot {
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%) translateX(-62%);
+      left: 0; top: 50%;
+      transform: translateY(-50%) translateX(-101%);
+      transition: transform 2s cubic-bezier(0.4,0,0.2,1);
       width: 200%; height: 200%;
       border-radius: 0;
       background: #BEDD00;
     }
-    /* Text-idle hidden, arrow text visible by default */
+    .ihb-btn.ihb-scarcity.ihb-animated .ihb-dot { transform: translateY(-50%) translateX(-62%); }
+    /* Text: idle hidden, arrow text always shown */
     .ihb-btn.ihb-scarcity .ihb-text-idle { transform: translateX(72px); opacity: 0; }
     .ihb-btn.ihb-scarcity .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-spots-row {
@@ -227,12 +228,13 @@
       z-index: 3; pointer-events: none;
     }
     .ihb-spots-label {
-      font-family: 'Space Mono', monospace; font-size: 0.52rem;
-      letter-spacing: 0.1em; color: rgba(0,0,0,0.6);
+      font-family: 'Space Mono', monospace; font-size: 0.5rem;
+      letter-spacing: 0.08em; color: rgba(0,0,0,0.65);
       text-transform: uppercase; text-align: center;
       opacity: 1;
+      transition: color 0.3s ease;
     }
-    /* Hover: just lift the button */
+    /* Hover: lift */
     .ihb-btn.ihb-scarcity:hover {
       transform: translateY(-3px) scale(1.02);
       box-shadow: 0 8px 24px rgba(190,221,0,0.25);
@@ -1185,7 +1187,7 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                   </div>
                   <div class="ihb-spots-row">
-                    <span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span>
+                    <span class="ihb-spots-label"><span class="ihb-counter-num">0</span> JOINED · 24 SPOTS LEFT</span>
                   </div>
                 </button>
                 <p style="font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.28);margin-top:10px;letter-spacing:0.02em;width:66.667%;">Only 100 players get priority access with special benefits! Claim your spot now for free!</p>
@@ -1367,7 +1369,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
         <div class="ihb-spots-row">
-          <span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span>
+          <span class="ihb-spots-label"><span class="ihb-counter-num">0</span> JOINED · 24 SPOTS LEFT</span>
         </div>
       </button>
       <p style="font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.28);margin-top:10px;letter-spacing:0.02em;text-align:center;">Only 100 players get priority access with special benefits! Claim your spot now for free!</p>
@@ -1496,7 +1498,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
         <div class="ihb-spots-row">
-          <span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span>
+          <span class="ihb-spots-label"><span class="ihb-counter-num">0</span> JOINED · 24 SPOTS LEFT</span>
         </div>
       </button>
     </div>
@@ -1695,8 +1697,8 @@
       width: 100%;
       margin-top: 16px;
     }
-    /* Scarcity always active on mobile too */
-    .ihb-btn.ihb-scarcity .ihb-dot { transform: translateY(-50%) translateX(-62%) !important; }
+    /* Scarcity mobile — animated class drives fill */
+    .ihb-btn.ihb-scarcity.ihb-animated .ihb-dot { transform: translateY(-50%) translateX(-62%) !important; }
     .ihb-btn.ihb-scarcity .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
     .ihb-btn.ihb-scarcity .ihb-text-hover { transform: translateX(0) !important; opacity: 1 !important; }
     .ihb-btn.ihb-scarcity .ihb-spots-label { opacity: 1 !important; }
@@ -3339,44 +3341,6 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
 });
 
-// ── Scarcity counter animation on CTA hover + touch ──────────────────────
-document.querySelectorAll('.ihb-btn.ihb-scarcity').forEach(function(btn) {
-  var animFrame;
-
-  function startAnim() {
-    var numEl = btn.querySelector('.ihb-spots-num');
-    if (!numEl) return;
-    var start = 100, end = 24, duration = 1000, startTime = null;
-    cancelAnimationFrame(animFrame);
-    function step(ts) {
-      if (!startTime) startTime = ts;
-      var progress = Math.min((ts - startTime) / duration, 1);
-      var eased = 1 - Math.pow(1 - progress, 2);
-      numEl.textContent = Math.round(start - (start - end) * eased);
-      if (progress < 1) animFrame = requestAnimationFrame(step);
-    }
-    animFrame = requestAnimationFrame(step);
-  }
-
-  function resetAnim() {
-    cancelAnimationFrame(animFrame);
-    var numEl = btn.querySelector('.ihb-spots-num');
-    if (numEl) numEl.textContent = '24';
-  }
-
-  // Desktop hover
-  btn.addEventListener('mouseenter', function() { btn.classList.add('ihb-active'); startAnim(); });
-  btn.addEventListener('mouseleave', function() { btn.classList.remove('ihb-active'); resetAnim(); });
-
-  // Mobile touch
-  btn.addEventListener('touchstart', function(e) {
-    btn.classList.add('ihb-active');
-    startAnim();
-  }, { passive: true });
-  btn.addEventListener('touchend', function() {
-    setTimeout(function() { btn.classList.remove('ihb-active'); resetAnim(); }, 400);
-  });
-});
 
 
 // ── Modal form ────────────────────────────────────────────────────────────
@@ -3595,7 +3559,7 @@ modalForm.addEventListener('submit', async (e) => {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         JOIN WAITLIST
       </span>
-      <div class="ihb-spots-row"><span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span></div>
+      <div class="ihb-spots-row"><span class="ihb-spots-label"><span class="ihb-counter-num">0</span> JOINED · 24 SPOTS LEFT</span></div>
     </button>
   </div>
 </div>
@@ -3656,6 +3620,43 @@ document.getElementById('fvw-vid-modal').addEventListener('click', function(e) {
     </filter>
   </defs>
 </svg>
+
+<script>
+// ── CTA scarcity bar + counter animation on page load ─────────────────────
+(function () {
+  var TARGET = 76;
+  var DURATION = 2000; // ms for bar + counter
+  var DELAY = 700;     // ms after page load before starting
+
+  function animateBtn(btn) {
+    btn.classList.add('ihb-animated');
+    var counterEl = btn.querySelector('.ihb-counter-num');
+    if (!counterEl) return;
+    var start = null;
+    function tick(ts) {
+      if (!start) start = ts;
+      var elapsed = ts - start;
+      var progress = Math.min(elapsed / DURATION, 1);
+      var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      counterEl.textContent = Math.round(eased * TARGET);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function run() {
+    setTimeout(function () {
+      document.querySelectorAll('.ihb-btn.ihb-scarcity').forEach(animateBtn);
+    }, DELAY);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+})();
+</script>
 
 <script>
 // ── MacBook scroll tilt ────────────────────────────────────────────────────
