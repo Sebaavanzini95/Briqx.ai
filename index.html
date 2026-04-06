@@ -1873,13 +1873,13 @@
   #fc-phone-frame.phone-landscape { transform: rotate(90deg); }
   /* Counter-rotate video so content stays horizontal inside landscape phone */
   #fc-phone-frame.phone-landscape #fc-slide1-video {
-    position: absolute;
-    width: 437px;
-    height: 218px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-90deg);
-    object-fit: cover;
+    position: absolute !important;
+    width: 437px !important;
+    height: 218px !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) rotate(-90deg) !important;
+    object-fit: cover !important;
   }
   /* Hide Rob notes in landscape (they'd appear rotated) */
   #fc-phone-frame.phone-landscape #fc-rob-notes { display: none !important; }
