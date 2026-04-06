@@ -1867,22 +1867,10 @@
     display: flex;
     flex-direction: column;
     padding: 10px 6px 10px;
-    transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: center center;
+    transition: width 0.85s cubic-bezier(0.4, 0, 0.2, 1), height 0.85s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  #fc-phone-frame.phone-landscape { transform: rotate(90deg); }
-  /* Counter-rotate video so content stays horizontal inside landscape phone */
-  #fc-phone-frame.phone-landscape #fc-slide1-video {
-    position: absolute !important;
-    width: 437px !important;
-    height: 218px !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) rotate(-90deg) !important;
-    object-fit: cover !important;
-  }
-  /* Hide Rob notes in landscape (they'd appear rotated) */
-  #fc-phone-frame.phone-landscape #fc-rob-notes { display: none !important; }
+  /* Phone morphs to landscape — no rotation, so video fills naturally */
+  #fc-phone-frame.phone-landscape { width: 440px; height: 230px; }
   #fc-phone-frame:hover #fc-play-btn {
     transform: translate(-50%, -50%) scale(1.12);
     box-shadow: 0 0 0 14px rgba(190,221,0,0.22);
