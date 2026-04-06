@@ -1813,7 +1813,7 @@
      FLOATING VIDEO WIDGET
   ══════════════════════════════════════════ */
   #fvw-label {
-    position: fixed; bottom: 120px; right: 116px; z-index: 9998;
+    position: fixed; bottom: 44px; right: 108px; z-index: 9998;
     background: #1e2a1e;
     border-radius: 12px 12px 12px 4px;
     padding: 11px 15px;
@@ -1841,51 +1841,33 @@
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  /* ── Floating iPhone frame bubble ── */
   #fvw-bubble {
     position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-    width: 100px; height: 204px;
-    background: linear-gradient(135deg, #222428 0%, #1c1e22 40%, #181a1e 100%);
-    border-radius: 22px;
-    border: 2px solid rgba(255,255,255,0.14);
-    box-shadow:
-      0 12px 32px rgba(0,0,0,0.55),
-      0 2px 6px rgba(0,0,0,0.35),
-      0 0 0 1px rgba(255,255,255,0.05);
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 3px solid #BEDD00;
     cursor: pointer; overflow: visible;
-    display: flex; flex-direction: column;
-    padding: 5px 4px 5px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  #fvw-bubble:hover { transform: scale(1.04); box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(190,221,0,0.18); }
-  /* Dynamic Island */
-  #fvw-bubble::before {
-    content: '';
-    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
-    width: 28px; height: 8px; border-radius: 5px;
-    background: #000; z-index: 10; pointer-events: none;
-  }
+  #fvw-bubble:hover { transform: scale(1.07); box-shadow: 0 6px 32px rgba(190,221,0,0.25); }
   #fvw-bubble-inner {
-    flex: 1; border-radius: 16px; overflow: hidden;
-    background: #000; position: relative; min-height: 0;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+    width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+    background: #000;
+    display: flex; align-items: center; justify-content: center;
   }
   #fvw-loop {
     width: 100%; height: 100%; object-fit: cover; display: block;
   }
   #fvw-initials {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
     font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem;
     letter-spacing: 0.1em; color: #BEDD00;
   }
   #fvw-live-dot {
-    position: absolute; bottom: 10px; right: 8px;
-    width: 9px; height: 9px; border-radius: 50%;
+    position: absolute; top: 2px; right: 2px;
+    width: 11px; height: 11px; border-radius: 50%;
     background: #22c55e;
-    border: 2px solid #181a1e;
+    border: 2px solid #050505;
     animation: fvw-pulse 2s ease-in-out infinite;
-    z-index: 10;
   }
   @keyframes fvw-pulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
@@ -3604,13 +3586,19 @@ modalForm.addEventListener('submit', async (e) => {
 </div>
 
 <!-- Bubble -->
-<div id="fvw-bubble" role="button" aria-label="Join waitlist" onclick="openFvwModal()">
+<div id="fvw-bubble" role="button" aria-label="Join waitlist">
   <div id="fvw-bubble-inner">
     <video id="fvw-loop" src="assets/Waiting list video/Waiting list.mp4"
            autoplay muted loop playsinline
-           onerror="this.style.display='none';document.getElementById('fvw-initials').style.display='flex'">
+           onerror="this.style.display='none';document.getElementById('fvw-initials').style.display='block'">
     </video>
     <span id="fvw-initials" style="display:none;">SEB</span>
+  </div>
+  <!-- Play button overlay -->
+  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:5;">
+    <div style="width:22px;height:22px;border-radius:50%;background:rgba(190,221,0,0.9);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);">
+      <svg width="8" height="8" viewBox="0 0 10 10" fill="#000"><polygon points="2,1 9,5 2,9"/></svg>
+    </div>
   </div>
   <div id="fvw-live-dot"></div>
 </div>
@@ -3618,18 +3606,32 @@ modalForm.addEventListener('submit', async (e) => {
 <!-- Video Player Modal (9:16) -->
 <div id="fvw-vid-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;flex-direction:column;">
   <button onclick="closeFvwModal()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.12);border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;z-index:2;">✕</button>
-  <div style="width:min(340px,85vw);display:flex;flex-direction:column;align-items:center;gap:16px;">
-    <!-- 9:16 video container -->
-    <div style="width:100%;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 8px 48px rgba(0,0,0,0.7);">
-      <video id="fvw-modal-vid" src="assets/Waiting list video/Waiting list.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+    <!-- iPhone frame -->
+    <div style="
+      position:relative;
+      width:min(230px,52vw); height:min(470px,78vh);
+      background:linear-gradient(135deg,#222428 0%,#1c1e22 40%,#181a1e 100%);
+      border-radius:38px;
+      border:2px solid rgba(255,255,255,0.12);
+      box-shadow:0 12px 40px rgba(0,0,0,0.7),0 2px 6px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.05);
+      display:flex;flex-direction:column;
+      padding:10px 6px 10px;
+    ">
+      <!-- Dynamic Island -->
+      <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:70px;height:22px;border-radius:12px;background:#000;z-index:10;pointer-events:none;"></div>
+      <!-- Screen -->
+      <div style="flex:1;border-radius:28px;overflow:hidden;background:#000;position:relative;min-height:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.03),inset 0 10px 20px rgba(0,0,0,0.35);">
+        <video id="fvw-modal-vid" src="assets/Waiting list video/Waiting list.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+      </div>
     </div>
-    <!-- CTA below video -->
-    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();window.open('https://form.typeform.com/to/oBxtb6bM','_blank');" type="button" style="width:100%;max-width:340px;">
+    <!-- CTA below phone -->
+    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();window.open('https://form.typeform.com/to/oBxtb6bM','_blank');" type="button" style="width:min(230px,52vw);">
       <div class="ihb-dot"></div>
-      <span class="ihb-text-idle">TRY FOR FREE</span>
+      <span class="ihb-text-idle">JOIN WAITLIST</span>
       <span class="ihb-text-hover">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        TRY FOR FREE
+        JOIN WAITLIST
       </span>
       <div class="ihb-spots-row"><span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span></div>
     </button>
