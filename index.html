@@ -1297,7 +1297,7 @@
                   <!-- Top controls bar -->
                   <div style="position:absolute;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(to bottom,rgba(0,0,0,0.65) 0%,transparent 100%);pointer-events:none;">
                     <!-- Left: Coach toggle -->
-                    <div style="display:flex;align-items:center;gap:6px;pointer-events:auto;cursor:pointer;" onclick="fcToggleCoach()">
+                    <div id="fc-coach-toggle-btn" style="display:flex;align-items:center;gap:6px;pointer-events:auto;cursor:pointer;" onclick="fcToggleCoach()">
                       <span id="fc-coach-label" style="font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;text-transform:uppercase;color:#BEDD00;">COACH</span>
                       <div id="fc-coach-pill" style="width:26px;height:13px;border-radius:7px;background:#BEDD00;position:relative;flex-shrink:0;transition:background 0.2s;">
                         <div id="fc-coach-knob" style="position:absolute;top:2px;left:2px;width:9px;height:9px;border-radius:50%;background:#000;transition:transform 0.2s;transform:translateX(13px);"></div>
@@ -2016,18 +2016,25 @@
           if (pf.classList.contains('phone-landscape')) return;
           if (th) th.style.display = 'none';  // hide play button before rotation
           pf.classList.add('phone-landscape');
-          // After rotation completes: show overlay + Coach annotations
+          // After rotation completes: show overlay, demo the Coach toggle, then play
           setTimeout(function() {
             if (ov) ov.style.display = 'block';
-            var notesEl = document.getElementById('fc-rob-notes');
-            if (typeof fcCoachOn === 'undefined' || fcCoachOn) {
-              if (notesEl) notesEl.style.display = 'flex';
-              fcRobStart();
-            }
-            // 3-second hold before video plays
+            // Reset toggle to OFF so the demo makes sense
+            if (typeof fcCoachReset === 'function') fcCoachReset();
+            // Step 1: hover animation on toggle
             setTimeout(function() {
-              if (v) v.play().catch(function(){});
-            }, 3000);
+              var btn = document.getElementById('fc-coach-toggle-btn');
+              if (btn) { btn.style.transition = 'transform 0.15s ease'; btn.style.transform = 'scale(1.2)'; }
+              // Step 2: toggle ON + annotations pop in
+              setTimeout(function() {
+                if (btn) btn.style.transform = 'scale(1)';
+                if (typeof fcToggleCoach === 'function') fcToggleCoach();
+                // Step 3: 3-second hold then video plays
+                setTimeout(function() {
+                  if (v) v.play().catch(function(){});
+                }, 3000);
+              }, 200);
+            }, 500);
           }, 900);
         };
         if (phoneFrame && !phoneFrame._hoverBound) {
@@ -2492,6 +2499,19 @@ function aicBtnClick(btnId, originElId) {
 
   // ── Coach toggle ──────────────────────────────────────────────────────────
   var fcCoachOn = true;
+
+  // Reset toggle to OFF state (called before each demo sequence)
+  window.fcCoachReset = function () {
+    fcCoachOn = false;
+    var pill  = document.getElementById('fc-coach-pill');
+    var knob  = document.getElementById('fc-coach-knob');
+    var label = document.getElementById('fc-coach-label');
+    var notes = document.getElementById('fc-rob-notes');
+    if (pill)  pill.style.background  = '#444';
+    if (knob)  { knob.style.transition = 'none'; knob.style.transform = 'translateX(0)'; knob.style.background = '#fff'; setTimeout(function(){ if (knob) knob.style.transition = 'transform 0.25s ease'; }, 50); }
+    if (label) label.style.color = 'rgba(255,255,255,0.5)';
+    if (notes) notes.style.display = 'none';
+  };
 
   window.fcToggleCoach = function () {
     fcCoachOn = !fcCoachOn;
