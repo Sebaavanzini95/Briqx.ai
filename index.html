@@ -1143,13 +1143,18 @@
       <div style="border-radius:0;background:transparent;padding:0;width:100%;">
         <div id="fc-card" style="position:relative;border-radius:0;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:none;overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
 
-          <!-- Header bar: Rob avatar + headline -->
-          <div style="flex-shrink:0;display:flex;align-items:center;gap:16px;padding:18px 36px 16px;border-bottom:1px solid rgba(255,255,255,0.07);">
-            <img src="assets/Avatars/Rob-headshot.png" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2.5px solid #BEDD00;display:block;flex-shrink:0;" onerror="this.style.display='none'">
-            <div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.12em;color:#BEDD00;margin-bottom:3px;">Rob · AI Football Coach</div>
-              <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.05rem,1.9vw,1.5rem);letter-spacing:0.04em;line-height:1.0;color:#fff;margin:0;">The Ultimate Partner For <span style="color:#BEDD00;">Elite Players</span></h2>
+          <!-- Header bar: Rob avatar + headline (centred) -->
+          <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:18px;padding:18px 36px 16px;border-bottom:1px solid rgba(255,255,255,0.07);">
+            <!-- Avatar with online dot + label below -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;">
+              <div style="position:relative;display:inline-block;">
+                <img src="assets/Avatars/Rob-headshot.png" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2.5px solid #BEDD00;display:block;" onerror="this.style.display='none'">
+                <div style="position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid #0e0e0e;animation:fvw-pulse 2s ease-in-out infinite;"></div>
+              </div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;color:rgba(255,255,255,0.38);">Rob · Pro Analyst</div>
             </div>
+            <!-- Headline -->
+            <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.05rem,1.9vw,1.5rem);letter-spacing:0.04em;line-height:1.0;color:#fff;margin:0;">The Ultimate Partner For <span style="color:#BEDD00;">Elite Players</span></h2>
           </div>
 
           <!-- Panels -->
