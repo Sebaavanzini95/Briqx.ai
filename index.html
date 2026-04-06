@@ -1989,31 +1989,38 @@
         if (notes) notes.style.display = 'none';
         fcAicStop();
         fcRobStop();
-        // Hover on phone → rotate frame + show landscape overlay after rotation
+        // Rotate phone → hide play button immediately, show landscape overlay after rotation
+        var _doRotate = function() {
+          var pf = document.getElementById('fc-phone-frame');
+          var th = document.getElementById('fc-slide1-thumb');
+          var sw = document.getElementById('fc-slide1-wrap');
+          var ov = document.getElementById('fc-landscape-overlay');
+          var v  = document.getElementById('fc-slide1-video');
+          if (!pf || !sw || sw.style.display === 'none') return;
+          if (pf.classList.contains('phone-landscape')) return;
+          if (th) th.style.display = 'none';  // hide play button before rotation
+          pf.classList.add('phone-landscape');
+          setTimeout(function() {
+            if (ov) ov.style.display = 'block';
+            if (v)  v.play().catch(function(){});
+            var notesEl = document.getElementById('fc-rob-notes');
+            if (typeof fcCoachOn === 'undefined' || fcCoachOn) {
+              if (notesEl) notesEl.style.display = 'flex';
+              fcRobStart();
+            }
+          }, 900);
+        };
         if (phoneFrame && !phoneFrame._hoverBound) {
           phoneFrame._hoverBound = true;
           phoneFrame.addEventListener('mouseenter', function() {
-            var pf = document.getElementById('fc-phone-frame');
-            var th = document.getElementById('fc-slide1-thumb');
-            var sw = document.getElementById('fc-slide1-wrap');
-            var ov = document.getElementById('fc-landscape-overlay');
-            var v  = document.getElementById('fc-slide1-video');
-            if (!pf || !sw || sw.style.display === 'none') return;
-            if (pf.classList.contains('phone-landscape')) return;
-            // Rotate the phone frame
-            pf.classList.add('phone-landscape');
-            // After rotation completes: hide thumbnail, show landscape overlay + play
-            setTimeout(function() {
-              if (th) th.style.display = 'none';
-              if (ov) ov.style.display = 'block';
-              if (v)  v.play().catch(function(){});
-              var notesEl = document.getElementById('fc-rob-notes');
-              if (typeof fcCoachOn === 'undefined' || fcCoachOn) {
-                if (notesEl) notesEl.style.display = 'flex';
-                fcRobStart();
-              }
-            }, 900);
+            if (phoneFrame._autoTimer) { clearTimeout(phoneFrame._autoTimer); phoneFrame._autoTimer = null; }
+            _doRotate();
           });
+        }
+        // Auto-rotate after 5 seconds if user hasn't hovered
+        if (phoneFrame) {
+          if (phoneFrame._autoTimer) clearTimeout(phoneFrame._autoTimer);
+          phoneFrame._autoTimer = setTimeout(_doRotate, 5000);
         }
       } else if (idx === 1) {
         imgWrap.style.display = 'none';
@@ -2026,8 +2033,11 @@
         if (slide1Thumb) slide1Thumb.style.display = 'block';
         fcAicStart();
         fcRobStop();
-        // Return to portrait
-        if (phoneFrame) phoneFrame.classList.remove('phone-landscape');
+        // Return to portrait; clear auto-rotate timer
+        if (phoneFrame) {
+          if (phoneFrame._autoTimer) { clearTimeout(phoneFrame._autoTimer); phoneFrame._autoTimer = null; }
+          phoneFrame.classList.remove('phone-landscape');
+        }
       }
 
       // Fade in
