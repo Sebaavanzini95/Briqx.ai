@@ -205,11 +205,10 @@
     }
     .ihb-btn:not(.ihb-scarcity):hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-btn:not(.ihb-scarcity):hover { transform: translateY(-2px) scale(1.04); }
-    .ihb-btn.ihb-scarcity:hover { transform: scale(1.02); }
     .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
     /* ── Scarcity merged into button ── */
     .ihb-btn.ihb-scarcity { height: 72px; }
-    /* Use dot but clip it to 76% using clip-path on the button */
+    /* Dot starts hidden off-screen left */
     .ihb-btn.ihb-scarcity .ihb-dot {
       left: 0;
       top: 50%;
@@ -219,9 +218,10 @@
       border-radius: 0;
       background: #BEDD00;
     }
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot {
-      transform: translateY(-50%) translateX(-62%);
-    }
+    /* CSS :hover drives the animation on desktop — 100% reliable */
+    .ihb-btn.ihb-scarcity:hover .ihb-dot { transform: translateY(-50%) translateX(-62%); }
+    .ihb-btn.ihb-scarcity:hover .ihb-text-idle { transform: translateX(72px); opacity: 0; }
+    .ihb-btn.ihb-scarcity:hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-spots-row {
       position: absolute; bottom: 0; left: 0; right: 0;
       padding: 0 14px 9px;
@@ -235,6 +235,9 @@
       opacity: 0;
       transition: opacity 0.4s ease 0.2s;
     }
+    .ihb-btn.ihb-scarcity:hover .ihb-spots-label { opacity: 1; }
+    /* ihb-active kept for mobile touch */
+    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { transform: translateY(-50%) translateX(-62%); }
     .ihb-btn.ihb-scarcity.ihb-active .ihb-spots-label { opacity: 1; }
     .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px); opacity: 0; }
     .ihb-btn.ihb-scarcity.ihb-active .ihb-text-hover { transform: translateX(0); opacity: 1; }
@@ -288,6 +291,7 @@
       right: 16px;
       pointer-events: none;
       overflow: hidden;
+      text-align: left;
       z-index: 0;
       line-height: 1.6;
     }
@@ -934,6 +938,11 @@
     .aic-loader-path {
       animation: drawStroke 2.5s ease-in-out infinite;
     }
+    @keyframes fc-roll-ball {
+      0%   { transform: translateX(0px);  background: #BEDD00; box-shadow: 0 0 5px rgba(190,221,0,0.6); }
+      50%  { transform: translateX(24px); background: #ffffff; box-shadow: 0 0 5px rgba(255,255,255,0.5); }
+      100% { transform: translateX(0px);  background: #BEDD00; box-shadow: 0 0 5px rgba(190,221,0,0.6); }
+    }
     .aic-shimmer {
       background: linear-gradient(90deg,
         rgba(255,255,255,0.3) 0%,
@@ -954,24 +963,11 @@
 
 <!-- Floating BRIQX logo top-left -->
 <div style="position:fixed;top:22px;left:24px;z-index:9990;pointer-events:none;">
-  <img src="assets/Logo/Logo/BRIQX%20LOGO%20.png" alt="BRIQX" style="height:75px;width:auto;opacity:0.92;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
+  <img src="assets/Logo/Logo/BRIQX%20LOGO%20.png" alt="BRIQX" style="height:113px;width:auto;opacity:0.92;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
 </div>
 
 <!-- ═══ MODAL ════════════════════════════════════════════════════════════ -->
 <!-- Floating CTA -->
-<div id="top-cta-wrap" style="position:fixed;top:28px;right:28px;z-index:90;">
-  <button class="ihb-btn ihb-scarcity" onclick="openModal()" type="button" style="width:260px;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
-    <div class="ihb-dot" aria-hidden="true"></div>
-    <span class="ihb-text-idle">JOIN WAITLIST</span>
-    <div class="ihb-text-hover" aria-hidden="true">
-      <span>JOIN WAITLIST</span>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </div>
-    <div class="ihb-spots-row">
-      <span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span>
-    </div>
-  </button>
-</div>
 
 <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div id="modal-card">
@@ -1105,13 +1101,18 @@
 
 
 <!-- ═══ HERO ══════════════════════════════════════════════════════════════ -->
-<section class="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-20 pb-16" style="overflow:hidden;">
+<section id="macbook-scroll-section" class="relative" style="height:160vh;"><div class="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-14 pb-8" style="position:sticky;top:0;overflow:hidden;">
 
   <!-- Static glow orbs -->
   <div class="glow-orb" style="width:800px;height:800px;background:rgba(255,255,255,0.012);top:50%;left:50%;transform:translate(-50%,-50%);"></div>
   <div class="glow-orb" style="width:300px;height:300px;background:rgba(255,255,255,0.008);top:4%;right:2%;"></div>
 
   <div class="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
+
+    <!-- Mobile logo above headline (hidden on desktop) -->
+    <div id="mobile-hero-logo" style="display:none;margin-bottom:18px;">
+      <img src="assets/Logo/Logo/BRIQX%20LOGO%20.png" alt="BRIQX" style="height:60px;width:auto;opacity:0.95;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
+    </div>
 
     <!-- Headline -->
     <h1 class="font-display text-white anim-d1" style="font-size:clamp(2.6rem,6vw,5.8rem);letter-spacing:0.02em;line-height:1.0;margin-bottom:20px;">
@@ -1133,61 +1134,46 @@
     </script>
 
     <!-- Subheadline -->
-    <p class="anim-d2" style="font-family:'Inter',sans-serif;font-size:clamp(0.9rem,1.6vw,1.1rem);margin-bottom:40px;line-height:1.6;letter-spacing:0.02em;">
-      <span style="font-weight:700;color:rgba(255,255,255,0.85);">Sign Up Today For Free!</span><br><span style="font-weight:300;font-style:italic;color:rgba(255,255,255,0.38);">Get Your Personalised Match Analysis &amp; Track Your Progress From Game to Game.</span>
+    <p class="anim-d2" style="font-family:'Inter',sans-serif;font-size:clamp(0.9rem,1.6vw,1.1rem);margin-bottom:20px;line-height:1.6;letter-spacing:0.02em;">
+      <span style="font-weight:700;color:rgba(255,255,255,0.85);">Sign Up Today For Free!</span>
     </p>
 
     <!-- Carousel -->
-    <!-- Mobile-only step nav ABOVE carousel -->
-    <div id="fc-step-nav-mobile" style="display:none;justify-content:center;gap:10px;margin-bottom:8px;">
-      <button class="fc-step fc-step-m" id="fc-sm0" onclick="fcGo(0,event)" style="width:10px;height:10px;border-radius:50%;border:none;background:#BEDD00;cursor:pointer;padding:0;transition:all 0.25s ease;"></button>
-      <button class="fc-step fc-step-m" id="fc-sm1" onclick="fcGo(1,event)" style="width:10px;height:10px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);cursor:pointer;padding:0;transition:all 0.25s ease;"></button>
-      <button class="fc-step fc-step-m" id="fc-sm2" onclick="fcGo(2,event)" style="width:10px;height:10px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);cursor:pointer;padding:0;transition:all 0.25s ease;"></button>
-      <button class="fc-step fc-step-m" id="fc-sm3" onclick="fcGo(3,event)" style="width:10px;height:10px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);cursor:pointer;padding:0;transition:all 0.25s ease;"></button>
-    </div>
+    <div id="macbook-tilt-wrapper" style="width:100%;margin-bottom:16px;transform-origin:top center;will-change:transform;">
+    <div class="macbook-frame">
+    <div class="macbook-camera"></div>
+    <div class="macbook-screen">
+    <!-- Mobile toggle — above carousel, hidden on desktop -->
 
-    <div class="anim-d3" style="width:100%;margin-bottom:16px;">
-      <div style="border-radius:24px;background:rgba(255,255,255,0.04);padding:6px;width:100%;">
-        <div id="fc-card" style="position:relative;border-radius:20px;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:1px solid rgba(255,255,255,0.07);overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
+<div class="anim-d3" style="width:100%;">
+      <div style="border-radius:0;background:transparent;padding:0;width:100%;">
+        <div id="fc-card" style="position:relative;border-radius:0;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:none;overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
 
-          <!-- Rob badge — top-left corner -->
-          <div id="fc-rob-badge" style="position:absolute;top:16px;left:20px;z-index:20;pointer-events:none;">
-            <img src="assets/Avatars/Rob-headshot.png"
-                 style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #BEDD00;display:block;"
-                 onerror="this.style.display='none'">
-          </div>
-
-          <!-- Step nav (desktop) -->
-          <div id="fc-step-nav-desktop" style="display:flex;justify-content:center;gap:12px;padding:24px 24px 0;position:relative;z-index:10;">
-            <button class="fc-step" id="fc-s0" onclick="fcGo(0,event)" style="display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:9999px;border:none;background:rgba(190,221,0,0.12);cursor:pointer;transition:all 0.25s ease;">
-              <span class="fc-dot" style="width:16px;height:16px;border-radius:50%;background:#BEDD00;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.5rem;color:#000;font-weight:700;flex-shrink:0;">1</span>
-              <span style="font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#BEDD00;">Step 1</span>
-            </button>
-            <button class="fc-step" id="fc-s1" onclick="fcGo(1,event)" style="display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:9999px;border:none;background:rgba(255,255,255,0.05);cursor:pointer;transition:all 0.25s ease;">
-              <span class="fc-dot" style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.5);font-weight:700;flex-shrink:0;">2</span>
-              <span style="font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Step 2</span>
-            </button>
-            <button class="fc-step" id="fc-s2" onclick="fcGo(2,event)" style="display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:9999px;border:none;background:rgba(255,255,255,0.05);cursor:pointer;transition:all 0.25s ease;">
-              <span class="fc-dot" style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.5);font-weight:700;flex-shrink:0;">3</span>
-              <span style="font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Step 3</span>
-            </button>
-            <button class="fc-step" id="fc-s3" onclick="fcGo(3,event)" style="display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:9999px;border:none;background:rgba(255,255,255,0.05);cursor:pointer;transition:all 0.25s ease;">
-              <span class="fc-dot" style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.5);font-weight:700;flex-shrink:0;">4</span>
-              <span style="font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Step 4</span>
-            </button>
+          <!-- Header bar: Rob avatar + headline (left-aligned with text section) -->
+          <div style="flex-shrink:0;display:flex;align-items:center;justify-content:flex-start;gap:18px;padding:18px 36px 16px;border-bottom:1px solid rgba(255,255,255,0.07);">
+            <!-- Avatar with online dot + label below -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;">
+              <div style="position:relative;display:inline-block;">
+                <img src="assets/Avatars/Rob-headshot.png" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2.5px solid #BEDD00;display:block;" onerror="this.style.display='none'">
+                <div style="position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid #0e0e0e;animation:fvw-pulse 2s ease-in-out infinite;"></div>
+              </div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;color:rgba(255,255,255,0.38);">Rob · Pro Analyst</div>
+            </div>
+            <!-- Headline -->
+            <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.05rem,1.9vw,1.5rem);letter-spacing:0.04em;line-height:1.0;color:#fff;margin:0;">The Ultimate Partner For <span style="color:#BEDD00;">Elite Players</span></h2>
           </div>
 
           <!-- Panels -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:32px 36px 36px;align-items:stretch;flex:1;min-height:0;height:100%;overflow:hidden;" class="fc-grid">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:16px 36px 36px;align-items:stretch;flex:1;min-height:0;overflow:hidden;" class="fc-grid">
 
             <!-- Text side -->
             <div style="position:relative;z-index:5;height:100%;text-align:left;">
               <!-- Text centred in the safe zone above the CTA -->
               <div style="position:absolute;top:0;left:0;right:0;bottom:100px;display:flex;align-items:center;">
                 <div id="fc-text" style="transition:opacity 0.25s ease,transform 0.25s ease;">
-                  <span id="fc-label" class="font-mono uppercase" style="font-size:0.55rem;letter-spacing:0.16em;color:#BEDD00;display:block;margin-bottom:12px;">Match Analysis</span>
-                  <h3 id="fc-title" class="font-display text-white" style="font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:0.02em;line-height:1.05;margin-bottom:16px;">
-                    VIDEO BREAKDOWN AFTER EVERY GAME
+                  <span id="fc-label" class="font-mono uppercase" style="display:none;"></span>
+                  <h3 id="fc-title" class="font-display text-white" style="font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:0.02em;line-height:1.1;margin-bottom:16px;">
+                    Personalised Player Analysis<br><span style="color:#BEDD00;">After Every Game</span>
                   </h3>
                   <p id="fc-desc" class="font-body" style="font-size:0.88rem;font-weight:300;color:rgba(255,255,255,0.45);line-height:1.75;max-width:300px;">
                     Let Rob analyse your every game while you perform. Evaluate together, learn from your performance, and improve. It takes just 5 minutes.
@@ -1197,7 +1183,7 @@
 
               <!-- CTA — absolutely pinned to bottom, never shifts between steps -->
               <div style="position:absolute;bottom:18px;left:0;width:100%;">
-                <button id="hero-cta" class="ihb-btn ihb-scarcity" type="button" onclick="openModal()">
+                <button id="hero-cta" class="ihb-btn ihb-scarcity" type="button" onclick="openFvwModal()">
                   <div class="ihb-dot" aria-hidden="true"></div>
                   <span class="ihb-text-idle">JOIN WAITLIST</span>
                   <div class="ihb-text-hover" aria-hidden="true">
@@ -1212,16 +1198,34 @@
               </div>
             </div>
 
-            <!-- Image side -->
-            <div style="position:relative;display:flex;align-items:stretch;justify-content:flex-end;height:100%;text-align:left;overflow:hidden;">
-              <div id="fc-img-wrap" style="border-radius:14px;overflow:hidden;width:100%;height:100%;background:#111;transition:opacity 0.25s ease,transform 0.25s ease;">
-                <img id="fc-img" src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80&fit=crop"
-                     alt="Match Analysis"
-                     style="width:100%;height:100%;object-fit:cover;display:block;">
-              </div>
+            <!-- Image side — phone frame -->
+            <div style="position:relative;display:flex;align-items:center;justify-content:center;height:100%;">
+              <!-- Hidden placeholder — kept for JS imgWrap references -->
+              <div id="fc-img-wrap" style="display:none;"></div>
 
-              <!-- Chat widget — shown only on Step 4 -->
-              <div id="fc-chat-widget" class="aic-wrapper" style="display:none;width:100%;pointer-events:none;position:relative;" aria-hidden="true">
+              <div id="fc-phone-outer" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+                <div id="fc-phone-frame">
+                  <!-- Screen -->
+                  <div id="fc-phone-screen">
+                    <!-- Dynamic Island -->
+                    <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:70px;height:22px;border-radius:12px;background:#000;z-index:10;box-shadow:0 1px 2px rgba(0,0,0,0.7);pointer-events:none;"></div>
+
+                    <!-- Player Analysis: thumbnail + play → rotate → video -->
+                    <div id="fc-slide1-wrap" style="display:none;width:100%;height:100%;position:relative;">
+
+                      <!-- Thumbnail overlay (shown initially, hidden when video plays) -->
+                      <div id="fc-slide1-thumb" style="position:absolute;inset:0;z-index:5;cursor:pointer;">
+                        <img src="assets/Bio Pics/caroussel thumbnail/MJA THUMB.png"
+                             style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;"
+                             onerror="this.style.background='#111'">
+                        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
+                      </div>
+
+                      <!-- Coach toggle IDs now live in the landscape overlay top bar -->
+                    </div>
+
+                    <!-- Ask Rob: chat widget -->
+                    <div id="fc-chat-widget" class="aic-wrapper" style="display:none;width:100%;height:100%;pointer-events:none;position:relative;border-radius:0;border:none;padding-top:40px;" aria-hidden="true">
                 <div class="aic-info-left">
                   <div class="aic-photo-wrap" id="fc-aic-photo-wrap">
                     <img class="aic-photo-img" id="fc-aic-photo-img"
@@ -1243,12 +1247,11 @@
                   </div>
                   <div id="fc-aic-thinking" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);align-items:center;gap:9px;white-space:nowrap;z-index:2;">
                     <img src="assets/Avatars/Rob-headshot.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #BEDD00;flex-shrink:0;" onerror="this.style.display='none'">
-                    <svg viewBox="0 0 19 19" width="15" height="15" fill="none" style="flex-shrink:0;">
-                      <path class="aic-loader-path"
-                        d="M4.43431 2.42415C-0.789139 6.90104 1.21472 15.2022 8.434 15.9242C15.5762 16.6384 18.8649 9.23035 15.9332 4.5183C14.1316 1.62255 8.43695 0.0528911 7.51841 3.33733C6.48107 7.04659 15.2699 15.0195 17.4343 16.9241"
-                        stroke="#BEDD00" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                    <span class="aic-shimmer" style="font-family:'Space Mono',monospace;font-size:0.72rem;letter-spacing:0.08em;">Analysing...</span>
+                    <!-- Rolling ball -->
+                    <div style="position:relative;width:36px;height:10px;flex-shrink:0;">
+                      <div style="width:10px;height:10px;border-radius:50%;position:absolute;top:0;left:0;animation:fc-roll-ball 0.9s ease-in-out infinite;"></div>
+                    </div>
+                    <span style="font-family:'Space Mono',monospace;font-size:0.72rem;letter-spacing:0.08em;color:rgba(255,255,255,0.75);">Analysing...</span>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" style="flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
@@ -1269,126 +1272,82 @@
                     </svg>
                   </button>
                 </div>
-                <div id="fc-results-panel" style="display:none;position:absolute;inset:0;z-index:6;flex-direction:column;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border-radius:16px;overflow:hidden;opacity:0;transition:opacity 0.5s ease;">
-                  <div style="position:relative;flex:1;min-height:0;overflow:hidden;">
-                    <img src="assets/Bio Pics/Testimonials/MJA CELE.jpg"
-                         style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;"
-                         onerror="this.style.background='#1a1a1a'">
-                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.28);">
-                      <div style="width:44px;height:44px;border-radius:50%;background:rgba(190,221,0,0.9);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(190,221,0,0.18);">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                      </div>
-                    </div>
-                    <div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:6px;padding:4px 9px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);">10 Cross Defence Clips &nbsp;·&nbsp; Mads Andersen</span>
+                <div id="fc-results-panel" style="display:none;position:absolute;inset:0;z-index:6;background:#000;border-radius:16px;overflow:hidden;opacity:0;transition:opacity 0.5s ease;">
+                  <!-- Full-screen image -->
+                  <img src="assets/Bio Pics/Testimonials/MJA CELE.jpg"
+                       style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:20% top;display:block;"
+                       onerror="this.style.background='#1a1a1a'">
+                  <!-- Play button overlay -->
+                  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.22);">
+                    <div style="width:44px;height:44px;border-radius:50%;background:rgba(190,221,0,0.9);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(190,221,0,0.18);">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                     </div>
                   </div>
-                  <div id="fc-moments-strip" style="flex-shrink:0;padding:10px 12px;overflow-x:auto;display:flex;gap:8px;scrollbar-width:none;-ms-overflow-style:none;"></div>
+                  <!-- Moments strip overlaid at bottom -->
+                  <div id="fc-moments-strip" style="position:absolute;bottom:0;left:0;right:0;padding:8px 10px 10px;overflow-x:auto;display:flex;gap:7px;scrollbar-width:none;-ms-overflow-style:none;background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.4) 70%,transparent 100%);"></div>
                 </div>
               </div>
 
-              <!-- Slide 1: video + Rob's notes -->
-              <div id="fc-slide1-wrap" style="display:none;flex-direction:column;width:100%;height:100%;gap:8px;padding-bottom:28px;">
-                <div style="flex-shrink:0;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);padding:9px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
-                  <div style="display:flex;align-items:center;gap:9px;min-width:0;">
-                    <img src="assets/Bio Pics/SMall frames bios/MJA.jpeg"
-                         style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.15);flex-shrink:0;"
-                         onerror="this.style.display='none'">
-                    <div style="display:flex;flex-direction:column;gap:1px;min-width:0;">
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.82rem;letter-spacing:0.06em;color:#fff;white-space:nowrap;">Mads Andersen</span>
-                      <span style="font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.06em;color:rgba(255,255,255,0.4);white-space:nowrap;">CB · Luton Town &nbsp;·&nbsp; vs. Cardiff</span>
+                  </div><!-- end fc-phone-screen -->
+                  <!-- Home indicator -->
+                  <div style="width:76px;height:5px;border-radius:3px;margin:8px auto 0;flex-shrink:0;background:linear-gradient(180deg,rgba(255,255,255,0.7),rgba(255,255,255,0.35));opacity:0.9;pointer-events:none;"></div>
+                </div><!-- end fc-phone-frame -->
+
+                <!-- Landscape video overlay — lives OUTSIDE the rotated phone frame
+                     so no coordinate-system fights. Positioned to cover the phone screen
+                     after the frame has rotated 90deg. -->
+                <div id="fc-landscape-overlay" style="display:none;position:absolute;width:437px;height:218px;top:50%;left:calc(50% + 7px);transform:translate(-50%,-50%);border-radius:28px;overflow:hidden;z-index:20;background:#000;">
+                  <!-- Demo cursor — navigates to Coach toggle pill -->
+                  <div id="fc-demo-cursor" style="position:absolute;z-index:50;left:46px;top:7px;width:18px;height:22px;pointer-events:none;display:none;opacity:0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="22" viewBox="0 0 18 22" style="filter:drop-shadow(1px 1px 2px rgba(0,0,0,0.8));">
+                      <path d="M2 2 L2 17 L6 13 L8.5 19.5 L11 18.5 L8.5 12 L14 12 Z" fill="white" stroke="black" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <!-- Top controls bar -->
+                  <div style="position:absolute;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(to bottom,rgba(0,0,0,0.65) 0%,transparent 100%);pointer-events:none;">
+                    <!-- Left: Coach toggle -->
+                    <div id="fc-coach-toggle-btn" style="display:flex;align-items:center;gap:6px;pointer-events:auto;cursor:pointer;" onclick="fcToggleCoach()">
+                      <span id="fc-coach-label" style="font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;text-transform:uppercase;color:#BEDD00;transition:color 0.3s ease;">COACH</span>
+                      <div id="fc-coach-pill" style="width:26px;height:13px;border-radius:7px;background:#BEDD00;position:relative;flex-shrink:0;transition:background 0.3s ease;">
+                        <div id="fc-coach-knob" style="position:absolute;top:2px;left:2px;width:9px;height:9px;border-radius:50%;background:#000;transition:transform 0.2s;transform:translateX(13px);"></div>
+                      </div>
+                    </div>
+                    <!-- Right: icons -->
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <!-- Share icon -->
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                      <!-- Fullscreen icon -->
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                     </div>
                   </div>
-                  <div id="fc-coach-toggle" onclick="fcToggleCoach();event.stopPropagation();" style="display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;flex-shrink:0;">
-                    <span id="fc-coach-label" style="font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:#BEDD00;transition:color 0.25s ease;">Coach</span>
-                    <div id="fc-coach-pill" style="position:relative;width:34px;height:18px;border-radius:9px;background:#BEDD00;transition:background 0.25s ease;flex-shrink:0;">
-                      <div id="fc-coach-knob" style="position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#000;box-shadow:0 1px 3px rgba(0,0,0,0.4);transform:translateX(16px);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),background 0.25s ease;"></div>
-                    </div>
-                  </div>
-                </div>
-                <div id="fc-video-wrap" style="position:relative;flex:1;min-height:0;">
                   <video id="fc-slide1-video"
                          src="assets/Carousel video/MP4 EX!.mp4"
-                         autoplay muted loop playsinline
-                         style="width:100%;height:100%;border-radius:12px;object-fit:cover;display:block;">
-                  </video>
-                </div>
-                <div id="fc-rob-notes" style="flex-shrink:0;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);padding:9px 12px;display:flex;flex-direction:column;gap:6px;text-align:left;">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                      <img src="assets/Avatars/Rob-headshot.png"
-                           style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:1.5px solid #BEDD00;flex-shrink:0;"
-                           onerror="this.style.display='none'">
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:0.8rem;letter-spacing:0.06em;color:#fff;">ROB</span>
-                      <span style="display:flex;align-items:center;gap:4px;font-family:'Space Mono',monospace;font-size:0.45rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);text-transform:uppercase;">
-                        <span style="width:4px;height:4px;border-radius:50%;background:#BEDD00;flex-shrink:0;"></span>
-                        AI Analyst
-                      </span>
+                         muted loop playsinline preload="metadata"
+                         style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+                  <!-- Rob notes — at bottom of landscape video -->
+                  <div id="fc-rob-notes" style="position:absolute;bottom:8px;left:6px;right:6px;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;padding:7px 9px;display:none;flex-direction:row;align-items:center;gap:7px;">
+                    <!-- Rob avatar (small) -->
+                    <div style="position:relative;flex-shrink:0;">
+                      <img src="assets/Avatars/Rob-headshot.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #BEDD00;display:block;" onerror="this.style.background='#1a1a1a'">
+                      <div style="position:absolute;bottom:0;right:0;width:6px;height:6px;border-radius:50%;background:#22c55e;border:1px solid #0e0e0e;"></div>
                     </div>
-                    <div id="fc-rob-dots" style="display:flex;gap:5px;align-items:center;flex-shrink:0;"></div>
-                  </div>
-                  <p id="fc-rob-note-text" style="font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:400;color:rgba(255,255,255,0.88);line-height:1.55;margin:0;transition:opacity 0.3s ease,transform 0.3s ease;font-style:italic;height:calc(0.78rem * 1.55 * 2);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">—</p>
-                </div>
-              </div>
-
-              <!-- Framework wrap — Step 2 -->
-              <div id="fc-framework-wrap" style="display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;">
-                <div style="display:grid;grid-template-areas:'stack';place-items:center;flex-shrink:0;transform:translate(-126px,-90px);">
-                  <div id="fc-fw-card1" style="grid-area:stack;position:relative;width:460px;border-radius:24px;background:#212121;border:1px solid rgba(255,255,255,0.08);padding:45px 28px;transform:skewY(-8deg);transition:transform 0.65s ease,opacity 0.65s ease;cursor:default;overflow:hidden;">
-                    <div id="fc-fw-ov1" style="position:absolute;inset:0;background:rgba(0,0,0,0.52);border-radius:24px;pointer-events:none;transition:opacity 0.65s ease;"></div>
-                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.82rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.42);">What happened</span>
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.65rem;color:rgba(190,221,0,0.38);">3</span>
+                    <!-- Note text + dots -->
+                    <div style="flex:1;min-width:0;">
+                      <p id="fc-rob-note-text" style="font-family:'Inter',sans-serif;font-size:0.6rem;color:rgba(255,255,255,0.88);line-height:1.4;margin:0;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">—</p>
+                      <div id="fc-rob-dots" style="display:flex;gap:4px;align-items:center;margin-top:5px;"></div>
                     </div>
-                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:3.0rem;letter-spacing:0.05em;color:rgba(255,255,255,0.55);margin-bottom:12px;">Action</div>
-                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.3);line-height:1.55;margin:0;">This is your execution. The outcome. This is highly correlated to your awareness & decision-making.</p>
-                  </div>
-                  <div id="fc-fw-card2" style="grid-area:stack;position:relative;width:460px;border-radius:24px;background:#1c1c1c;border:1px solid rgba(255,255,255,0.1);padding:45px 28px;transform:translateX(75px) translateY(58px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;overflow:hidden;">
-                    <div id="fc-fw-ov2" style="position:absolute;inset:0;background:rgba(0,0,0,0.3);border-radius:24px;pointer-events:none;transition:opacity 0.65s ease;"></div>
-                    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.82rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(190,221,0,0.62);">How it happened</span>
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.65rem;color:rgba(190,221,0,0.58);">2</span>
-                    </div>
-                    <div style="position:relative;font-family:'Bebas Neue',sans-serif;font-size:3.0rem;letter-spacing:0.05em;color:rgba(255,255,255,0.78);margin-bottom:12px;">Decision-Making</div>
-                    <p style="position:relative;font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.55;margin:0;">Your ability to assess risk & reward in different situations, and choose the most feasible option.</p>
-                  </div>
-                  <div id="fc-fw-card3" style="grid-area:stack;width:460px;border-radius:24px;background:#141414;border:1px solid rgba(190,221,0,0.28);padding:45px 28px;transform:translateX(150px) translateY(116px) skewY(-8deg);transition:transform 0.65s ease;cursor:default;box-shadow:0 12px 54px rgba(0,0,0,0.7);">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                      <span style="font-family:'Space Mono',monospace;font-size:0.82rem;letter-spacing:0.15em;text-transform:uppercase;color:#BEDD00;">Why it happened</span>
-                      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.65rem;color:#BEDD00;">1</span>
-                    </div>
-                    <div style="font-family:'Bebas Neue',sans-serif;font-size:3.0rem;letter-spacing:0.05em;color:#fff;margin-bottom:12px;">Awareness</div>
-                    <p style="font-family:'Inter',sans-serif;font-size:1.0rem;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.55;margin:0;">This is the foundation of your performance. Your ability to anticipate, scan, position your body, react. Everything that goes prior to the actions.</p>
-                    <div style="margin-top:21px;height:3px;width:60px;background:#BEDD00;border-radius:2px;"></div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Slide 3: KPI tracking — Step 3 -->
-              <div id="fc-slide3-wrap" style="display:none;width:100%;height:100%;flex-direction:column;justify-content:flex-start;padding:6px 8px 8px;position:relative;">
-                <!-- Header: bio left, match selector right — same row -->
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-shrink:0;">
-                  <div style="display:flex;align-items:center;gap:10px;">
-                    <img src="assets/Bio Pics/SMall frames bios/MJA.jpeg"
-                         style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(190,221,0,0.4);flex-shrink:0;"
-                         onerror="this.style.display='none'">
-                    <div>
-                      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.06em;color:#fff;line-height:1;">Mads Andersen</div>
-                      <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
-                        <span style="font-family:'Space Mono',monospace;font-size:0.4rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);text-transform:uppercase;">CB</span>
-                        <span style="width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;"></span>
-                        <span style="font-family:'Space Mono',monospace;font-size:0.4rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Luton Town</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div id="fc-kpi-select-wrap"></div>
-                </div>
-                <div id="fc-kpi-chart" style="flex-shrink:0;"></div>
-                <div id="fc-kpi-detail" style="flex-shrink:0;padding-top:6px;border-top:1px solid rgba(255,255,255,0.07);"></div>
-              </div>
+              </div><!-- end fc-phone-outer -->
+            </div><!-- end right panel -->
 
-            </div>
+          </div>
 
+          <!-- Slide dots -->
+          <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:center;z-index:5;">
+            <button id="fc-dot0" onclick="fcGo(0,event)" style="width:7px;height:7px;border-radius:50%;background:#BEDD00;border:none;padding:0;cursor:pointer;transition:background 0.3s ease,transform 0.3s ease;transform:scale(1.2);"></button>
+            <button id="fc-dot1" onclick="fcGo(1,event)" style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;padding:0;cursor:pointer;transition:background 0.3s ease,transform 0.3s ease;"></button>
           </div>
 
           <!-- Progress bar -->
@@ -1399,15 +1358,18 @@
         </div>
       </div>
     </div>
-
+    </div><!-- end macbook-screen -->
+    </div><!-- end macbook-frame -->
+    <div class="macbook-base"><div class="macbook-notch"></div></div>
+    </div><!-- end macbook-tilt-wrapper -->
 
     <!-- Mobile-only CTA (hidden on desktop) -->
     <div id="mobile-cta-wrap">
-      <button class="ihb-btn ihb-scarcity" type="button" onclick="openModal()" style="width:100%;max-width:340px;">
+      <button class="ihb-btn ihb-scarcity" type="button" onclick="openFvwModal()" style="width:100%;max-width:340px;">
         <div class="ihb-dot" aria-hidden="true"></div>
-        <span class="ihb-text-idle">JOIN WAITLIST</span>
+        <span class="ihb-text-idle">TRY FOR FREE</span>
         <div class="ihb-text-hover" aria-hidden="true">
-          <span>JOIN WAITLIST</span>
+          <span>TRY FOR FREE</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
         <div class="ihb-spots-row">
@@ -1417,7 +1379,8 @@
       <p style="font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.28);margin-top:10px;letter-spacing:0.02em;text-align:center;">Only 100 players get priority access with special benefits! Claim your spot now for free!</p>
     </div>
 
-  </div>
+  </div><!-- end .relative.z-10 -->
+  </div><!-- end sticky inner -->
 </section>
 
 
@@ -1426,8 +1389,8 @@
          style="background:#050505;border-top:1px solid rgba(255,255,255,0.04);">
   <div class="max-w-6xl mx-auto">
 
-    <p class="font-mono text-white/35 uppercase text-center mb-12"
-       style="font-size:0.78rem;letter-spacing:0.15em;">
+    <p class="font-display text-white/35 uppercase text-center mb-12"
+       style="font-size:1.6rem;letter-spacing:0.08em;">
       WHAT PROFESSIONALS ARE SAYING
     </p>
 
@@ -1508,8 +1471,8 @@
 <!-- ═══ [features section removed — carousel is now in the hero] ═══════ -->
 
 <!-- ═══ FOUNDER QUOTE ════════════════════════════════════════════════════ -->
-<section class="py-14 px-4 sm:px-6 lg:px-8"
-         style="background:rgba(255,255,255,0.01);border-top:1px solid rgba(255,255,255,0.04);">
+<section class="px-4 sm:px-6 lg:px-8"
+         style="background:rgba(255,255,255,0.01);border-top:1px solid rgba(255,255,255,0.04);padding-top:3.5rem;padding-bottom:3.5rem;">
   <div class="max-w-xl mx-auto">
     <div class="flex items-start gap-6">
       <div class="flex-shrink-0" style="width:120px;height:120px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px #BEDD00, 0 8px 32px rgba(0,0,0,0.6);background:#0a0a0a;">
@@ -1528,23 +1491,23 @@
         </p>
       </div>
     </div>
+
+    <!-- CTA inside greyed section -->
+    <div style="margin-top:2.5rem;display:flex;flex-direction:column;align-items:center;">
+      <button class="ihb-btn ihb-scarcity" onclick="openFvwModal()" type="button" style="width:100%;max-width:340px;">
+        <div class="ihb-dot" aria-hidden="true"></div>
+        <span class="ihb-text-idle">JOIN WAITLIST</span>
+        <div class="ihb-text-hover" aria-hidden="true">
+          <span>JOIN WAITLIST</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+        <div class="ihb-spots-row">
+          <span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span>
+        </div>
+      </button>
+    </div>
   </div>
 </section>
-
-<!-- CTA after testimonials -->
-<div style="background:#050505;padding:0 24px 80px;display:flex;flex-direction:column;align-items:center;">
-  <button class="ihb-btn ihb-scarcity" onclick="openModal()" type="button" style="width:100%;max-width:340px;">
-    <div class="ihb-dot" aria-hidden="true"></div>
-    <span class="ihb-text-idle">JOIN WAITLIST</span>
-    <div class="ihb-text-hover" aria-hidden="true">
-      <span>JOIN WAITLIST</span>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </div>
-    <div class="ihb-spots-row">
-      <span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span>
-    </div>
-  </button>
-</div>
 
 <!-- ═══ FAQ ════════════════════════════════════════════════════════════════ -->
 <section id="faq" style="position:relative;overflow:hidden;background:#080808;border-top:1px solid rgba(255,255,255,0.04);padding:96px 24px 48px;">
@@ -1670,10 +1633,20 @@
     /* Hide floating top-right CTA */
     #top-cta-wrap { display: none !important; }
 
+    /* Hide floating logos on mobile — replaced by inline logo in hero */
+    body > div[style*="position:fixed"][style*="z-index:9990"],
+    body > div[style*="position:fixed"][style*="z-index:50"] { display: none !important; }
+
+    /* Show inline mobile logo */
+    #mobile-hero-logo { display: block !important; }
+
     /* Hide Rob badge in carousel */
     #fc-rob-badge { display: none !important; }
 
-    /* Hide Rob chat bubble — keep video bubble only */
+    /* Subtle green border on CTA buttons */
+    .ihb-btn.ihb-scarcity { box-shadow: 0 0 0 1px rgba(190,221,0,0.45) !important; }
+
+/* Hide Rob chat bubble — keep video bubble only */
     #rob-bubble, #rob-live-dot, #rob-panel { display: none !important; }
 
     /* Hero section — reduce top padding */
@@ -1685,11 +1658,6 @@
     /* Subheadline font size */
     .anim-d2 { font-size: 0.82rem !important; }
 
-    /* Desktop step nav — hide inside carousel */
-    #fc-step-nav-desktop { display: none !important; }
-
-    /* Mobile step dots — show above carousel */
-    #fc-step-nav-mobile { display: flex !important; }
 
     /* Carousel card — 1/3 bigger than 220 = ~293, use 300px */
     #fc-card { height: 375px !important; }
@@ -1721,17 +1689,6 @@
     #fc-slide1-video { object-fit: cover !important; width: 100% !important; height: 100% !important; border-radius: 0 !important; }
     #fc-rob-notes { flex: 1 !important; border-radius: 0 !important; padding: 6px 10px !important; overflow: hidden !important; }
 
-    /* Step 2: scale down the stacked cards to fit */
-    #fc-framework-wrap { height: 100% !important; width: 100% !important; overflow: hidden !important; }
-    #fc-framework-wrap > div {
-      transform: scale(0.52) translate(-50%, -50%) !important;
-      transform-origin: top left !important;
-      position: absolute !important;
-      top: 50% !important; left: 50% !important;
-    }
-
-    /* Step 3 fills card */
-    #fc-slide3-wrap { height: 100% !important; width: 100% !important; }
 
     /* Step 4 chat widget */
     #fc-chat-widget { height: 100% !important; width: 100% !important; }
@@ -1766,7 +1723,7 @@
 
   /* Hide mobile step nav and CTA on desktop */
   @media (min-width: 769px) {
-    #fc-step-nav-mobile { display: none !important; }
+
     #mobile-cta-wrap { display: none !important; }
   }
 
@@ -1920,11 +1877,82 @@
   #fvw-mute:hover { background: rgba(30,30,30,0.95); border-color: rgba(255,255,255,0.35); }
   #fvw-mute svg { display: block; }
 
+  /* ── Phone Frame ── */
+  #fc-phone-frame {
+    position: relative;
+    width: 230px;
+    height: 470px;
+    background: linear-gradient(135deg, #222428 0%, #1c1e22 40%, #181a1e 100%);
+    border-radius: 38px;
+    border: 2px solid rgba(255,255,255,0.12);
+    box-shadow:
+      0 12px 30px rgba(0,0,0,0.45),
+      0 2px 6px rgba(0,0,0,0.3),
+      0 0 0 1px rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    padding: 10px 6px 10px;
+    transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center center;
+  }
+  /* Phone rotates to landscape — video lives in a separate overlay outside the frame */
+  #fc-phone-frame.phone-landscape { transform: rotate(90deg); }
+  #fc-phone-frame:hover #fc-play-btn {
+    transform: translate(-50%, -50%) scale(1.12);
+    box-shadow: 0 0 0 14px rgba(190,221,0,0.22);
+  }
+  #fc-phone-screen {
+    flex: 1;
+    border-radius: 28px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    min-height: 0;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), inset 0 10px 20px rgba(0,0,0,0.35);
+    display: flex;
+    flex-direction: column;
+  }
+  /* Chat widget fills phone screen, textarea uncapped */
+  #fc-chat-widget .aic-real-input { max-height: none !important; }
+  #fc-chat-widget .aic-text-area { flex: 1; min-height: 0; }
+
+  /* ── MacBook Frame ── */
+  .macbook-frame {
+    background: #1c1c1e;
+    border-radius: 16px 16px 0 0;
+    padding: 26px 14px 10px;
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), 0 0 0 1px rgba(0,0,0,0.6);
+    position: relative;
+  }
+  .macbook-camera {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  .macbook-screen { border-radius: 8px; overflow: hidden; background: #000; }
+  .macbook-base {
+    height: 12px;
+    background: linear-gradient(180deg, #2c2c2e 0%, #1a1a1c 100%);
+    border-radius: 0 0 6px 6px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+  }
+  .macbook-notch { width: 72px; height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; }
+
+  @media (max-width: 768px) {
+    #macbook-scroll-section { height: auto !important; }
+    .macbook-frame { padding: 0; background: transparent; border: none; box-shadow: none; border-radius: 0; }
+    .macbook-camera, .macbook-base { display: none; }
+    .macbook-screen { border-radius: 0; overflow: visible; background: transparent; }
+  }
+
 </style>
 
 <script>
 (function () {
-  const INTERVAL = 18000;
+  const INTERVAL = 23000;
   let current = 0;
   let progressTimer = null;
   let progressStart = null;
@@ -1934,30 +1962,16 @@
 
   const steps = [
     {
-      label: 'Match Analysis',
-      title: 'VIDEO BREAKDOWN AFTER EVERY GAME',
+      label: 'Player Analysis',
+      title: 'Personalised Player Analysis<br><span style="color:#BEDD00;">After Every Game</span>',
       desc: "Let Rob analyse your every game while you perform. Evaluate together, learn from your performance, and improve. It takes just 5 minutes.",
       img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80&fit=crop',
-      alt: 'Match Analysis'
-    },
-    {
-      label: 'Game IQ',
-      title: 'GAME IQ ANALYSIS',
-      desc: "Rob analyses all your actions through 3 different stages. Why, How & What Happened — allowing you to understand and improve the most overlooked patterns & details of your game.",
-      img: 'https://images.unsplash.com/photo-1551958219-acbc898f4b56?w=800&q=80&fit=crop',
-      alt: 'Game IQ'
-    },
-    {
-      label: 'Progress Tracking',
-      title: 'WEEK TO WEEK IMPROVEMENT THAT MATTERS',
-      desc: "Track what matters and improve consistently from every match. Understand what works & what doesn't. Stop guessing and leaving your development up to chance.",
-      img: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800&q=80&fit=crop',
-      alt: 'Progress Tracking'
+      alt: 'Player Analysis'
     },
     {
       label: 'Ask Rob Anything',
       title: 'YOU ASK. ROB DELIVERS.',
-      desc: "Ever been wondering how you improve that one thing? But you don't know where to start? Rob got you. Spar with Rob, understand your game & start growing.",
+      desc: "Ever been wondering how you improve that one thing? But you don't know where to start? Rob got you. Ask Rob to look out for something specific in your game, and he will deliver Tailored analysis based on your preferences.",
       img: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&q=80&fit=crop',
       alt: 'Ask Rob Anything'
     }
@@ -1976,66 +1990,120 @@
 
     const chatWidget = document.getElementById('fc-chat-widget');
     const slide1Wrap = document.getElementById('fc-slide1-wrap');
-    const frameworkWrap = document.getElementById('fc-framework-wrap');
-    const slide3Wrap = document.getElementById('fc-slide3-wrap');
     setTimeout(() => {
       document.getElementById('fc-label').textContent = s.label;
       document.getElementById('fc-title').innerHTML = s.title;
       document.getElementById('fc-desc').textContent = s.desc;
 
-      // Full-width toggle for step 2
-      var fcGrid = document.querySelector('.fc-grid');
-      var fcLeftPanel = fcGrid ? fcGrid.querySelector(':scope > div:first-child') : null;
-      if (idx === 1) {
-        if (fcGrid) fcGrid.style.gridTemplateColumns = '1fr';
-        if (fcLeftPanel) { fcLeftPanel.style.display = 'none'; fcLeftPanel.style.visibility = 'hidden'; }
-      } else {
-        if (fcGrid) fcGrid.style.gridTemplateColumns = '';
-        if (fcLeftPanel) { fcLeftPanel.style.display = ''; fcLeftPanel.style.visibility = ''; }
-      }
+      var phoneFrame = document.getElementById('fc-phone-frame');
+      var slide1Thumb = document.getElementById('fc-slide1-thumb');
+      var vid = document.getElementById('fc-slide1-video');
+
+      var overlay = document.getElementById('fc-landscape-overlay');
 
       if (idx === 0) {
         imgWrap.style.display = 'none';
         chatWidget.style.display = 'none';
         slide1Wrap.style.display = 'flex';
-        if (frameworkWrap) frameworkWrap.style.display = 'none';
-        if (slide3Wrap) slide3Wrap.style.display = 'none';
-        const vid = document.getElementById('fc-slide1-video');
-        vid.play().catch(function(){});
-        // Respect coach toggle state
-        const notes = document.getElementById('fc-rob-notes');
-        if (typeof fcCoachOn === 'undefined' || fcCoachOn) {
-          if (notes) notes.style.display = 'flex';
-          fcRobStart();
-        } else {
-          if (notes) notes.style.display = 'none';
+        // Reset: portrait, thumbnail shown, overlay hidden
+        if (phoneFrame) phoneFrame.classList.remove('phone-landscape');
+        if (overlay) overlay.style.display = 'none';
+        if (vid) { vid.pause(); vid.currentTime = 0; }
+        if (slide1Thumb) slide1Thumb.style.display = 'block';
+        var notes = document.getElementById('fc-rob-notes');
+        if (notes) notes.style.display = 'none';
+        fcAicStop();
+        fcRobStop();
+        // Rotate phone → hide play button immediately, show landscape overlay after rotation
+        var _doRotate = function() {
+          var pf = document.getElementById('fc-phone-frame');
+          var th = document.getElementById('fc-slide1-thumb');
+          var sw = document.getElementById('fc-slide1-wrap');
+          var ov = document.getElementById('fc-landscape-overlay');
+          var v  = document.getElementById('fc-slide1-video');
+          if (!pf || !sw || sw.style.display === 'none') return;
+          if (pf.classList.contains('phone-landscape')) return;
+          if (th) th.style.display = 'none';  // hide play button before rotation
+          pf.classList.add('phone-landscape');
+          // After rotation completes: cursor navigates to Coach toggle → turns on → video plays
+          setTimeout(function() {
+            if (ov) ov.style.display = 'block';
+            if (typeof fcCoachReset === 'function') fcCoachReset();
+
+            var cursor = document.getElementById('fc-demo-cursor');
+
+            // Step 1 (+1.5s): cursor appears at centre, glides to toggle
+            setTimeout(function() {
+              if (cursor) {
+                // Appear at centre of overlay, no transition yet
+                cursor.style.transition = 'none';
+                cursor.style.transform = 'translate(170px, 100px)';
+                cursor.style.opacity = '0';
+                cursor.style.display = 'block';
+                requestAnimationFrame(function() { requestAnimationFrame(function() {
+                  // Smooth glide to toggle position
+                  cursor.style.transition = 'transform 0.65s cubic-bezier(0.25,0.1,0.25,1), opacity 0.25s ease';
+                  cursor.style.transform = 'translate(0, 0)';
+                  cursor.style.opacity = '1';
+                }); });
+              }
+
+              // Step 2 (+650ms): cursor arrives — click pulse, toggle turns ON
+              setTimeout(function() {
+                // Cursor click pulse
+                if (cursor) {
+                  cursor.style.transition = 'transform 0.1s ease, opacity 0.1s ease';
+                  cursor.style.transform = 'translate(0,0) scale(0.65)';
+                }
+                var btn = document.getElementById('fc-coach-toggle-btn');
+                if (btn) { btn.style.transition = 'transform 0.18s ease'; btn.style.transform = 'scale(1.12)'; }
+
+                setTimeout(function() {
+                  if (cursor) { cursor.style.transition = 'transform 0.12s ease'; cursor.style.transform = 'translate(0,0) scale(1)'; }
+                  if (btn) btn.style.transform = 'scale(1)';
+                  // Toggle ON → annotations pop in
+                  if (typeof fcToggleCoach === 'function') fcToggleCoach();
+                  // Cursor fades out
+                  setTimeout(function() {
+                    if (cursor) { cursor.style.transition = 'opacity 0.4s ease'; cursor.style.opacity = '0'; setTimeout(function(){ if(cursor) cursor.style.display = 'none'; }, 400); }
+                  }, 300);
+                  // Step 3: 3s hold then video plays
+                  setTimeout(function() {
+                    if (v) v.play().catch(function(){});
+                  }, 3000);
+                }, 120);
+              }, 650);
+            }, 1500);
+          }, 900);
+        };
+        if (phoneFrame && !phoneFrame._hoverBound) {
+          phoneFrame._hoverBound = true;
+          phoneFrame.addEventListener('mouseenter', function() {
+            if (phoneFrame._autoTimer) { clearTimeout(phoneFrame._autoTimer); phoneFrame._autoTimer = null; }
+            _doRotate();
+          });
         }
-        fcAicStop();
+        // Auto-rotate after 5 seconds if user hasn't hovered
+        if (phoneFrame) {
+          if (phoneFrame._autoTimer) clearTimeout(phoneFrame._autoTimer);
+          phoneFrame._autoTimer = setTimeout(_doRotate, 5000);
+        }
       } else if (idx === 1) {
-        imgWrap.style.display = 'none';
-        chatWidget.style.display = 'none';
-        slide1Wrap.style.display = 'none';
-        if (frameworkWrap) frameworkWrap.style.display = 'flex';
-        if (slide3Wrap) slide3Wrap.style.display = 'none';
-        fcAicStop();
-        fcRobStop();
-      } else if (idx === 2) {
-        imgWrap.style.display = 'none';
-        chatWidget.style.display = 'none';
-        slide1Wrap.style.display = 'none';
-        if (frameworkWrap) frameworkWrap.style.display = 'none';
-        if (slide3Wrap) { slide3Wrap.style.display = 'flex'; if (typeof fcSlide3Build === 'function') fcSlide3Build(); if (typeof fcSlide3Enter === 'function') fcSlide3Enter(); }
-        fcAicStop();
-        fcRobStop();
-      } else if (idx === 3) {
         imgWrap.style.display = 'none';
         chatWidget.style.display = 'flex';
         chatWidget.style.flexDirection = 'column';
         slide1Wrap.style.display = 'none';
-        if (frameworkWrap) frameworkWrap.style.display = 'none';
-        if (slide3Wrap) slide3Wrap.style.display = 'none';
+        // Reset landscape overlay for next time
+        if (overlay) overlay.style.display = 'none';
+        if (vid) { vid.pause(); vid.currentTime = 0; }
+        if (slide1Thumb) slide1Thumb.style.display = 'block';
         fcAicStart();
         fcRobStop();
+        // Return to portrait; clear auto-rotate timer
+        if (phoneFrame) {
+          if (phoneFrame._autoTimer) { clearTimeout(phoneFrame._autoTimer); phoneFrame._autoTimer = null; }
+          phoneFrame.classList.remove('phone-landscape');
+        }
       }
 
       // Fade in
@@ -2043,37 +2111,11 @@
       textEl.style.transform = 'translateY(0)';
     }, 350);
 
-    // Update step pills
-    for (let i = 0; i < 4; i++) {
-      const btn = document.getElementById('fc-s' + i);
-      const dot = btn.querySelector('.fc-dot');
-      const lbl = btn.querySelector('span:last-child');
-      const isActive = i === idx;
-      const isPast = i < idx;
-
-      if (isActive) {
-        btn.style.background = 'rgba(190,221,0,0.12)';
-        dot.style.background = '#BEDD00';
-        dot.style.color = '#000';
-        lbl.style.color = '#BEDD00';
-        dot.textContent = i + 1;
-      } else if (isPast) {
-        btn.style.background = 'rgba(255,255,255,0.05)';
-        dot.style.background = 'rgba(190,221,0,0.25)';
-        dot.style.color = '#BEDD00';
-        lbl.style.color = 'rgba(255,255,255,0.4)';
-        dot.innerHTML = '<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#BEDD00" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-      } else {
-        btn.style.background = 'rgba(255,255,255,0.05)';
-        dot.style.background = 'rgba(255,255,255,0.15)';
-        dot.style.color = 'rgba(255,255,255,0.5)';
-        lbl.style.color = 'rgba(255,255,255,0.4)';
-        dot.textContent = i + 1;
-      }
-      // Sync mobile dots
-      var mdot = document.getElementById('fc-sm' + i);
-      if (mdot) mdot.style.background = i === idx ? '#BEDD00' : 'rgba(255,255,255,0.2)';
-    }
+    // Update slide dots
+    var dot0 = document.getElementById('fc-dot0');
+    var dot1 = document.getElementById('fc-dot1');
+    if (dot0) { dot0.style.background = idx === 0 ? '#BEDD00' : 'rgba(255,255,255,0.2)'; dot0.style.transform = idx === 0 ? 'scale(1.2)' : 'scale(1)'; }
+    if (dot1) { dot1.style.background = idx === 1 ? '#BEDD00' : 'rgba(255,255,255,0.2)'; dot1.style.transform = idx === 1 ? 'scale(1.2)' : 'scale(1)'; }
   }
 
   function startProgress(resumeFrom) {
@@ -2175,7 +2217,7 @@ function aicBtnClick(btnId, originElId) {
 
   // Glide to button
   setTimeout(function() {
-    cursor.style.transition = 'left 0.85s cubic-bezier(0.4,0,0.2,1), top 0.85s cubic-bezier(0.4,0,0.2,1)';
+    cursor.style.transition = 'left 1.15s cubic-bezier(0.4,0,0.2,1), top 1.15s cubic-bezier(0.4,0,0.2,1)';
     cursor.style.left = (btnRect.left + btnRect.width  * 0.5 - 4) + 'px';
     cursor.style.top  = (btnRect.top  + btnRect.height * 0.5 - 2) + 'px';
   }, 40);
@@ -2227,19 +2269,19 @@ function aicBtnClick(btnId, originElId) {
   let running = false;
 
   const prompts = [
-    { text: "Hi Rob, can you show and analyse 10 recent clips of how I defend from opponent crosses?", name: "Mads Andersen", detail: "CB · Luton Town F.C", initials: "MA", img: "assets/Bio Pics/SMall frames bios/MJA.jpeg" }
+    { text: "Hi Rob, can you analyse my positioning from every opponent cross in our next game against Cardiff?", name: "Mads Andersen", detail: "CB · Luton Town F.C", initials: "MA", img: "assets/Bio Pics/SMall frames bios/MJA.jpeg" }
   ];
 
   const moments = [
-    { match: "vs Northampton", date: "04/03", clips: 8, label: "Lost marker from deep cross" },
-    { match: "vs Northampton", date: "04/03", clips: 6, label: "Ball-watching, runner unmarked" },
-    { match: "vs Northampton", date: "04/03", clips: 5, label: "Recovery run too late" },
-    { match: "vs Plymouth",    date: "24/02", clips: 7, label: "Positioned too narrow" },
-    { match: "vs Plymouth",    date: "24/02", clips: 4, label: "Overcommitted, beaten in air" },
-    { match: "vs Burton",      date: "21/02", clips: 9, label: "Slow reaction to deep cross" },
-    { match: "vs Burton",      date: "21/02", clips: 3, label: "Cross not challenged" },
-    { match: "vs Wigan",       date: "18/02", clips: 6, label: "Dropped too deep" },
-    { match: "vs Wigan",       date: "18/02", clips: 5, label: "Duel lost, cross converted" },
+    { match: "vs Cardiff City",  date: "04/03", clips: 8, label: "Lost marker from deep cross" },
+    { match: "vs Cardiff City",  date: "04/03", clips: 6, label: "Ball-watching, runner unmarked" },
+    { match: "vs Northampton",   date: "18/02", clips: 5, label: "Recovery run too late" },
+    { match: "vs Plymouth",     date: "24/02", clips: 7, label: "Positioned too narrow" },
+    { match: "vs Plymouth",     date: "24/02", clips: 4, label: "Overcommitted, beaten in air" },
+    { match: "vs Burton",       date: "21/02", clips: 9, label: "Slow reaction to deep cross" },
+    { match: "vs Burton",       date: "21/02", clips: 3, label: "Cross not challenged" },
+    { match: "vs Wigan",        date: "18/02", clips: 6, label: "Dropped too deep" },
+    { match: "vs Wigan",        date: "18/02", clips: 5, label: "Duel lost, cross converted" },
   ];
 
   function el(id) { return document.getElementById(id); }
@@ -2316,9 +2358,13 @@ function aicBtnClick(btnId, originElId) {
     if (strip && !strip.childElementCount) {
       moments.forEach(function(m, i) {
         var card = document.createElement('div');
-        card.style.cssText = 'flex-shrink:0;width:112px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid ' + (i === 0 ? 'rgba(190,221,0,0.5)' : 'rgba(255,255,255,0.08)') + ';padding:8px 9px;cursor:default;';
-        card.innerHTML = '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:0.75rem;letter-spacing:0.04em;color:#fff;margin-bottom:4px;">' + m.match + '</div>'
-          + '<div style="font-family:\'Space Mono\',monospace;font-size:0.5rem;letter-spacing:0.06em;color:#BEDD00;">' + m.clips + ' clips</div>';
+        card.style.cssText = 'flex-shrink:0;width:118px;border-radius:8px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid ' + (i === 0 ? 'rgba(190,221,0,0.55)' : 'rgba(255,255,255,0.1)') + ';padding:7px 8px;cursor:default;';
+        card.innerHTML = '<div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">'
+          + '<img src="assets/Avatars/Rob-headshot.png" style="width:16px;height:16px;border-radius:50%;object-fit:cover;border:1px solid #BEDD00;flex-shrink:0;">'
+          + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:0.72rem;letter-spacing:0.04em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + m.match + '</div>'
+          + '</div>'
+          + '<div style="font-family:\'Space Mono\',monospace;font-size:0.42rem;letter-spacing:0.05em;color:#BEDD00;margin-bottom:2px;">' + m.clips + ' clips · opp. crosses</div>'
+          + '<div style="font-family:\'Space Mono\',monospace;font-size:0.4rem;letter-spacing:0.04em;color:rgba(255,255,255,0.4);">' + m.date + '</div>';
         strip.appendChild(card);
       });
     }
@@ -2347,22 +2393,22 @@ function aicBtnClick(btnId, originElId) {
     showPlaceholder(text);
     stopCycle();
     const animMs = text.length * 22;
-    // Cursor glides to send button after typewriter finishes
+    // Cursor glides to send button after typewriter finishes + 1.5s hold
     flashTimer = setTimeout(() => {
       if (!running) return;
       aicBtnClick('fc-aic-send-btn', 'fc-aic-placeholder');
-    }, animMs + 400);
+    }, animMs + 1900);
     // Show Analysing state
     thinkTimer = setTimeout(() => {
       if (!running) return;
       aicThinkingShow('fc-aic-thinking', 'fc-aic-placeholder');
-    }, animMs + 1500);
+    }, animMs + 3000);
     // After ~5s of Analysing → fade in results panel
     cycleTimer = setTimeout(() => {
       if (!running) return;
       aicThinkingHide('fc-aic-thinking', 'fc-aic-placeholder');
       fcShowResults();
-    }, animMs + 6500);
+    }, animMs + 8000);
     // After 8s on results panel → fade out and restart
     resultsTimer = setTimeout(() => {
       if (!running) return;
@@ -2370,7 +2416,7 @@ function aicBtnClick(btnId, originElId) {
         if (!running) return;
         showAndSchedule(prompts[0].text);
       });
-    }, animMs + 14500);
+    }, animMs + 21000);
   }
 
   window.fcAicStart = function () {
@@ -2497,6 +2543,19 @@ function aicBtnClick(btnId, originElId) {
   // ── Coach toggle ──────────────────────────────────────────────────────────
   var fcCoachOn = true;
 
+  // Reset toggle to OFF state (called before each demo sequence)
+  window.fcCoachReset = function () {
+    fcCoachOn = false;
+    var pill  = document.getElementById('fc-coach-pill');
+    var knob  = document.getElementById('fc-coach-knob');
+    var label = document.getElementById('fc-coach-label');
+    var notes = document.getElementById('fc-rob-notes');
+    if (pill)  pill.style.background  = '#444';
+    if (knob)  { knob.style.transition = 'none'; knob.style.transform = 'translateX(0)'; knob.style.background = '#fff'; setTimeout(function(){ if (knob) knob.style.transition = 'transform 0.25s ease'; }, 50); }
+    if (label) label.style.color = 'rgba(255,255,255,0.5)';
+    if (notes) notes.style.display = 'none';
+  };
+
   window.fcToggleCoach = function () {
     fcCoachOn = !fcCoachOn;
 
@@ -2507,7 +2566,7 @@ function aicBtnClick(btnId, originElId) {
 
     if (fcCoachOn) {
       pill.style.background = '#BEDD00';
-      knob.style.transform  = 'translateX(16px)';
+      knob.style.transform  = 'translateX(13px)';
       knob.style.background = '#000';
       label.style.color     = '#BEDD00';
       if (notes) notes.style.display = 'flex';
@@ -3069,7 +3128,7 @@ const TW_PROMPTS = [
     initials: "MW", img: "assets/Bio Pics/SMall frames bios/MW.jpeg"
   },
   {
-    text: "I want to improve my ability to defend the space behind me, when the striker runs in behind. Can you help me?",
+    text: "Hi Rob, can you analyse my positioning from every opponent cross in our next game against Cardiff?",
     name: "Mads Andersen", detail: "CB · Luton Town F.C",
     initials: "MA", img: "assets/Bio Pics/SMall frames bios/MJA.jpeg"
   },
@@ -3230,7 +3289,7 @@ const TW_PROMPTS = [
 
   sendBtn.addEventListener('click', e => {
     e.stopPropagation();
-    if (realInput.value.trim()) openModal();
+    if (realInput.value.trim()) openFvwModal();
   });
 
   // ── Init ─────────────────────────────────────────────────────────────────
@@ -3274,9 +3333,9 @@ function closeModal() {
 }
 
 var _navCta = document.getElementById('nav-cta');
-if (_navCta) _navCta.addEventListener('click', openModal);
+if (_navCta) _navCta.addEventListener('click', openFvwModal);
 var _heroCta = document.getElementById('hero-cta');
-if (_heroCta) _heroCta.addEventListener('click', openModal);
+if (_heroCta) _heroCta.addEventListener('click', openFvwModal);
 var _modalClose = document.getElementById('modal-close');
 if (_modalClose) _modalClose.addEventListener('click', closeModal);
 
@@ -3396,7 +3455,7 @@ modalForm.addEventListener('submit', async (e) => {
     if (triggered) return;
     triggered = true;
     clearTimeout(timer);
-    if (typeof openModal === 'function') openModal();
+    if (typeof openFvwModal === 'function') openFvwModal();
   }
 
   // Exit intent (desktop: cursor leaves top of viewport)
@@ -3543,12 +3602,12 @@ modalForm.addEventListener('submit', async (e) => {
       <video id="fvw-modal-vid" src="assets/Waiting list video/Landingpage.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
     </div>
     <!-- CTA below video -->
-    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();openModal();" type="button" style="width:100%;max-width:340px;">
+    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();window.open('https://form.typeform.com/to/oBxtb6bM','_blank');" type="button" style="width:100%;max-width:340px;">
       <div class="ihb-dot"></div>
-      <span class="ihb-text-idle">JOIN WAITLIST</span>
+      <span class="ihb-text-idle">TRY FOR FREE</span>
       <span class="ihb-text-hover">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        CLAIM YOUR SPOT
+        TRY FOR FREE
       </span>
       <div class="ihb-spots-row"><span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span></div>
     </button>
@@ -3598,6 +3657,37 @@ document.getElementById('fvw-vid-modal').addEventListener('click', function(e) {
       openFvwModal();
     });
   }
+})();
+</script>
+
+<!-- Gooey SVG filter for liquid toggle -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true">
+  <defs>
+    <filter id="goo-carousel">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" result="goo"/>
+      <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+    </filter>
+  </defs>
+</svg>
+
+<script>
+// ── MacBook scroll tilt ────────────────────────────────────────────────────
+(function () {
+  var section = document.getElementById('macbook-scroll-section');
+  var wrapper = document.getElementById('macbook-tilt-wrapper');
+  if (!section || !wrapper) return;
+  function update() {
+    var sectionTop = section.getBoundingClientRect().top + window.scrollY;
+    var scrollRange = section.offsetHeight - window.innerHeight;
+    if (scrollRange <= 0) return;
+    var progress = Math.max(0, Math.min(1, (window.scrollY - sectionTop) / scrollRange));
+    var rotateX = 20 * (1 - progress);
+    var scale   = 1.05 - 0.05 * progress;
+    wrapper.style.transform = 'perspective(1200px) rotateX(' + rotateX + 'deg) scale(' + scale + ')';
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
 })();
 </script>
 
