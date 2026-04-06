@@ -1813,7 +1813,7 @@
      FLOATING VIDEO WIDGET
   ══════════════════════════════════════════ */
   #fvw-label {
-    position: fixed; bottom: 44px; right: 108px; z-index: 9998;
+    position: fixed; bottom: 120px; right: 116px; z-index: 9998;
     background: #1e2a1e;
     border-radius: 12px 12px 12px 4px;
     padding: 11px 15px;
@@ -1841,33 +1841,51 @@
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+  /* ── Floating iPhone frame bubble ── */
   #fvw-bubble {
     position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-    width: 72px; height: 72px; border-radius: 50%;
-    border: 3px solid #BEDD00;
+    width: 100px; height: 204px;
+    background: linear-gradient(135deg, #222428 0%, #1c1e22 40%, #181a1e 100%);
+    border-radius: 22px;
+    border: 2px solid rgba(255,255,255,0.14);
+    box-shadow:
+      0 12px 32px rgba(0,0,0,0.55),
+      0 2px 6px rgba(0,0,0,0.35),
+      0 0 0 1px rgba(255,255,255,0.05);
     cursor: pointer; overflow: visible;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column;
+    padding: 5px 4px 5px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  #fvw-bubble:hover { transform: scale(1.07); box-shadow: 0 6px 32px rgba(190,221,0,0.25); }
+  #fvw-bubble:hover { transform: scale(1.04); box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(190,221,0,0.18); }
+  /* Dynamic Island */
+  #fvw-bubble::before {
+    content: '';
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    width: 28px; height: 8px; border-radius: 5px;
+    background: #000; z-index: 10; pointer-events: none;
+  }
   #fvw-bubble-inner {
-    width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
-    background: #000;
-    display: flex; align-items: center; justify-content: center;
+    flex: 1; border-radius: 16px; overflow: hidden;
+    background: #000; position: relative; min-height: 0;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
   }
   #fvw-loop {
     width: 100%; height: 100%; object-fit: cover; display: block;
   }
   #fvw-initials {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
     font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem;
     letter-spacing: 0.1em; color: #BEDD00;
   }
   #fvw-live-dot {
-    position: absolute; top: 2px; right: 2px;
-    width: 11px; height: 11px; border-radius: 50%;
+    position: absolute; bottom: 10px; right: 8px;
+    width: 9px; height: 9px; border-radius: 50%;
     background: #22c55e;
-    border: 2px solid #050505;
+    border: 2px solid #181a1e;
     animation: fvw-pulse 2s ease-in-out infinite;
+    z-index: 10;
   }
   @keyframes fvw-pulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
@@ -3586,19 +3604,13 @@ modalForm.addEventListener('submit', async (e) => {
 </div>
 
 <!-- Bubble -->
-<div id="fvw-bubble" role="button" aria-label="Join waitlist">
+<div id="fvw-bubble" role="button" aria-label="Join waitlist" onclick="openFvwModal()">
   <div id="fvw-bubble-inner">
-    <video id="fvw-loop" src="assets/Waiting list video/Landingpage.mp4"
+    <video id="fvw-loop" src="assets/Waiting list video/Waiting list.mp4"
            autoplay muted loop playsinline
-           onerror="this.style.display='none';document.getElementById('fvw-initials').style.display='block'">
+           onerror="this.style.display='none';document.getElementById('fvw-initials').style.display='flex'">
     </video>
     <span id="fvw-initials" style="display:none;">SEB</span>
-  </div>
-  <!-- Play button overlay -->
-  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:5;">
-    <div style="width:22px;height:22px;border-radius:50%;background:rgba(190,221,0,0.9);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);">
-      <svg width="8" height="8" viewBox="0 0 10 10" fill="#000"><polygon points="2,1 9,5 2,9"/></svg>
-    </div>
   </div>
   <div id="fvw-live-dot"></div>
 </div>
@@ -3609,7 +3621,7 @@ modalForm.addEventListener('submit', async (e) => {
   <div style="width:min(340px,85vw);display:flex;flex-direction:column;align-items:center;gap:16px;">
     <!-- 9:16 video container -->
     <div style="width:100%;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 8px 48px rgba(0,0,0,0.7);">
-      <video id="fvw-modal-vid" src="assets/Waiting list video/Landingpage.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+      <video id="fvw-modal-vid" src="assets/Waiting list video/Waiting list.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
     </div>
     <!-- CTA below video -->
     <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();window.open('https://form.typeform.com/to/oBxtb6bM','_blank');" type="button" style="width:100%;max-width:340px;">
