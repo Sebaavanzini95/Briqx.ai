@@ -1226,7 +1226,7 @@
                     </div>
 
                     <!-- Ask Rob: chat widget -->
-                    <div id="fc-chat-widget" class="aic-wrapper" style="display:none;width:100%;pointer-events:none;position:relative;" aria-hidden="true">
+                    <div id="fc-chat-widget" class="aic-wrapper" style="display:none;width:100%;height:100%;pointer-events:none;position:relative;border-radius:0;border:none;padding-top:40px;" aria-hidden="true">
                 <div class="aic-info-left">
                   <div class="aic-photo-wrap" id="fc-aic-photo-wrap">
                     <img class="aic-photo-img" id="fc-aic-photo-img"
@@ -1905,7 +1905,12 @@
     position: relative;
     min-height: 0;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), inset 0 10px 20px rgba(0,0,0,0.35);
+    display: flex;
+    flex-direction: column;
   }
+  /* Chat widget fills phone screen, textarea uncapped */
+  #fc-chat-widget .aic-real-input { max-height: none !important; }
+  #fc-chat-widget .aic-text-area { flex: 1; min-height: 0; }
 
   /* ── MacBook Frame ── */
   .macbook-frame {
