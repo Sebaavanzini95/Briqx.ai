@@ -1149,11 +1149,10 @@
       <div style="border-radius:0;background:transparent;padding:0;width:100%;">
         <div id="fc-card" style="position:relative;border-radius:0;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:none;overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
 
-          <!-- Header bar: Rob avatar + headline + CTA -->
-          <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 36px 16px;border-bottom:1px solid rgba(255,255,255,0.07);">
-            <!-- Left: avatar + headline -->
-            <div style="display:flex;align-items:center;gap:18px;flex:1;min-width:0;">
-              <!-- Avatar with online dot + label below -->
+          <!-- Header bar: mirrors the 1fr/1fr grid below so button sits above phone center -->
+          <div style="flex-shrink:0;display:flex;align-items:center;padding:18px 36px 16px;gap:0;border-bottom:1px solid rgba(255,255,255,0.07);">
+            <!-- Left half (1fr) — Rob + headline -->
+            <div style="flex:1;display:flex;align-items:center;gap:18px;min-width:0;">
               <div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;">
                 <div style="position:relative;display:inline-block;">
                   <img src="assets/Avatars/Rob-headshot.png" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2.5px solid #BEDD00;display:block;" onerror="this.style.display='none'">
@@ -1161,14 +1160,15 @@
                 </div>
                 <div style="font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;color:rgba(255,255,255,0.38);">Rob · Pro Analyst</div>
               </div>
-              <!-- Headline -->
               <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.05rem,1.9vw,1.5rem);letter-spacing:0.04em;line-height:1.0;color:#fff;margin:0;">The Ultimate Partner For <span style="color:#BEDD00;">Elite Players</span></h2>
             </div>
-            <!-- Right: waitlist CTA -->
-            <a href="https://briqx.typeform.com/waitlist" target="_blank" rel="noopener" onclick="event.stopPropagation();" style="flex-shrink:0;display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;background:#BEDD00;font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#000;text-decoration:none;white-space:nowrap;transition:background 0.2s ease;" onmouseover="this.style.background='#d4f000'" onmouseout="this.style.background='#BEDD00'">
-              JOIN WAITLIST
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="#000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
+            <!-- Right half (1fr) — button centered above phone -->
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+              <a href="https://briqx.typeform.com/waitlist" target="_blank" rel="noopener" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;background:#BEDD00;font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#000;text-decoration:none;white-space:nowrap;transition:background 0.2s ease;" onmouseover="this.style.background='#d4f000'" onmouseout="this.style.background='#BEDD00'">
+                JOIN WAITLIST
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="#000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
           </div>
 
           <!-- Panels -->
@@ -1207,16 +1207,11 @@
             </div>
 
             <!-- Image side — phone frame -->
-            <div style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;">
-              <!-- Waitlist button centered above phone -->
-              <a href="https://briqx.typeform.com/waitlist" target="_blank" rel="noopener" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;margin-bottom:14px;border-radius:8px;background:#BEDD00;font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#000;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:background 0.2s ease;" onmouseover="this.style.background='#d4f000'" onmouseout="this.style.background='#BEDD00'">
-                JOIN WAITLIST
-                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="#000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </a>
+            <div style="position:relative;display:flex;align-items:center;justify-content:center;height:100%;">
               <!-- Hidden placeholder — kept for JS imgWrap references -->
               <div id="fc-img-wrap" style="display:none;"></div>
 
-              <div id="fc-phone-outer" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;flex:1;min-height:0;">
+              <div id="fc-phone-outer" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
                 <div id="fc-phone-frame">
                   <!-- Screen -->
                   <div id="fc-phone-screen">
