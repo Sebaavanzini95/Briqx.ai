@@ -1294,12 +1294,14 @@
                      so no coordinate-system fights. Positioned to cover the phone screen
                      after the frame has rotated 90deg. -->
                 <div id="fc-landscape-overlay" style="display:none;position:absolute;width:437px;height:218px;top:50%;left:calc(50% + 7px);transform:translate(-50%,-50%);border-radius:28px;overflow:hidden;z-index:20;background:#000;">
+                  <!-- Demo cursor — navigates to Coach toggle -->
+                  <div id="fc-demo-cursor" style="position:absolute;z-index:50;left:20px;top:12px;width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,0.92);box-shadow:0 1px 6px rgba(0,0,0,0.5),0 0 0 3px rgba(255,255,255,0.2);pointer-events:none;display:none;opacity:0;"></div>
                   <!-- Top controls bar -->
                   <div style="position:absolute;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(to bottom,rgba(0,0,0,0.65) 0%,transparent 100%);pointer-events:none;">
                     <!-- Left: Coach toggle -->
                     <div id="fc-coach-toggle-btn" style="display:flex;align-items:center;gap:6px;pointer-events:auto;cursor:pointer;" onclick="fcToggleCoach()">
-                      <span id="fc-coach-label" style="font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;text-transform:uppercase;color:#BEDD00;">COACH</span>
-                      <div id="fc-coach-pill" style="width:26px;height:13px;border-radius:7px;background:#BEDD00;position:relative;flex-shrink:0;transition:background 0.2s;">
+                      <span id="fc-coach-label" style="font-family:'Space Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;text-transform:uppercase;color:#BEDD00;transition:color 0.3s ease;">COACH</span>
+                      <div id="fc-coach-pill" style="width:26px;height:13px;border-radius:7px;background:#BEDD00;position:relative;flex-shrink:0;transition:background 0.3s ease;">
                         <div id="fc-coach-knob" style="position:absolute;top:2px;left:2px;width:9px;height:9px;border-radius:50%;background:#000;transition:transform 0.2s;transform:translateX(13px);"></div>
                       </div>
                     </div>
@@ -2016,25 +2018,55 @@
           if (pf.classList.contains('phone-landscape')) return;
           if (th) th.style.display = 'none';  // hide play button before rotation
           pf.classList.add('phone-landscape');
-          // After rotation completes: show overlay, demo the Coach toggle, then play
+          // After rotation completes: cursor navigates to Coach toggle → turns on → video plays
           setTimeout(function() {
             if (ov) ov.style.display = 'block';
-            // Reset toggle to OFF so the demo makes sense
             if (typeof fcCoachReset === 'function') fcCoachReset();
-            // Step 1: hover animation on toggle
+
+            var cursor = document.getElementById('fc-demo-cursor');
+
+            // Step 1 (+1.5s): cursor appears at centre, glides to toggle
             setTimeout(function() {
-              var btn = document.getElementById('fc-coach-toggle-btn');
-              if (btn) { btn.style.transition = 'transform 0.15s ease'; btn.style.transform = 'scale(1.2)'; }
-              // Step 2: toggle ON + annotations pop in
+              if (cursor) {
+                // Appear at centre of overlay, no transition yet
+                cursor.style.transition = 'none';
+                cursor.style.transform = 'translate(198px, 85px)';
+                cursor.style.opacity = '0';
+                cursor.style.display = 'block';
+                requestAnimationFrame(function() { requestAnimationFrame(function() {
+                  // Smooth glide to toggle position
+                  cursor.style.transition = 'transform 0.65s cubic-bezier(0.25,0.1,0.25,1), opacity 0.25s ease';
+                  cursor.style.transform = 'translate(0, 0)';
+                  cursor.style.opacity = '1';
+                }); });
+              }
+
+              // Step 2 (+650ms): cursor arrives — click pulse, toggle turns ON
               setTimeout(function() {
-                if (btn) btn.style.transform = 'scale(1)';
-                if (typeof fcToggleCoach === 'function') fcToggleCoach();
-                // Step 3: 3-second hold then video plays
+                // Cursor click pulse
+                if (cursor) {
+                  cursor.style.transition = 'transform 0.1s ease, opacity 0.1s ease';
+                  cursor.style.transform = 'translate(0,0) scale(0.65)';
+                }
+                var btn = document.getElementById('fc-coach-toggle-btn');
+                if (btn) { btn.style.transition = 'transform 0.18s ease'; btn.style.transform = 'scale(1.12)'; }
+
                 setTimeout(function() {
-                  if (v) v.play().catch(function(){});
-                }, 3000);
-              }, 200);
-            }, 500);
+                  if (cursor) { cursor.style.transition = 'transform 0.12s ease'; cursor.style.transform = 'translate(0,0) scale(1)'; }
+                  if (btn) btn.style.transform = 'scale(1)';
+                  // Toggle ON → annotations pop in
+                  if (typeof fcToggleCoach === 'function') fcToggleCoach();
+                  // Cursor fades out
+                  setTimeout(function() {
+                    if (cursor) { cursor.style.transition = 'opacity 0.4s ease'; cursor.style.opacity = '0'; setTimeout(function(){ if(cursor) cursor.style.display = 'none'; }, 400); }
+                  }, 300);
+                  // Step 3: 3s hold then video plays
+                  setTimeout(function() {
+                    if (v) v.play().catch(function(){});
+                  }, 3000);
+                }, 120);
+              }, 650);
+            }, 1500);
           }, 900);
         };
         if (phoneFrame && !phoneFrame._hoverBound) {
