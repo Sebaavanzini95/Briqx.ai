@@ -206,22 +206,20 @@
     .ihb-btn:not(.ihb-scarcity):hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-btn:not(.ihb-scarcity):hover { transform: translateY(-2px) scale(1.04); }
     .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
-    /* ── Scarcity merged into button ── */
-    .ihb-btn.ihb-scarcity { height: 72px; }
-    /* Dot starts hidden off-screen left */
+    /* ── Scarcity merged into button — always shown ── */
+    .ihb-btn.ihb-scarcity { height: 72px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    /* Dot fills the button by default (no hover needed) */
     .ihb-btn.ihb-scarcity .ihb-dot {
       left: 0;
       top: 50%;
-      transform: translateY(-50%) translateX(-101%);
-      transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+      transform: translateY(-50%) translateX(-62%);
       width: 200%; height: 200%;
       border-radius: 0;
       background: #BEDD00;
     }
-    /* CSS :hover drives the animation on desktop — 100% reliable */
-    .ihb-btn.ihb-scarcity:hover .ihb-dot { transform: translateY(-50%) translateX(-62%); }
-    .ihb-btn.ihb-scarcity:hover .ihb-text-idle { transform: translateX(72px); opacity: 0; }
-    .ihb-btn.ihb-scarcity:hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
+    /* Text-idle hidden, arrow text visible by default */
+    .ihb-btn.ihb-scarcity .ihb-text-idle { transform: translateX(72px); opacity: 0; }
+    .ihb-btn.ihb-scarcity .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-spots-row {
       position: absolute; bottom: 0; left: 0; right: 0;
       padding: 0 14px 9px;
@@ -232,15 +230,13 @@
       font-family: 'Space Mono', monospace; font-size: 0.52rem;
       letter-spacing: 0.1em; color: rgba(0,0,0,0.6);
       text-transform: uppercase; text-align: center;
-      opacity: 0;
-      transition: opacity 0.4s ease 0.2s;
+      opacity: 1;
     }
-    .ihb-btn.ihb-scarcity:hover .ihb-spots-label { opacity: 1; }
-    /* ihb-active kept for mobile touch */
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { transform: translateY(-50%) translateX(-62%); }
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-spots-label { opacity: 1; }
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px); opacity: 0; }
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-hover { transform: translateX(0); opacity: 1; }
+    /* Hover: just lift the button */
+    .ihb-btn.ihb-scarcity:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(190,221,0,0.25);
+    }
 
     /* ══════════════════════════════════════════
        AI CHAT INPUT
@@ -1699,17 +1695,11 @@
       width: 100%;
       margin-top: 16px;
     }
-    .ihb-btn.ihb-scarcity:active .ihb-dot,
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { transform: translateY(-50%) translateX(-62%) !important; }
-    .ihb-btn.ihb-scarcity:not(:active):not(.ihb-active) .ihb-dot { transform: translateY(-50%) translateX(-101%) !important; }
-    .ihb-btn.ihb-scarcity:active .ihb-text-idle,
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
-    .ihb-btn.ihb-scarcity:active .ihb-text-hover,
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-hover { transform: translateX(0) !important; opacity: 1 !important; }
-    .ihb-btn.ihb-scarcity:active .ihb-spots-label,
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-spots-label { opacity: 1 !important; }
-    .ihb-btn.ihb-scarcity:active,
-    .ihb-btn.ihb-scarcity.ihb-active { transform: translateY(-2px) scale(1.04) !important; }
+    /* Scarcity always active on mobile too */
+    .ihb-btn.ihb-scarcity .ihb-dot { transform: translateY(-50%) translateX(-62%) !important; }
+    .ihb-btn.ihb-scarcity .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
+    .ihb-btn.ihb-scarcity .ihb-text-hover { transform: translateX(0) !important; opacity: 1 !important; }
+    .ihb-btn.ihb-scarcity .ihb-spots-label { opacity: 1 !important; }
 
     /* Testimonial cards */
     .ts-card { min-width: 280px !important; }
