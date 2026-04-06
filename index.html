@@ -1151,20 +1151,10 @@
     <div class="macbook-camera"></div>
     <div class="macbook-screen">
     <!-- Mobile toggle — above carousel, hidden on desktop -->
-    <div id="fc-toggle-mobile" style="display:none;justify-content:center;align-items:center;margin-bottom:10px;gap:10px;">
-      <span id="fc-tm0" onclick="fcGo(0,event)" style="font-family:'Inter',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#BEDD00;cursor:pointer;transition:color 0.3s ease;user-select:none;">Match Analysis</span>
-      <label style="position:relative;display:block;cursor:pointer;height:24px;width:42px;flex-shrink:0;" onclick="fcGo(document.getElementById('fc-toggle-input-m').checked?0:1,event)">
-        <input id="fc-toggle-input-m" type="checkbox" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" />
-        <div style="width:100%;height:100%;border-radius:12px;background:#1a1a1a;position:relative;filter:url(#goo-carousel);">
-          <div id="fc-liquid-blob-m" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#BEDD00;transition:transform 0.45s cubic-bezier(0.34,1.5,0.64,1);"></div>
-        </div>
-      </label>
-      <span id="fc-tm1" onclick="fcGo(1,event)" style="font-family:'Inter',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(255,255,255,0.35);cursor:pointer;transition:color 0.3s ease;user-select:none;">Ask Rob</span>
-    </div>
 
 <div class="anim-d3" style="width:100%;">
-      <div style="border-radius:20px;background:transparent;padding:0;width:100%;">
-        <div id="fc-card" style="position:relative;border-radius:20px;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:1px solid rgba(255,255,255,0.07);overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
+      <div style="border-radius:0;background:transparent;padding:0;width:100%;">
+        <div id="fc-card" style="position:relative;border-radius:0;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:none;overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
 
           <!-- Rob badge — top-left corner -->
           <div id="fc-rob-badge" style="position:absolute;top:16px;left:20px;z-index:20;pointer-events:none;">
@@ -1173,17 +1163,6 @@
                  onerror="this.style.display='none'">
           </div>
 
-          <!-- Toggle nav -->
-          <div id="fc-toggle-desktop" style="display:flex;justify-content:center;align-items:center;padding:18px 24px 0;position:relative;z-index:10;gap:14px;">
-            <span id="fc-t0" onclick="fcGo(0,event)" style="font-family:'Inter',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#BEDD00;cursor:pointer;transition:color 0.3s ease;user-select:none;">Match Analysis</span>
-            <label style="position:relative;display:block;cursor:pointer;height:28px;width:48px;flex-shrink:0;" onclick="fcGo(document.getElementById('fc-toggle-input').checked?0:1,event)">
-              <input id="fc-toggle-input" type="checkbox" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" />
-              <div style="width:100%;height:100%;border-radius:14px;background:#1a1a1a;position:relative;filter:url(#goo-carousel);">
-                <div id="fc-liquid-blob" style="position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#BEDD00;transition:transform 0.45s cubic-bezier(0.34,1.5,0.64,1);"></div>
-              </div>
-            </label>
-            <span id="fc-t1" onclick="fcGo(1,event)" style="font-family:'Inter',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);cursor:pointer;transition:color 0.3s ease;user-select:none;">Ask Rob</span>
-          </div>
 
           <!-- Panels -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:32px 36px 36px;align-items:stretch;flex:1;min-height:0;height:100%;overflow:hidden;" class="fc-grid">
@@ -1342,6 +1321,12 @@
 
             </div>
 
+          </div>
+
+          <!-- Slide dots -->
+          <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:center;z-index:5;">
+            <button id="fc-dot0" onclick="fcGo(0,event)" style="width:7px;height:7px;border-radius:50%;background:#BEDD00;border:none;padding:0;cursor:pointer;transition:background 0.3s ease,transform 0.3s ease;transform:scale(1.2);"></button>
+            <button id="fc-dot1" onclick="fcGo(1,event)" style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;padding:0;cursor:pointer;transition:background 0.3s ease,transform 0.3s ease;"></button>
           </div>
 
           <!-- Progress bar -->
@@ -1640,11 +1625,7 @@
     /* Subtle green border on CTA buttons */
     .ihb-btn.ihb-scarcity { box-shadow: 0 0 0 1px rgba(190,221,0,0.45) !important; }
 
-    /* Toggle: show mobile toggle above carousel, hide in-carousel toggle */
-    #fc-toggle-mobile { display: flex !important; }
-    #fc-toggle-desktop { display: none !important; }
-
-    /* Hide Rob chat bubble — keep video bubble only */
+/* Hide Rob chat bubble — keep video bubble only */
     #rob-bubble, #rob-live-dot, #rob-panel { display: none !important; }
 
     /* Hero section — reduce top padding */
@@ -1982,24 +1963,11 @@
       textEl.style.transform = 'translateY(0)';
     }, 350);
 
-    // Update liquid toggle (desktop)
-    var blob = document.getElementById('fc-liquid-blob');
-    var tinput = document.getElementById('fc-toggle-input');
-    var t0 = document.getElementById('fc-t0');
-    var t1 = document.getElementById('fc-t1');
-    if (blob) blob.style.transform = idx === 1 ? 'translateX(20px)' : 'translateX(0)';
-    if (tinput) tinput.checked = idx === 1;
-    if (t0) t0.style.color = idx === 0 ? '#BEDD00' : 'rgba(255,255,255,0.35)';
-    if (t1) t1.style.color = idx === 1 ? '#BEDD00' : 'rgba(255,255,255,0.35)';
-    // Update liquid toggle (mobile)
-    var blobM = document.getElementById('fc-liquid-blob-m');
-    var tinputM = document.getElementById('fc-toggle-input-m');
-    var tm0 = document.getElementById('fc-tm0');
-    var tm1 = document.getElementById('fc-tm1');
-    if (blobM) blobM.style.transform = idx === 1 ? 'translateX(18px)' : 'translateX(0)';
-    if (tinputM) tinputM.checked = idx === 1;
-    if (tm0) tm0.style.color = idx === 0 ? '#BEDD00' : 'rgba(255,255,255,0.35)';
-    if (tm1) tm1.style.color = idx === 1 ? '#BEDD00' : 'rgba(255,255,255,0.35)';
+    // Update slide dots
+    var dot0 = document.getElementById('fc-dot0');
+    var dot1 = document.getElementById('fc-dot1');
+    if (dot0) { dot0.style.background = idx === 0 ? '#BEDD00' : 'rgba(255,255,255,0.2)'; dot0.style.transform = idx === 0 ? 'scale(1.2)' : 'scale(1)'; }
+    if (dot1) { dot1.style.background = idx === 1 ? '#BEDD00' : 'rgba(255,255,255,0.2)'; dot1.style.transform = idx === 1 ? 'scale(1.2)' : 'scale(1)'; }
   }
 
   function startProgress(resumeFrom) {
