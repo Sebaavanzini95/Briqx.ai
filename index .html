@@ -3597,10 +3597,10 @@ modalForm.addEventListener('submit', async (e) => {
 <div id="fvw-vid-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;flex-direction:column;">
   <button onclick="closeFvwModal()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.12);border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;z-index:2;">✕</button>
   <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
-    <!-- iPhone frame -->
+    <!-- iPhone frame — rotated to landscape so video fits -->
     <div style="
       position:relative;
-      width:min(230px,52vw); height:min(470px,78vh);
+      width:min(470px,85vw); height:min(230px,42vh);
       background:linear-gradient(135deg,#222428 0%,#1c1e22 40%,#181a1e 100%);
       border-radius:38px;
       border:2px solid rgba(255,255,255,0.12);
@@ -3612,11 +3612,11 @@ modalForm.addEventListener('submit', async (e) => {
       <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:70px;height:22px;border-radius:12px;background:#000;z-index:10;pointer-events:none;"></div>
       <!-- Screen -->
       <div style="flex:1;border-radius:28px;overflow:hidden;background:#000;position:relative;min-height:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.03),inset 0 10px 20px rgba(0,0,0,0.35);">
-        <video id="fvw-modal-vid" src="assets/Waiting list video/Waiting list.mp4" controls playsinline style="width:100%;height:100%;object-fit:contain;display:block;background:#000;"></video>
+        <video id="fvw-modal-vid" src="assets/Waiting list video/Waiting list.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;display:block;background:#000;"></video>
       </div>
     </div>
     <!-- CTA below phone -->
-    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();window.open('https://form.typeform.com/to/oBxtb6bM','_blank');" type="button" style="width:min(230px,52vw);">
+    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();window.open('https://form.typeform.com/to/oBxtb6bM','_blank');" type="button" style="width:min(470px,85vw);">
       <div class="ihb-dot"></div>
       <span class="ihb-text-idle">JOIN WAITLIST</span>
       <span class="ihb-text-hover">
