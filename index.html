@@ -1151,16 +1151,19 @@
     <div class="macbook-camera"></div>
     <div class="macbook-screen">
     <!-- Mobile toggle — above carousel, hidden on desktop -->
-    <div id="fc-toggle-mobile" style="display:none;justify-content:center;margin-bottom:10px;">
-      <div style="position:relative;display:flex;background:rgba(255,255,255,0.07);border-radius:16px;padding:4px;width:220px;">
-        <div id="fc-toggle-indicator-m" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:#BEDD00;border-radius:12px;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);"></div>
-        <button id="fc-tm0" onclick="fcGo(0,event)" style="position:relative;z-index:1;flex:1;border:none;background:transparent;padding:8px 6px;border-radius:12px;font-family:'Inter',sans-serif;font-size:0.62rem;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:#000;cursor:pointer;transition:color 0.35s ease;text-align:center;">Match Analysis</button>
-        <button id="fc-tm1" onclick="fcGo(1,event)" style="position:relative;z-index:1;flex:1;border:none;background:transparent;padding:8px 6px;border-radius:12px;font-family:'Inter',sans-serif;font-size:0.62rem;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:rgba(255,255,255,0.45);cursor:pointer;transition:color 0.35s ease;text-align:center;">Ask Rob</button>
-      </div>
+    <div id="fc-toggle-mobile" style="display:none;justify-content:center;align-items:center;margin-bottom:10px;gap:10px;">
+      <span id="fc-tm0" onclick="fcGo(0,event)" style="font-family:'Inter',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#BEDD00;cursor:pointer;transition:color 0.3s ease;user-select:none;">Match Analysis</span>
+      <label style="position:relative;display:block;cursor:pointer;height:24px;width:42px;flex-shrink:0;" onclick="fcGo(document.getElementById('fc-toggle-input-m').checked?0:1,event)">
+        <input id="fc-toggle-input-m" type="checkbox" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" />
+        <div style="width:100%;height:100%;border-radius:12px;background:#1a1a1a;position:relative;filter:url(#goo-carousel);">
+          <div id="fc-liquid-blob-m" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#BEDD00;transition:transform 0.45s cubic-bezier(0.34,1.5,0.64,1);"></div>
+        </div>
+      </label>
+      <span id="fc-tm1" onclick="fcGo(1,event)" style="font-family:'Inter',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(255,255,255,0.35);cursor:pointer;transition:color 0.3s ease;user-select:none;">Ask Rob</span>
     </div>
 
 <div class="anim-d3" style="width:100%;">
-      <div style="border-radius:24px;background:rgba(255,255,255,0.04);padding:6px;width:100%;">
+      <div style="border-radius:20px;background:transparent;padding:0;width:100%;">
         <div id="fc-card" style="position:relative;border-radius:20px;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:1px solid rgba(255,255,255,0.07);overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
 
           <!-- Rob badge — top-left corner -->
@@ -1171,12 +1174,15 @@
           </div>
 
           <!-- Toggle nav -->
-          <div id="fc-toggle-desktop" style="display:flex;justify-content:center;padding:20px 24px 0;position:relative;z-index:10;">
-            <div style="position:relative;display:flex;background:rgba(255,255,255,0.07);border-radius:16px;padding:4px;width:320px;">
-              <div id="fc-toggle-indicator" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:#BEDD00;border-radius:12px;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);"></div>
-              <button id="fc-t0" onclick="fcGo(0,event)" style="position:relative;z-index:1;flex:1;border:none;background:transparent;padding:9px 12px;border-radius:12px;font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#000;cursor:pointer;transition:color 0.35s ease;text-align:center;">Match Analysis</button>
-              <button id="fc-t1" onclick="fcGo(1,event)" style="position:relative;z-index:1;flex:1;border:none;background:transparent;padding:9px 12px;border-radius:12px;font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:rgba(255,255,255,0.45);cursor:pointer;transition:color 0.35s ease;text-align:center;">Ask Rob</button>
-            </div>
+          <div id="fc-toggle-desktop" style="display:flex;justify-content:center;align-items:center;padding:18px 24px 0;position:relative;z-index:10;gap:14px;">
+            <span id="fc-t0" onclick="fcGo(0,event)" style="font-family:'Inter',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#BEDD00;cursor:pointer;transition:color 0.3s ease;user-select:none;">Match Analysis</span>
+            <label style="position:relative;display:block;cursor:pointer;height:28px;width:48px;flex-shrink:0;" onclick="fcGo(document.getElementById('fc-toggle-input').checked?0:1,event)">
+              <input id="fc-toggle-input" type="checkbox" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" />
+              <div style="width:100%;height:100%;border-radius:14px;background:#1a1a1a;position:relative;filter:url(#goo-carousel);">
+                <div id="fc-liquid-blob" style="position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#BEDD00;transition:transform 0.45s cubic-bezier(0.34,1.5,0.64,1);"></div>
+              </div>
+            </label>
+            <span id="fc-t1" onclick="fcGo(1,event)" style="font-family:'Inter',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);cursor:pointer;transition:color 0.3s ease;user-select:none;">Ask Rob</span>
           </div>
 
           <!-- Panels -->
@@ -1976,20 +1982,24 @@
       textEl.style.transform = 'translateY(0)';
     }, 350);
 
-    // Update toggle (desktop)
-    var ind = document.getElementById('fc-toggle-indicator');
+    // Update liquid toggle (desktop)
+    var blob = document.getElementById('fc-liquid-blob');
+    var tinput = document.getElementById('fc-toggle-input');
     var t0 = document.getElementById('fc-t0');
     var t1 = document.getElementById('fc-t1');
-    if (ind) ind.style.transform = idx === 0 ? 'translateX(0)' : 'translateX(100%)';
-    if (t0) t0.style.color = idx === 0 ? '#000' : 'rgba(255,255,255,0.45)';
-    if (t1) t1.style.color = idx === 1 ? '#000' : 'rgba(255,255,255,0.45)';
-    // Update toggle (mobile)
-    var indM = document.getElementById('fc-toggle-indicator-m');
+    if (blob) blob.style.transform = idx === 1 ? 'translateX(20px)' : 'translateX(0)';
+    if (tinput) tinput.checked = idx === 1;
+    if (t0) t0.style.color = idx === 0 ? '#BEDD00' : 'rgba(255,255,255,0.35)';
+    if (t1) t1.style.color = idx === 1 ? '#BEDD00' : 'rgba(255,255,255,0.35)';
+    // Update liquid toggle (mobile)
+    var blobM = document.getElementById('fc-liquid-blob-m');
+    var tinputM = document.getElementById('fc-toggle-input-m');
     var tm0 = document.getElementById('fc-tm0');
     var tm1 = document.getElementById('fc-tm1');
-    if (indM) indM.style.transform = idx === 0 ? 'translateX(0)' : 'translateX(100%)';
-    if (tm0) tm0.style.color = idx === 0 ? '#000' : 'rgba(255,255,255,0.45)';
-    if (tm1) tm1.style.color = idx === 1 ? '#000' : 'rgba(255,255,255,0.45)';
+    if (blobM) blobM.style.transform = idx === 1 ? 'translateX(18px)' : 'translateX(0)';
+    if (tinputM) tinputM.checked = idx === 1;
+    if (tm0) tm0.style.color = idx === 0 ? '#BEDD00' : 'rgba(255,255,255,0.35)';
+    if (tm1) tm1.style.color = idx === 1 ? '#BEDD00' : 'rgba(255,255,255,0.35)';
   }
 
   function startProgress(resumeFrom) {
@@ -3516,6 +3526,17 @@ document.getElementById('fvw-vid-modal').addEventListener('click', function(e) {
   }
 })();
 </script>
+
+<!-- Gooey SVG filter for liquid toggle -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true">
+  <defs>
+    <filter id="goo-carousel">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" result="goo"/>
+      <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+    </filter>
+  </defs>
+</svg>
 
 <script>
 // ── MacBook scroll tilt ────────────────────────────────────────────────────
