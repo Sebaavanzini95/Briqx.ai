@@ -1149,7 +1149,7 @@
       <div style="border-radius:0;background:transparent;padding:0;width:100%;">
         <div id="fc-card" style="position:relative;border-radius:0;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:none;overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
 
-          <!-- Header bar: Rob + headline + CTA -->
+          <!-- Header bar: Rob + headline -->
           <div style="flex-shrink:0;display:flex;align-items:center;gap:18px;padding:18px 36px 16px;border-bottom:1px solid rgba(255,255,255,0.07);">
             <div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;">
               <div style="position:relative;display:inline-block;">
@@ -1158,16 +1158,7 @@
               </div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;color:rgba(255,255,255,0.38);">Rob · Pro Analyst</div>
             </div>
-            <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.05rem,1.9vw,1.5rem);letter-spacing:0.04em;line-height:1.0;color:#fff;margin:0;flex-shrink:0;">The Ultimate Partner For <span style="color:#BEDD00;">Elite Players</span></h2>
-            <div style="flex:1;"></div>
-            <button class="ihb-btn" onclick="event.stopPropagation();openFvwModal();" type="button" style="width:auto;padding:0 20px;height:40px;font-size:0.78rem;">
-              <div class="ihb-dot" aria-hidden="true"></div>
-              <span class="ihb-text-idle">JOIN WAITLIST</span>
-              <div class="ihb-text-hover" aria-hidden="true">
-                <span>JOIN WAITLIST</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </div>
-            </button>
+            <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.05rem,1.9vw,1.5rem);letter-spacing:0.04em;line-height:1.0;color:#fff;margin:0;">The Ultimate Partner For <span style="color:#BEDD00;">Elite Players</span></h2>
           </div>
 
           <!-- Panels -->
@@ -3621,7 +3612,7 @@ modalForm.addEventListener('submit', async (e) => {
       <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:70px;height:22px;border-radius:12px;background:#000;z-index:10;pointer-events:none;"></div>
       <!-- Screen -->
       <div style="flex:1;border-radius:28px;overflow:hidden;background:#000;position:relative;min-height:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.03),inset 0 10px 20px rgba(0,0,0,0.35);">
-        <video id="fvw-modal-vid" src="assets/Waiting list video/Waiting list.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+        <video id="fvw-modal-vid" src="assets/Waiting list video/Waiting list.mp4" controls playsinline style="width:100%;height:100%;object-fit:contain;display:block;background:#000;"></video>
       </div>
     </div>
     <!-- CTA below phone -->
