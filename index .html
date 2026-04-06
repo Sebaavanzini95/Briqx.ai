@@ -1207,11 +1207,16 @@
             </div>
 
             <!-- Image side — phone frame -->
-            <div style="position:relative;display:flex;align-items:center;justify-content:center;height:100%;">
+            <div style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;">
+              <!-- Waitlist button centered above phone -->
+              <a href="https://briqx.typeform.com/waitlist" target="_blank" rel="noopener" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;margin-bottom:14px;border-radius:8px;background:#BEDD00;font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#000;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:background 0.2s ease;" onmouseover="this.style.background='#d4f000'" onmouseout="this.style.background='#BEDD00'">
+                JOIN WAITLIST
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="#000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
               <!-- Hidden placeholder — kept for JS imgWrap references -->
               <div id="fc-img-wrap" style="display:none;"></div>
 
-              <div id="fc-phone-outer" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+              <div id="fc-phone-outer" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;flex:1;min-height:0;">
                 <div id="fc-phone-frame">
                   <!-- Screen -->
                   <div id="fc-phone-screen">
