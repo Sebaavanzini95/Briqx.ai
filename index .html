@@ -206,33 +206,51 @@
     .ihb-btn:not(.ihb-scarcity):hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-btn:not(.ihb-scarcity):hover { transform: translateY(-2px) scale(1.04); }
     .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
-    /* ── Scarcity merged into button ── */
+    /* ── Scarcity button ── */
     .ihb-btn.ihb-scarcity { height: 72px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    /* Dot starts hidden — JS animates it to 76% fill on page load */
-    .ihb-btn.ihb-scarcity .ihb-dot {
-      left: 0; top: 50%;
-      transform: translateY(-50%) translateX(-101%);
-      transition: transform 2s cubic-bezier(0.4,0,0.2,1);
-      width: 200%; height: 200%;
-      border-radius: 0;
-      background: #BEDD00;
-    }
-    .ihb-btn.ihb-scarcity.ihb-animated .ihb-dot { transform: translateY(-50%) translateX(-62%); }
+    /* Hide the dot inside scarcity buttons — bar handles fill */
+    .ihb-btn.ihb-scarcity .ihb-dot { display: none; }
     /* Text: idle hidden, arrow text always shown */
     .ihb-btn.ihb-scarcity .ihb-text-idle { transform: translateX(72px); opacity: 0; }
     .ihb-btn.ihb-scarcity .ihb-text-hover { transform: translateX(0); opacity: 1; }
-    .ihb-spots-row {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      padding: 0 14px 9px;
-      display: flex; justify-content: center;
+    /* Progress bar track */
+    .ihb-bar {
+      position: absolute; bottom: 9px; left: 12px; right: 12px;
+      height: 5px; border-radius: 99px;
+      background: rgba(255,255,255,0.1);
+      overflow: visible;
       z-index: 3; pointer-events: none;
     }
+    /* Filled portion */
+    .ihb-bar-fill {
+      height: 100%; width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #a8c800 0%, #BEDD00 60%, #eeff00 100%);
+      box-shadow: 0 0 7px 1px rgba(190,221,0,0.65), 0 1px 2px rgba(0,0,0,0.2);
+      position: relative;
+      transition: width 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    /* Glowing tip dot */
+    .ihb-bar-fill::after {
+      content: '';
+      position: absolute; right: -3px; top: 50%;
+      transform: translateY(-50%);
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 5px 3px rgba(190,221,0,0.85);
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .ihb-bar-fill.has-width::after { opacity: 1; }
+    /* Label row */
+    .ihb-spots-row {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 0 14px 18px;
+      display: flex; justify-content: center;
+      z-index: 4; pointer-events: none;
+    }
     .ihb-spots-label {
-      font-family: 'Space Mono', monospace; font-size: 0.5rem;
-      letter-spacing: 0.08em; color: rgba(0,0,0,0.65);
-      text-transform: uppercase; text-align: center;
-      opacity: 1;
-      transition: color 0.3s ease;
+      font-family: 'Space Mono', monospace; font-size: 0.56rem;
+      letter-spacing: 0.07em; text-transform: uppercase; text-align: center;
     }
     /* Hover: lift */
     .ihb-btn.ihb-scarcity:hover {
@@ -1186,8 +1204,9 @@
                     <span>JOIN WAITLIST</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                   </div>
+                  <div class="ihb-bar" aria-hidden="true"><div class="ihb-bar-fill"></div></div>
                   <div class="ihb-spots-row">
-                    <span class="ihb-spots-label"><span class="ihb-counter-num">0</span> JOINED · 24 SPOTS LEFT</span>
+                    <span class="ihb-spots-label"><span class="ihb-counter-num" style="color:#fff;font-weight:700;">0</span><span style="color:rgba(255,255,255,0.45);"> JOINED · </span><span style="color:#fff;font-weight:700;">24</span><span style="color:rgba(255,255,255,0.45);"> SPOTS LEFT</span></span>
                   </div>
                 </button>
                 <p style="font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.28);margin-top:10px;letter-spacing:0.02em;width:66.667%;">Only 100 players get priority access with special benefits! Claim your spot now for free!</p>
@@ -1368,8 +1387,9 @@
           <span>TRY FOR FREE</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
+        <div class="ihb-bar" aria-hidden="true"><div class="ihb-bar-fill"></div></div>
         <div class="ihb-spots-row">
-          <span class="ihb-spots-label"><span class="ihb-counter-num">0</span> JOINED · 24 SPOTS LEFT</span>
+          <span class="ihb-spots-label"><span class="ihb-counter-num" style="color:#fff;font-weight:700;">0</span><span style="color:rgba(255,255,255,0.45);"> JOINED · </span><span style="color:#fff;font-weight:700;">24</span><span style="color:rgba(255,255,255,0.45);"> SPOTS LEFT</span></span>
         </div>
       </button>
       <p style="font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.28);margin-top:10px;letter-spacing:0.02em;text-align:center;">Only 100 players get priority access with special benefits! Claim your spot now for free!</p>
@@ -1497,8 +1517,9 @@
           <span>JOIN WAITLIST</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
+        <div class="ihb-bar" aria-hidden="true"><div class="ihb-bar-fill"></div></div>
         <div class="ihb-spots-row">
-          <span class="ihb-spots-label"><span class="ihb-counter-num">0</span> JOINED · 24 SPOTS LEFT</span>
+          <span class="ihb-spots-label"><span class="ihb-counter-num" style="color:#fff;font-weight:700;">0</span><span style="color:rgba(255,255,255,0.45);"> JOINED · </span><span style="color:#fff;font-weight:700;">24</span><span style="color:rgba(255,255,255,0.45);"> SPOTS LEFT</span></span>
         </div>
       </button>
     </div>
@@ -1697,11 +1718,9 @@
       width: 100%;
       margin-top: 16px;
     }
-    /* Scarcity mobile — animated class drives fill */
-    .ihb-btn.ihb-scarcity.ihb-animated .ihb-dot { transform: translateY(-50%) translateX(-62%) !important; }
+    /* Scarcity mobile */
     .ihb-btn.ihb-scarcity .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
     .ihb-btn.ihb-scarcity .ihb-text-hover { transform: translateX(0) !important; opacity: 1 !important; }
-    .ihb-btn.ihb-scarcity .ihb-spots-label { opacity: 1 !important; }
 
     /* Testimonial cards */
     .ts-card { min-width: 280px !important; }
@@ -3559,7 +3578,8 @@ modalForm.addEventListener('submit', async (e) => {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         JOIN WAITLIST
       </span>
-      <div class="ihb-spots-row"><span class="ihb-spots-label"><span class="ihb-counter-num">0</span> JOINED · 24 SPOTS LEFT</span></div>
+      <div class="ihb-bar" aria-hidden="true"><div class="ihb-bar-fill"></div></div>
+      <div class="ihb-spots-row"><span class="ihb-spots-label"><span class="ihb-counter-num" style="color:#fff;font-weight:700;">0</span><span style="color:rgba(255,255,255,0.45);"> JOINED · </span><span style="color:#fff;font-weight:700;">24</span><span style="color:rgba(255,255,255,0.45);"> SPOTS LEFT</span></span></div>
     </button>
   </div>
 </div>
@@ -3629,9 +3649,20 @@ document.getElementById('fvw-vid-modal').addEventListener('click', function(e) {
   var DELAY = 700;     // ms after page load before starting
 
   function animateBtn(btn) {
-    btn.classList.add('ihb-animated');
     var counterEl = btn.querySelector('.ihb-counter-num');
-    if (!counterEl) return;
+    var barFill   = btn.querySelector('.ihb-bar-fill');
+    if (!counterEl || !barFill) return;
+
+    // Trigger CSS transition on bar fill (needs a frame to register initial width:0)
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        barFill.style.width = TARGET + '%';
+        // Show glowing tip once bar has some width
+        setTimeout(function() { barFill.classList.add('has-width'); }, 200);
+      });
+    });
+
+    // Counter ticks in JS (smoother than CSS counter)
     var start = null;
     function tick(ts) {
       if (!start) start = ts;
