@@ -207,49 +207,63 @@
     .ihb-btn:not(.ihb-scarcity):hover { transform: translateY(-2px) scale(1.04); }
     .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
     /* ── Scarcity button ── */
-    .ihb-btn.ihb-scarcity { height: 72px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    /* Hide the dot inside scarcity buttons — bar handles fill */
-    .ihb-btn.ihb-scarcity .ihb-dot { display: none; }
-    /* Text: idle hidden, arrow text always shown */
-    .ihb-btn.ihb-scarcity .ihb-text-idle { transform: translateX(72px); opacity: 0; }
-    .ihb-btn.ihb-scarcity .ihb-text-hover { transform: translateX(0); opacity: 1; }
-    /* Progress bar track */
-    .ihb-bar {
-      position: absolute; bottom: 9px; left: 12px; right: 12px;
-      height: 5px; border-radius: 99px;
-      background: rgba(255,255,255,0.1);
-      overflow: visible;
-      z-index: 3; pointer-events: none;
+    .ihb-btn.ihb-scarcity {
+      height: 72px;
+      flex-direction: column;
+      gap: 0;
+      padding: 0 20px;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    /* Filled portion */
+    .ihb-btn.ihb-scarcity .ihb-dot { display: none; }
+    /* JOIN WAITLIST text row */
+    .ihb-btn.ihb-scarcity .ihb-text-idle { transform: none; opacity: 0; position: relative; }
+    .ihb-btn.ihb-scarcity .ihb-text-hover {
+      position: relative; inset: auto;
+      transform: none; opacity: 1;
+      color: #fff; font-size: 1rem; letter-spacing: 0.1em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    /* 3D tube bar — track */
+    .ihb-bar {
+      width: 100%; height: 10px;
+      border-radius: 99px;
+      background: rgba(0,0,0,0.28);
+      box-shadow:
+        inset 0 2px 4px rgba(0,0,0,0.5),
+        inset 0 -1px 2px rgba(255,255,255,0.06);
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+      margin: 5px 0 4px;
+      pointer-events: none;
+    }
+    /* 3D tube fill — lit from above */
     .ihb-bar-fill {
       height: 100%; width: 0%;
       border-radius: 99px;
-      background: linear-gradient(90deg, #a8c800 0%, #BEDD00 60%, #eeff00 100%);
-      box-shadow: 0 0 7px 1px rgba(190,221,0,0.65), 0 1px 2px rgba(0,0,0,0.2);
-      position: relative;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.55) 0%,
+        #eeff44 6%,
+        #BEDD00 30%,
+        #8fab00 68%,
+        rgba(0,0,0,0.18) 100%
+      );
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.6),
+        inset 0 -1px 0 rgba(0,0,0,0.25),
+        0 0 6px rgba(190,221,0,0.4);
       transition: width 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
-    /* Glowing tip dot */
-    .ihb-bar-fill::after {
-      content: '';
-      position: absolute; right: -3px; top: 50%;
-      transform: translateY(-50%);
-      width: 9px; height: 9px; border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 0 5px 3px rgba(190,221,0,0.85);
-      opacity: 0; transition: opacity 0.3s ease;
-    }
-    .ihb-bar-fill.has-width::after { opacity: 1; }
     /* Label row */
     .ihb-spots-row {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      padding: 0 14px 18px;
+      position: relative; bottom: auto; left: auto; right: auto;
+      padding: 0;
       display: flex; justify-content: center;
-      z-index: 4; pointer-events: none;
+      pointer-events: none;
     }
     .ihb-spots-label {
-      font-family: 'Space Mono', monospace; font-size: 0.56rem;
+      font-family: 'Space Mono', monospace; font-size: 0.52rem;
       letter-spacing: 0.07em; text-transform: uppercase; text-align: center;
     }
     /* Hover: lift */
@@ -1719,8 +1733,7 @@
       margin-top: 16px;
     }
     /* Scarcity mobile */
-    .ihb-btn.ihb-scarcity .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
-    .ihb-btn.ihb-scarcity .ihb-text-hover { transform: translateX(0) !important; opacity: 1 !important; }
+    .ihb-btn.ihb-scarcity .ihb-text-hover { transform: none !important; opacity: 1 !important; position: relative !important; inset: auto !important; }
 
     /* Testimonial cards */
     .ts-card { min-width: 280px !important; }
