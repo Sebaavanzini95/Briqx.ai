@@ -3325,15 +3325,16 @@ const modalCard    = document.getElementById('modal-card');
 function openModal() {
   modalOverlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-  var _mlv = document.getElementById('modal-left-video');
-  if (_mlv) { _mlv.currentTime = 0; _mlv.pause(); }
+  // Pause bubble loop
   var _loopVid = document.getElementById('fvw-loop');
   if (_loopVid) _loopVid.pause();
-  // Focus first field after animation settles
-  setTimeout(() => {
-    const first = modalCard.querySelector('input:not([type="hidden"])');
-    if (first) first.focus();
-  }, 320);
+  // Skip form — show Typeform directly
+  var formWrap = document.getElementById('modal-form-wrap');
+  var success  = document.getElementById('modal-success');
+  var tf       = document.getElementById('modal-typeform');
+  if (formWrap) formWrap.style.display = 'none';
+  if (success)  success.style.display  = 'none';
+  if (tf)       tf.style.display       = 'block';
 }
 
 function closeModal() {
