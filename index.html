@@ -206,22 +206,38 @@
     .ihb-btn:not(.ihb-scarcity):hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
     .ihb-btn:not(.ihb-scarcity):hover { transform: translateY(-2px) scale(1.04); }
     .ihb-btn:focus-visible { outline: 2px solid rgba(190,221,0,0.6); outline-offset: 3px; }
-    /* ── Scarcity merged into button ── */
-    .ihb-btn.ihb-scarcity { height: 72px; }
-    /* Dot starts hidden off-screen left */
-    .ihb-btn.ihb-scarcity .ihb-dot {
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%) translateX(-101%);
-      transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
-      width: 200%; height: 200%;
-      border-radius: 0;
-      background: #BEDD00;
+    /* ── Scarcity button ── */
+    .ihb-btn.ihb-scarcity {
+      height: 72px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    /* CSS :hover drives the animation on desktop — 100% reliable */
-    .ihb-btn.ihb-scarcity:hover .ihb-dot { transform: translateY(-50%) translateX(-62%); }
-    .ihb-btn.ihb-scarcity:hover .ihb-text-idle { transform: translateX(72px); opacity: 0; }
-    .ihb-btn.ihb-scarcity:hover .ihb-text-hover { transform: translateX(0); opacity: 1; }
+    /* The fill div slides in from left — full height, 3D tube gradient */
+    .ihb-btn.ihb-scarcity .ihb-dot { display: none; }
+    .ihb-bar {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 0%;
+      border-radius: 9999px;
+      /* 3D tube: top highlight → bright green → mid green → dark bottom */
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.30) 0%,
+        #d4f020 4%,
+        #BEDD00 25%,
+        #9ab800 60%,
+        #6d8400 100%
+      );
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.45),
+        inset 0 -2px 4px rgba(0,0,0,0.35);
+      transition: width 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .ihb-bar-fill { display: none; } /* unused — fill is the bar itself */
+    /* Text stays on top */
+    .ihb-btn.ihb-scarcity .ihb-text-idle { transform: translateX(72px); opacity: 0; }
+    .ihb-btn.ihb-scarcity .ihb-text-hover { transform: translateX(0); opacity: 1; color: #fff; }
+    /* Label */
     .ihb-spots-row {
       position: absolute; bottom: 0; left: 0; right: 0;
       padding: 0 14px 9px;
@@ -230,17 +246,13 @@
     }
     .ihb-spots-label {
       font-family: 'Space Mono', monospace; font-size: 0.52rem;
-      letter-spacing: 0.1em; color: rgba(0,0,0,0.6);
-      text-transform: uppercase; text-align: center;
-      opacity: 0;
-      transition: opacity 0.4s ease 0.2s;
+      letter-spacing: 0.07em; text-transform: uppercase; text-align: center;
     }
-    .ihb-btn.ihb-scarcity:hover .ihb-spots-label { opacity: 1; }
-    /* ihb-active kept for mobile touch */
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { transform: translateY(-50%) translateX(-62%); }
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-spots-label { opacity: 1; }
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px); opacity: 0; }
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-hover { transform: translateX(0); opacity: 1; }
+    /* Hover: lift */
+    .ihb-btn.ihb-scarcity:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(190,221,0,0.3);
+    }
 
     /* ══════════════════════════════════════════
        AI CHAT INPUT
@@ -938,6 +950,11 @@
     .aic-loader-path {
       animation: drawStroke 2.5s ease-in-out infinite;
     }
+    @keyframes fc-roll-ball {
+      0%   { transform: translateX(0px);  background: #BEDD00; box-shadow: 0 0 5px rgba(190,221,0,0.6); }
+      50%  { transform: translateX(24px); background: #ffffff; box-shadow: 0 0 5px rgba(255,255,255,0.5); }
+      100% { transform: translateX(0px);  background: #BEDD00; box-shadow: 0 0 5px rgba(190,221,0,0.6); }
+    }
     .aic-shimmer {
       background: linear-gradient(90deg,
         rgba(255,255,255,0.3) 0%,
@@ -1076,7 +1093,7 @@
 
     <!-- Typeform step (shown after form submit) -->
     <div id="modal-typeform">
-      <iframe src="https://form.typeform.com/to/oBxtb6bM"
+      <iframe src="https://tally.so/embed/eq7YgO?transparentBackground=1"
               allow="camera; microphone; autoplay; encrypted-media; fullscreen"
               allowfullscreen>
       </iframe>
@@ -1098,6 +1115,14 @@
 <!-- ═══ HERO ══════════════════════════════════════════════════════════════ -->
 <section id="macbook-scroll-section" class="relative" style="height:160vh;"><div class="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-14 pb-8" style="position:sticky;top:0;overflow:hidden;">
 
+  <!-- Stadium background -->
+  <div aria-hidden="true" style="position:absolute;inset:0;z-index:0;pointer-events:none;">
+    <img src="assets/stadium-hero.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:grayscale(60%) brightness(0.55);display:block;">
+    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);"></div>
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,0.6) 70%,rgba(0,0,0,0.95) 100%);"></div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:220px;background:linear-gradient(to bottom,transparent,#0a0a0a);"></div>
+  </div>
+
   <!-- Static glow orbs -->
   <div class="glow-orb" style="width:800px;height:800px;background:rgba(255,255,255,0.012);top:50%;left:50%;transform:translate(-50%,-50%);"></div>
   <div class="glow-orb" style="width:300px;height:300px;background:rgba(255,255,255,0.008);top:4%;right:2%;"></div>
@@ -1105,7 +1130,7 @@
   <div class="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
 
     <!-- Mobile logo above headline (hidden on desktop) -->
-    <div id="mobile-hero-logo" style="display:none;margin-bottom:18px;">
+    <div id="mobile-hero-logo" class="anim-d0" style="display:none;margin-bottom:18px;">
       <img src="assets/Logo/Logo/BRIQX%20LOGO%20.png" alt="BRIQX" style="height:60px;width:auto;opacity:0.95;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
     </div>
 
@@ -1144,18 +1169,31 @@
       <div style="border-radius:0;background:transparent;padding:0;width:100%;">
         <div id="fc-card" style="position:relative;border-radius:0;background:linear-gradient(135deg,#141414 0%,#0e0e0e 100%);border:none;overflow:hidden;height:662px;cursor:default;display:flex;flex-direction:column;" onclick="fcPauseToggle(event)">
 
-          <!-- Header bar: Rob avatar + headline (left-aligned with text section) -->
-          <div style="flex-shrink:0;display:flex;align-items:center;justify-content:flex-start;gap:18px;padding:18px 36px 16px;border-bottom:1px solid rgba(255,255,255,0.07);">
-            <!-- Avatar with online dot + label below -->
-            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;">
-              <div style="position:relative;display:inline-block;">
-                <img src="assets/Avatars/Rob-headshot.png" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2.5px solid #BEDD00;display:block;" onerror="this.style.display='none'">
-                <div style="position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid #0e0e0e;animation:fvw-pulse 2s ease-in-out infinite;"></div>
+          <!-- Header bar: mirrors 1fr/1fr grid — left=Rob+headline, right=CTA centered above phone -->
+          <div style="flex-shrink:0;display:flex;align-items:center;padding:18px 36px 16px;border-bottom:1px solid rgba(255,255,255,0.07);">
+            <!-- Left half — Rob + headline -->
+            <div style="flex:1;display:flex;align-items:center;gap:18px;min-width:0;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;">
+                <div style="position:relative;display:inline-block;">
+                  <img src="assets/Avatars/Rob-headshot.png" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2.5px solid #BEDD00;display:block;" onerror="this.style.display='none'">
+                  <div style="position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid #0e0e0e;animation:fvw-pulse 2s ease-in-out infinite;"></div>
+                </div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;color:rgba(255,255,255,0.38);">Rob · Pro Analyst</div>
               </div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;color:rgba(255,255,255,0.38);">Rob · Pro Analyst</div>
+              <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.05rem,1.9vw,1.5rem);letter-spacing:0.04em;line-height:1.0;color:#fff;margin:0;">The Ultimate Partner For <span style="color:#BEDD00;">Elite Players</span></h2>
             </div>
-            <!-- Headline -->
-            <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.05rem,1.9vw,1.5rem);letter-spacing:0.04em;line-height:1.0;color:#fff;margin:0;">The Ultimate Partner For <span style="color:#BEDD00;">Elite Players</span></h2>
+            <!-- Right half — button + label centered above phone -->
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
+              <div id="header-phone-cta-wrap">
+                <button id="header-phone-cta" onclick="event.stopPropagation();openModal();" type="button" style="position:relative;overflow:hidden;border-radius:9999px;border:1px solid rgba(255,255,255,0.22);background:transparent;padding:0 28px;height:58px;font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.1em;color:#fff;cursor:pointer;min-width:248px;transition:transform 0.2s ease,box-shadow 0.2s ease;display:block;" onmouseover="this.style.transform='translateY(-2px) scale(1.03)';this.style.boxShadow='0 6px 20px rgba(190,221,0,0.22)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                  <div class="ihb-bar" aria-hidden="true"><div class="ihb-bar-fill"></div></div>
+                  <span style="position:relative;z-index:1;">JOIN WAITLIST</span>
+                </button>
+                <div style="text-align:center;font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;margin-top:7px;">
+                  <span class="ihb-counter-num" style="color:rgba(255,255,255,0.55);font-weight:700;">0</span><span style="color:rgba(255,255,255,0.28);"> JOINED · </span><span style="color:rgba(255,255,255,0.55);font-weight:700;">24</span><span style="color:rgba(255,255,255,0.28);"> SPOTS LEFT</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Panels -->
@@ -1171,25 +1209,26 @@
                     Personalised Player Analysis<br><span style="color:#BEDD00;">After Every Game</span>
                   </h3>
                   <p id="fc-desc" class="font-body" style="font-size:0.88rem;font-weight:300;color:rgba(255,255,255,0.45);line-height:1.75;max-width:300px;">
-                    Let Rob analyse your every game while you perform. Evaluate together, learn from your performance, and improve. It takes just 5 minutes.
+                    Watch & understand your own performance in just 5-8 minutes after every game. Enable "Coach" mode and Rob will analyse your game like an Elite Level Analyst.
                   </p>
                 </div>
               </div>
 
               <!-- CTA — absolutely pinned to bottom, never shifts between steps -->
               <div style="position:absolute;bottom:18px;left:0;width:100%;">
-                <button id="hero-cta" class="ihb-btn ihb-scarcity" type="button" onclick="openFvwModal()">
+                <button id="hero-cta" class="ihb-btn ihb-scarcity" type="button" onclick="openModal()">
                   <div class="ihb-dot" aria-hidden="true"></div>
                   <span class="ihb-text-idle">JOIN WAITLIST</span>
                   <div class="ihb-text-hover" aria-hidden="true">
                     <span>JOIN WAITLIST</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                   </div>
+                  <div class="ihb-bar" aria-hidden="true"><div class="ihb-bar-fill"></div></div>
                   <div class="ihb-spots-row">
-                    <span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span>
+                    <span class="ihb-spots-label"><span class="ihb-counter-num" style="color:#fff;font-weight:700;">0</span><span style="color:rgba(255,255,255,0.45);"> JOINED · </span><span style="color:#fff;font-weight:700;">24</span><span style="color:rgba(255,255,255,0.45);"> SPOTS LEFT</span></span>
                   </div>
                 </button>
-                <p style="font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.28);margin-top:10px;letter-spacing:0.02em;width:66.667%;">Only 100 players get priority access with special benefits! Claim your spot now for free!</p>
+                <p style="font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.28);margin-top:10px;letter-spacing:0.02em;width:66.667%;">Only 100 players get priority access.</p>
               </div>
             </div>
 
@@ -1242,12 +1281,11 @@
                   </div>
                   <div id="fc-aic-thinking" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);align-items:center;gap:9px;white-space:nowrap;z-index:2;">
                     <img src="assets/Avatars/Rob-headshot.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #BEDD00;flex-shrink:0;" onerror="this.style.display='none'">
-                    <svg viewBox="0 0 19 19" width="15" height="15" fill="none" style="flex-shrink:0;">
-                      <path class="aic-loader-path"
-                        d="M4.43431 2.42415C-0.789139 6.90104 1.21472 15.2022 8.434 15.9242C15.5762 16.6384 18.8649 9.23035 15.9332 4.5183C14.1316 1.62255 8.43695 0.0528911 7.51841 3.33733C6.48107 7.04659 15.2699 15.0195 17.4343 16.9241"
-                        stroke="#BEDD00" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                    <span class="aic-shimmer" style="font-family:'Space Mono',monospace;font-size:0.72rem;letter-spacing:0.08em;">Analysing...</span>
+                    <!-- Rolling ball -->
+                    <div style="position:relative;width:36px;height:10px;flex-shrink:0;">
+                      <div style="width:10px;height:10px;border-radius:50%;position:absolute;top:0;left:0;animation:fc-roll-ball 0.9s ease-in-out infinite;"></div>
+                    </div>
+                    <span style="font-family:'Space Mono',monospace;font-size:0.72rem;letter-spacing:0.08em;color:rgba(255,255,255,0.75);">Analysing...</span>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" style="flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
@@ -1270,7 +1308,7 @@
                 </div>
                 <div id="fc-results-panel" style="display:none;position:absolute;inset:0;z-index:6;background:#000;border-radius:16px;overflow:hidden;opacity:0;transition:opacity 0.5s ease;">
                   <!-- Full-screen image -->
-                  <img src="assets/Bio Pics/Testimonials/MJA CELE.jpg"
+                  <img src="assets/Bio Pics/Testimonials/MJA thumbnails/MJA CELE.jpg"
                        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;display:block;"
                        onerror="this.style.background='#1a1a1a'">
                   <!-- Play button overlay -->
@@ -1321,7 +1359,7 @@
                          muted loop playsinline preload="metadata"
                          style="width:100%;height:100%;object-fit:cover;display:block;"></video>
                   <!-- Rob notes — at bottom of landscape video -->
-                  <div id="fc-rob-notes" style="position:absolute;bottom:8px;left:6px;right:6px;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;padding:7px 9px;display:none;flex-direction:row;align-items:center;gap:7px;">
+                  <div id="fc-rob-notes" style="position:absolute;bottom:8px;left:6px;right:6px;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:14px;padding:7px 9px;display:none;flex-direction:row;align-items:center;gap:7px;">
                     <!-- Rob avatar (small) -->
                     <div style="position:relative;flex-shrink:0;">
                       <img src="assets/Avatars/Rob-headshot.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #BEDD00;display:block;" onerror="this.style.background='#1a1a1a'">
@@ -1341,7 +1379,7 @@
           </div>
 
           <!-- Slide dots -->
-          <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:center;z-index:5;">
+          <div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:center;z-index:5;">
             <button id="fc-dot0" onclick="fcGo(0,event)" style="width:7px;height:7px;border-radius:50%;background:#BEDD00;border:none;padding:0;cursor:pointer;transition:background 0.3s ease,transform 0.3s ease;transform:scale(1.2);"></button>
             <button id="fc-dot1" onclick="fcGo(1,event)" style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;padding:0;cursor:pointer;transition:background 0.3s ease,transform 0.3s ease;"></button>
           </div>
@@ -1361,18 +1399,19 @@
 
     <!-- Mobile-only CTA (hidden on desktop) -->
     <div id="mobile-cta-wrap">
-      <button class="ihb-btn ihb-scarcity" type="button" onclick="openFvwModal()" style="width:100%;max-width:340px;">
+      <button class="ihb-btn ihb-scarcity" type="button" onclick="openModal()" style="width:100%;max-width:340px;">
         <div class="ihb-dot" aria-hidden="true"></div>
         <span class="ihb-text-idle">TRY FOR FREE</span>
         <div class="ihb-text-hover" aria-hidden="true">
           <span>TRY FOR FREE</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
+        <div class="ihb-bar" aria-hidden="true"><div class="ihb-bar-fill"></div></div>
         <div class="ihb-spots-row">
-          <span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span>
+          <span class="ihb-spots-label"><span class="ihb-counter-num" style="color:#fff;font-weight:700;">0</span><span style="color:rgba(255,255,255,0.45);"> JOINED · </span><span style="color:#fff;font-weight:700;">24</span><span style="color:rgba(255,255,255,0.45);"> SPOTS LEFT</span></span>
         </div>
       </button>
-      <p style="font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.28);margin-top:10px;letter-spacing:0.02em;text-align:center;">Only 100 players get priority access with special benefits! Claim your spot now for free!</p>
+      <p style="font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.28);margin-top:10px;letter-spacing:0.02em;text-align:center;">Only 100 players get priority access.</p>
     </div>
 
   </div><!-- end .relative.z-10 -->
@@ -1422,7 +1461,7 @@
       <!-- Card 3 — Mads Andersen -->
       <div class="ts-card">
         <div class="ts-card-img-wrap">
-          <img src="assets/Bio Pics/Testimonials/MJA1.jpeg" alt="Mads Andersen" loading="lazy">
+          <img src="assets/Bio Pics/Testimonials/Mads Testtimonial.jpeg" alt="Mads Andersen" loading="lazy">
           <div class="ts-card-gradient"></div>
         </div>
         <div class="ts-card-body">
@@ -1490,15 +1529,16 @@
 
     <!-- CTA inside greyed section -->
     <div style="margin-top:2.5rem;display:flex;flex-direction:column;align-items:center;">
-      <button class="ihb-btn ihb-scarcity" onclick="openFvwModal()" type="button" style="width:100%;max-width:340px;">
+      <button class="ihb-btn ihb-scarcity" data-animate-on-scroll onclick="openModal()" type="button" style="width:100%;max-width:340px;">
         <div class="ihb-dot" aria-hidden="true"></div>
         <span class="ihb-text-idle">JOIN WAITLIST</span>
         <div class="ihb-text-hover" aria-hidden="true">
           <span>JOIN WAITLIST</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
+        <div class="ihb-bar" aria-hidden="true"><div class="ihb-bar-fill"></div></div>
         <div class="ihb-spots-row">
-          <span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span>
+          <span class="ihb-spots-label"><span class="ihb-counter-num" style="color:#fff;font-weight:700;">0</span><span style="color:rgba(255,255,255,0.45);"> JOINED · </span><span style="color:#fff;font-weight:700;">24</span><span style="color:rgba(255,255,255,0.45);"> SPOTS LEFT</span></span>
         </div>
       </button>
     </div>
@@ -1523,12 +1563,20 @@
     <!-- Social icons -->
     <div style="display:flex;justify-content:center;gap:20px;margin-top:52px;padding-top:28px;border-top:1px solid rgba(255,255,255,0.07);">
       <!-- Email -->
-      <a href="mailto:sa@briqx.ai" aria-label="Email" style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:border-color 0.2s ease,color 0.2s ease,transform 0.2s ease;" onmouseover="this.style.borderColor='rgba(255,255,255,0.5)';this.style.color='#fff';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.55)';this.style.transform='translateY(0)'">
+      <a href="mailto:info@briqx.ai" aria-label="Email" style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:border-color 0.2s ease,color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.borderColor='rgba(190,221,0,0.7)';this.style.color='#BEDD00';this.style.transform='translateY(-3px) scale(1.1)';this.style.boxShadow='0 4px 16px rgba(190,221,0,0.18)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.55)';this.style.transform='';this.style.boxShadow=''">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
       </a>
       <!-- Instagram -->
-      <a href="https://instagram.com/briqx.ai" target="_blank" rel="noopener" aria-label="Instagram" style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:border-color 0.2s ease,color 0.2s ease,transform 0.2s ease;" onmouseover="this.style.borderColor='rgba(255,255,255,0.5)';this.style.color='#fff';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.55)';this.style.transform='translateY(0)'">
+      <a href="https://www.instagram.com/briqx.ai/" target="_blank" rel="noopener" aria-label="Instagram" style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:border-color 0.2s ease,color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.borderColor='rgba(190,221,0,0.7)';this.style.color='#BEDD00';this.style.transform='translateY(-3px) scale(1.1)';this.style.boxShadow='0 4px 16px rgba(190,221,0,0.18)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.55)';this.style.transform='';this.style.boxShadow=''">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+      </a>
+      <!-- X (Twitter) -->
+      <a href="https://x.com/briqxai" target="_blank" rel="noopener" aria-label="X" style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:border-color 0.2s ease,color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.borderColor='rgba(190,221,0,0.7)';this.style.color='#BEDD00';this.style.transform='translateY(-3px) scale(1.1)';this.style.boxShadow='0 4px 16px rgba(190,221,0,0.18)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.55)';this.style.transform='';this.style.boxShadow=''">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <!-- LinkedIn -->
+      <a href="https://www.linkedin.com/company/briqx.ai/?viewAsMember=true" target="_blank" rel="noopener" aria-label="LinkedIn" style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:border-color 0.2s ease,color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.borderColor='rgba(190,221,0,0.7)';this.style.color='#BEDD00';this.style.transform='translateY(-3px) scale(1.1)';this.style.boxShadow='0 4px 16px rgba(190,221,0,0.18)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.55)';this.style.transform='';this.style.boxShadow=''">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5C4.98 4.881 3.87 6 2.5 6S.02 4.881.02 3.5C.02 2.12 1.13 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.84v2.2h.054C12.618 8.932 14.258 8 16.3 8c4.2 0 4.98 2.77 4.98 6.37V24h-4v-8.75c0-2.085-.038-4.77-2.908-4.77-2.912 0-3.356 2.274-3.356 4.62V24H8V8z"/></svg>
       </a>
     </div>
 
@@ -1645,18 +1693,33 @@
 /* Hide Rob chat bubble — keep video bubble only */
     #rob-bubble, #rob-live-dot, #rob-panel { display: none !important; }
 
-    /* Hero section — reduce top padding */
-    section.relative.min-h-screen { padding-top: 16px !important; }
+    /* Hero sticky container — reduce top/bottom padding (pt-14 = 56px was never overridden) */
+    #macbook-scroll-section > div { padding-top: 8px !important; padding-bottom: 4px !important; min-height: unset !important; }
 
     /* Headline */
-    h1.font-display { font-size: clamp(2rem, 8vw, 2.8rem) !important; }
+    h1.font-display { font-size: clamp(2.3rem, 9vw, 3rem) !important; margin-bottom: 10px !important; }
 
-    /* Subheadline font size */
-    .anim-d2 { font-size: 0.82rem !important; }
+    /* Tighten logo bottom margin + 1.5× size */
+    #mobile-hero-logo { margin-bottom: 10px !important; }
+    #mobile-hero-logo img { height: 90px !important; }
 
+    /* Subheadline font size + margin */
+    .anim-d2 { font-size: 0.9rem !important; margin-bottom: 10px !important; }
 
-    /* Carousel card — 1/3 bigger than 220 = ~293, use 300px */
-    #fc-card { height: 375px !important; }
+    /* Tighten gap between headline and carousel */
+    .anim-d3 { margin-top: 0 !important; }
+
+    /* Tighten carousel bottom margin */
+    #macbook-tilt-wrapper { margin-bottom: 8px !important; }
+
+    /* Hide carousel header bar (Rob + headline + button) — redundant on mobile, eats phone height */
+    #fc-card > div:first-child { display: none !important; }
+
+    /* Carousel card — tall enough to fully show 470px phone frame */
+    #fc-card { height: 552px !important; }
+
+    /* Touch optimisation — remove 300ms tap delay on CTA buttons */
+    .ihb-btn, #mobile-cta-wrap button { touch-action: manipulation; }
 
     /* Carousel grid — right panel only, no padding */
     .fc-grid {
@@ -1683,7 +1746,7 @@
     #fc-slide1-wrap { height: 100% !important; width: 100% !important; flex-direction: column !important; padding-bottom: 0 !important; gap: 0 !important; }
     #fc-video-wrap { aspect-ratio: 16/9 !important; flex: none !important; width: 100% !important; }
     #fc-slide1-video { object-fit: cover !important; width: 100% !important; height: 100% !important; border-radius: 0 !important; }
-    #fc-rob-notes { flex: 1 !important; border-radius: 0 !important; padding: 6px 10px !important; overflow: hidden !important; }
+    #fc-rob-notes { flex: 1 !important; border-radius: 14px !important; padding: 6px 10px !important; overflow: hidden !important; }
 
 
     /* Step 4 chat widget */
@@ -1695,19 +1758,10 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
-      margin-top: 16px;
+      margin-top: 36px;
     }
-    .ihb-btn.ihb-scarcity:active .ihb-dot,
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-dot { transform: translateY(-50%) translateX(-62%) !important; }
-    .ihb-btn.ihb-scarcity:not(:active):not(.ihb-active) .ihb-dot { transform: translateY(-50%) translateX(-101%) !important; }
-    .ihb-btn.ihb-scarcity:active .ihb-text-idle,
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-idle { transform: translateX(72px) !important; opacity: 0 !important; }
-    .ihb-btn.ihb-scarcity:active .ihb-text-hover,
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-text-hover { transform: translateX(0) !important; opacity: 1 !important; }
-    .ihb-btn.ihb-scarcity:active .ihb-spots-label,
-    .ihb-btn.ihb-scarcity.ihb-active .ihb-spots-label { opacity: 1 !important; }
-    .ihb-btn.ihb-scarcity:active,
-    .ihb-btn.ihb-scarcity.ihb-active { transform: translateY(-2px) scale(1.04) !important; }
+    /* Scarcity mobile */
+    .ihb-btn.ihb-scarcity .ihb-text-hover { transform: translateX(0) !important; opacity: 1 !important; }
 
     /* Testimonial cards */
     .ts-card { min-width: 280px !important; }
@@ -1715,6 +1769,14 @@
     /* Video bubble — keep, smaller on mobile */
     #fvw-bubble { width: 56px !important; height: 56px !important; bottom: 16px !important; right: 16px !important; }
     #fvw-label { bottom: 36px !important; right: 98px !important; max-width: 150px !important; }
+
+    /* Landscape rotation — scale down rotated phone to fit mobile screen width */
+    #fc-phone-frame.phone-landscape { transform: rotate(90deg) scale(0.72) !important; }
+    #fc-landscape-overlay {
+      width: 315px !important;
+      height: 157px !important;
+      left: calc(50% + 5px) !important;
+    }
   }
 
   /* Hide mobile step nav and CTA on desktop */
@@ -1948,7 +2010,7 @@
 
 <script>
 (function () {
-  const INTERVAL = 18000;
+  const INTERVAL = 31000;
   let current = 0;
   let progressTimer = null;
   let progressStart = null;
@@ -1960,7 +2022,7 @@
     {
       label: 'Player Analysis',
       title: 'Personalised Player Analysis<br><span style="color:#BEDD00;">After Every Game</span>',
-      desc: "Let Rob analyse your every game while you perform. Evaluate together, learn from your performance, and improve. It takes just 5 minutes.",
+      desc: "Watch & understand your own performance in just 5-8 minutes after every game. Enable \"Coach\" mode and Rob will analyse your game like an Elite Level Analyst.",
       img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80&fit=crop',
       alt: 'Player Analysis'
     },
@@ -2269,9 +2331,9 @@ function aicBtnClick(btnId, originElId) {
   ];
 
   const moments = [
-    { match: "vs Cardiff City", date: "04/03", clips: 8, label: "Lost marker from deep cross" },
-    { match: "vs Cardiff City", date: "04/03", clips: 6, label: "Ball-watching, runner unmarked" },
-    { match: "vs Cardiff City", date: "04/03", clips: 5, label: "Recovery run too late" },
+    { match: "vs Cardiff City",  date: "04/03", clips: 8, label: "Lost marker from deep cross" },
+    { match: "vs Northampton",   date: "18/02", clips: 6, label: "Ball-watching, runner unmarked" },
+    { match: "vs Northampton",   date: "18/02", clips: 5, label: "Recovery run too late" },
     { match: "vs Plymouth",     date: "24/02", clips: 7, label: "Positioned too narrow" },
     { match: "vs Plymouth",     date: "24/02", clips: 4, label: "Overcommitted, beaten in air" },
     { match: "vs Burton",       date: "21/02", clips: 9, label: "Slow reaction to deep cross" },
@@ -2320,15 +2382,17 @@ function aicBtnClick(btnId, originElId) {
         wordWrap.appendChild(s);
         charIndex++;
       });
-      phInner.appendChild(wordWrap);
       if (wi < arr.length - 1) {
+        // Space lives inside the word span so it trails with the word,
+        // never orphaned at the start of line 2 where it would show as indent.
         const sp = document.createElement('span');
         sp.className = 'aic-letter';
         sp.textContent = '\u00A0';
         sp.style.transitionDelay = (charIndex * 0.022) + 's';
-        phInner.appendChild(sp);
+        wordWrap.appendChild(sp);
         charIndex++;
       }
+      phInner.appendChild(wordWrap);
     });
     requestAnimationFrame(() => requestAnimationFrame(() => {
       phInner.querySelectorAll('.aic-letter').forEach(s => s.classList.add('in'));
@@ -2412,7 +2476,7 @@ function aicBtnClick(btnId, originElId) {
         if (!running) return;
         showAndSchedule(prompts[0].text);
       });
-    }, animMs + 16000);
+    }, animMs + 29000);
   }
 
   window.fcAicStart = function () {
@@ -3101,14 +3165,15 @@ function aicBtnClick(btnId, originElId) {
 <!-- ═══ JAVASCRIPT ════════════════════════════════════════════════════════ -->
 <script>
 // ── Config ────────────────────────────────────────────────────────────────
-const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL      = 'https://xhsikzhwdgmyjwovivay.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhoc2lremh3ZGdteWp3b3ZpdmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDYyODMsImV4cCI6MjA4OTcyMjI4M30.5xG8EZ7ji8YScveQzc119njW0APUvnQemD1KgF8pN2U';
 const REDUCED_MOTION    = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let db = null;
 try {
   if (window.supabase && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    window.db = db;
   }
 } catch(e) {}
 
@@ -3285,7 +3350,7 @@ const TW_PROMPTS = [
 
   sendBtn.addEventListener('click', e => {
     e.stopPropagation();
-    if (realInput.value.trim()) openFvwModal();
+    if (realInput.value.trim()) openModal();
   });
 
   // ── Init ─────────────────────────────────────────────────────────────────
@@ -3302,18 +3367,26 @@ const TW_PROMPTS = [
 const modalOverlay = document.getElementById('modal-overlay');
 const modalCard    = document.getElementById('modal-card');
 
-function openModal() {
+function openTypeform() {
   modalOverlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-  var _mlv = document.getElementById('modal-left-video');
-  if (_mlv) { _mlv.currentTime = 0; _mlv.pause(); }
   var _loopVid = document.getElementById('fvw-loop');
   if (_loopVid) _loopVid.pause();
-  // Focus first field after animation settles
-  setTimeout(() => {
-    const first = modalCard.querySelector('input:not([type="hidden"])');
-    if (first) first.focus();
-  }, 320);
+  var formWrap = document.getElementById('modal-form-wrap');
+  var success  = document.getElementById('modal-success');
+  var tf       = document.getElementById('modal-typeform');
+  if (formWrap) formWrap.style.display = 'none';
+  if (success)  success.style.display  = 'none';
+  if (tf)       tf.style.display       = 'block';
+}
+
+function openModal() {
+  // On mobile: show the video popup first (less pushy, gives context before Typeform)
+  if (window.innerWidth <= 768) {
+    openFvwModal();
+    return;
+  }
+  openTypeform();
 }
 
 function closeModal() {
@@ -3329,9 +3402,9 @@ function closeModal() {
 }
 
 var _navCta = document.getElementById('nav-cta');
-if (_navCta) _navCta.addEventListener('click', openFvwModal);
+if (_navCta) _navCta.addEventListener('click', openModal);
 var _heroCta = document.getElementById('hero-cta');
-if (_heroCta) _heroCta.addEventListener('click', openFvwModal);
+if (_heroCta) _heroCta.addEventListener('click', openModal);
 var _modalClose = document.getElementById('modal-close');
 if (_modalClose) _modalClose.addEventListener('click', closeModal);
 
@@ -3345,44 +3418,6 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
 });
 
-// ── Scarcity counter animation on CTA hover + touch ──────────────────────
-document.querySelectorAll('.ihb-btn.ihb-scarcity').forEach(function(btn) {
-  var animFrame;
-
-  function startAnim() {
-    var numEl = btn.querySelector('.ihb-spots-num');
-    if (!numEl) return;
-    var start = 100, end = 24, duration = 1000, startTime = null;
-    cancelAnimationFrame(animFrame);
-    function step(ts) {
-      if (!startTime) startTime = ts;
-      var progress = Math.min((ts - startTime) / duration, 1);
-      var eased = 1 - Math.pow(1 - progress, 2);
-      numEl.textContent = Math.round(start - (start - end) * eased);
-      if (progress < 1) animFrame = requestAnimationFrame(step);
-    }
-    animFrame = requestAnimationFrame(step);
-  }
-
-  function resetAnim() {
-    cancelAnimationFrame(animFrame);
-    var numEl = btn.querySelector('.ihb-spots-num');
-    if (numEl) numEl.textContent = '24';
-  }
-
-  // Desktop hover
-  btn.addEventListener('mouseenter', function() { btn.classList.add('ihb-active'); startAnim(); });
-  btn.addEventListener('mouseleave', function() { btn.classList.remove('ihb-active'); resetAnim(); });
-
-  // Mobile touch
-  btn.addEventListener('touchstart', function(e) {
-    btn.classList.add('ihb-active');
-    startAnim();
-  }, { passive: true });
-  btn.addEventListener('touchend', function() {
-    setTimeout(function() { btn.classList.remove('ihb-active'); resetAnim(); }, 400);
-  });
-});
 
 
 // ── Modal form ────────────────────────────────────────────────────────────
@@ -3451,7 +3486,7 @@ modalForm.addEventListener('submit', async (e) => {
     if (triggered) return;
     triggered = true;
     clearTimeout(timer);
-    if (typeof openFvwModal === 'function') openFvwModal();
+    if (typeof openModal === 'function') openModal();
   }
 
   // Exit intent (desktop: cursor leaves top of viewport)
@@ -3592,20 +3627,17 @@ modalForm.addEventListener('submit', async (e) => {
 <!-- Video Player Modal (9:16) -->
 <div id="fvw-vid-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;flex-direction:column;">
   <button onclick="closeFvwModal()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.12);border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;z-index:2;">✕</button>
-  <div style="width:min(340px,85vw);display:flex;flex-direction:column;align-items:center;gap:16px;">
-    <!-- 9:16 video container -->
-    <div style="width:100%;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 8px 48px rgba(0,0,0,0.7);">
-      <video id="fvw-modal-vid" src="assets/Waiting list video/Landingpage.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
-    </div>
-    <!-- CTA below video -->
-    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();window.open('https://form.typeform.com/to/oBxtb6bM','_blank');" type="button" style="width:100%;max-width:340px;">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:16px;width:min(500px,90vw);">
+    <video id="fvw-modal-vid" src="assets/Waiting list video/Landingpage.mp4" controls playsinline style="width:100%;border-radius:12px;display:block;background:#000;"></video>
+    <button class="ihb-btn ihb-scarcity" onclick="closeFvwModal();openTypeform();" type="button" style="width:100%;">
       <div class="ihb-dot"></div>
-      <span class="ihb-text-idle">TRY FOR FREE</span>
+      <span class="ihb-text-idle">JOIN WAITLIST</span>
       <span class="ihb-text-hover">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        TRY FOR FREE
+        JOIN WAITLIST
       </span>
-      <div class="ihb-spots-row"><span class="ihb-spots-label"><span class="ihb-spots-num">24</span> SPOTS LEFT</span></div>
+      <div class="ihb-bar" aria-hidden="true"><div class="ihb-bar-fill"></div></div>
+      <div class="ihb-spots-row"><span class="ihb-spots-label"><span class="ihb-counter-num" style="color:#fff;font-weight:700;">0</span><span style="color:rgba(255,255,255,0.45);"> JOINED · </span><span style="color:#fff;font-weight:700;">24</span><span style="color:rgba(255,255,255,0.45);"> SPOTS LEFT</span></span></div>
     </button>
   </div>
 </div>
@@ -3647,10 +3679,10 @@ document.getElementById('fvw-vid-modal').addEventListener('click', function(e) {
     });
   }
 
-  // Bubble click → open video modal
+  // Bubble click → open waitlist form
   if (bubble) {
     bubble.addEventListener('click', function() {
-      openFvwModal();
+      openModal();
     });
   }
 })();
@@ -3666,6 +3698,104 @@ document.getElementById('fvw-vid-modal').addEventListener('click', function(e) {
     </filter>
   </defs>
 </svg>
+
+<script>
+// ── CTA scarcity bar + counter animation (live Supabase data) ─────────────
+(function () {
+  var TOTAL_SPOTS = 100;
+  var SCARCITY_DISPLAY = 24; // shown when real spots left > 50
+  var FALLBACK_JOINED  = 76; // used if Supabase fetch fails
+  var DURATION = 2000;
+  var DELAY    = 700;
+
+  function animateBtn(btn, joinedTarget, spotsLeft) {
+    var counterEl  = btn.querySelector('.ihb-counter-num');
+    var bar        = btn.querySelector('.ihb-bar');
+    var spotsEls   = btn.querySelectorAll('.ihb-spots-label');
+    if (!counterEl || !bar) return;
+
+    // Update spots-left text in all label spans inside this button
+    spotsEls.forEach(function(label) {
+      label.innerHTML =
+        '<span style="color:#fff;font-weight:700;">' + joinedTarget + '</span>' +
+        '<span style="color:rgba(255,255,255,0.45);"> JOINED · </span>' +
+        '<span style="color:#fff;font-weight:700;">' + spotsLeft + '</span>' +
+        '<span style="color:rgba(255,255,255,0.45);"> SPOTS LEFT</span>';
+    });
+
+    var barPct = Math.min(Math.round((joinedTarget / TOTAL_SPOTS) * 100), 100);
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        bar.style.width = barPct + '%';
+      });
+    });
+
+    var start = null;
+    function tick(ts) {
+      if (!start) start = ts;
+      var elapsed  = ts - start;
+      var progress = Math.min(elapsed / DURATION, 1);
+      var eased    = 1 - Math.pow(1 - progress, 3);
+      counterEl.textContent = Math.round(eased * joinedTarget);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function runAll(joinedTarget, spotsLeft) {
+    setTimeout(function () {
+      document.querySelectorAll('.ihb-btn.ihb-scarcity:not([data-animate-on-scroll])').forEach(function(btn) {
+        animateBtn(btn, joinedTarget, spotsLeft);
+      });
+      var _hWrap = document.getElementById('header-phone-cta-wrap');
+      if (_hWrap) animateBtn(_hWrap, joinedTarget, spotsLeft);
+    }, DELAY);
+
+    // Scroll-triggered buttons
+    var scrollBtns = document.querySelectorAll('[data-animate-on-scroll]');
+    if (!scrollBtns.length) return;
+    if (!('IntersectionObserver' in window)) {
+      scrollBtns.forEach(function(btn) { animateBtn(btn, joinedTarget, spotsLeft); });
+      return;
+    }
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          animateBtn(entry.target, joinedTarget, spotsLeft);
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    scrollBtns.forEach(function (btn) { obs.observe(btn); });
+  }
+
+  function init() {
+    // Try to fetch real count from Supabase
+    if (window.db) {
+      window.db.from('waitlist_v2').select('*', { count: 'exact', head: true })
+        .then(function(res) {
+          var realJoined  = (res && res.count) ? res.count : FALLBACK_JOINED;
+          var realLeft    = TOTAL_SPOTS - realJoined;
+          // Under 50 real signups → show fake scarcity numbers
+          var displayJoined = realLeft > 50 ? FALLBACK_JOINED : realJoined;
+          var displayLeft   = realLeft > 50 ? SCARCITY_DISPLAY : Math.max(realLeft, 0);
+          runAll(displayJoined, displayLeft);
+        })
+        .catch(function() {
+          runAll(FALLBACK_JOINED, SCARCITY_DISPLAY);
+        });
+    } else {
+      runAll(FALLBACK_JOINED, SCARCITY_DISPLAY);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
 
 <script>
 // ── MacBook scroll tilt ────────────────────────────────────────────────────
